@@ -6,6 +6,12 @@ Code and data for reproducing the figures in
 This repo only contains plotting functions which can be applied to pre-computed results. Code for reproducing experiments and applying CEBRA
 to custom datasets will be available in the [CEBRA github repository](https://github.com/AdaptiveMotorControlLab/CEBRA).
 
+## Dependencies
+
+```bash
+pip install numpy pandas tables matplotlib seaborn persim
+```
+
 ## Repo organization
 
 - ``figures``: Jupyter notebooks for reproducing the paper figures
