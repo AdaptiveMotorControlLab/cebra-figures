@@ -1,0 +1,9 @@
+numpy
+pandas
+tables
+matplotlib
+seaborn
+persim
+jupyter
+jupytext
+nbconvert
