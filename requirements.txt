@@ -7,3 +7,5 @@ persim
 jupyter
 jupytext
 nbconvert
+torch
+
