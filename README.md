@@ -6,14 +6,26 @@ Code and data for reproducing the figures in
 This repo only contains plotting functions which can be applied to pre-computed results. Code for reproducing experiments and applying CEBRA
 to custom datasets will be available in the [CEBRA github repository](https://github.com/AdaptiveMotorControlLab/CEBRA).
 
+## Quickstart
+
+Make sure you are in an environment that supports the `pip install` command (e.g. a virtual environment or a conda environment).
+Then, start installing of dependencies and rendering of all figures using
+
+```bash
+make -j8 all
+```
+
+Figures will be placed in `ipynb` format into the `figures/` directory.
+
 ## Dependencies
 
 ```bash
-pip install numpy pandas tables matplotlib seaborn persim
+pip install -r requirements 
 ```
 
 ## Repo organization
 
-- ``figures``: Jupyter notebooks for reproducing the paper figures
+- ``src``: Jupyter notebooks for reproducing the paper figures, in python format
 - ``data``: Folder to data files
+- ``figures```: Rendered paper figures in `ipynb` format
 

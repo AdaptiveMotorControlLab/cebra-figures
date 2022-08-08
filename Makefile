@@ -2,9 +2,9 @@
 targets := $(patsubst src/%.py,figures/%.ipynb,$(wildcard src/*.py))
 
 requirements:
-	echo install
+	pip install -r requirements.txt
 
-all: clean $(targets)
+all: $(targets)
 
 build/%.ipynb:
 	echo $% $@
@@ -13,7 +13,7 @@ build/%.ipynb:
 
 figures/%.ipynb: requirements build/%.ipynb
 	echo build/$*.ipynb $@
-	python -m jupyter nbconvert --to notebook --execute build/$*.ipynb --output $*_tmp.ipynb
+	python -m jupyter nbconvert --ExecutePreprocessor.kernel_name=python3 --to notebook --execute build/$*.ipynb --output $*_tmp.ipynb
 	mv build/$*_tmp.ipynb $@
 
 .PHONY: clean
