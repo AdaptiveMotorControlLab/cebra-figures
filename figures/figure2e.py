@@ -7,7 +7,7 @@ import numpy as np
 import joblib
 import pathlib
 
-ROOT = pathlib.Path("/home/stes/ssh/cebra_public/results")
+ROOT = pathlib.Path("./ssh/cebra_public/results")
 
 def load_result(name: str, pattern: str, num_seeds: int, root: pathlib.Path = ROOT):
 
@@ -197,7 +197,11 @@ def main(results_fn):
     for key, filename in results_best.items():
         root = '../data' / pathlib.Path(results_fn.__name__)
         root.mkdir(exist_ok=True)
-        filename.to_csv(root / f'{key}.csv')
+        output = root / f'{key}.csv'
+        with output.open('w') as fh:
+            index_names = ','.join(filename.index.names)
+            print(index_names, file = fh)
+        filename.to_csv(root / f'{key}.csv', mode = 'a')
         print("Writing", root / f'{key}.csv')
 
 def results_v1():
