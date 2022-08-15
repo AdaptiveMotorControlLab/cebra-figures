@@ -95,8 +95,7 @@ def agg(values):
     return values.mean()
 
 
-# +
-def main():
+def load_data():
     maps = {
         "train": "train_consistency",
         "valid": "valid_consistency",
@@ -117,10 +116,8 @@ def main():
     results = results.reset_index()
 
     results = avg(results, maps)
-    
-    return results
-  
-results = main()
-# -
 
+    print(metrics)
+    print(results)
 
+load_data()
