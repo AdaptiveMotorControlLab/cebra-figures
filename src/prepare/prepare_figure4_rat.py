@@ -119,5 +119,6 @@ def load_data():
 
     print(metrics)
     print(results)
+    results.to_csv('../data/Figure4SupplementMultisession_rat.csv')
 
 load_data()
