@@ -9,6 +9,7 @@ import pathlib
 
 ROOT = pathlib.Path("./ssh/cebra_public/results")
 
+
 def load_result(name: str, pattern: str, num_seeds: int, root: pathlib.Path = ROOT):
 
     metrics = [
@@ -148,8 +149,8 @@ def compute_best(frame, metric, temp_threshold=None, head=True):
         idc = (idc > temp_threshold[0]) & (idc < temp_threshold[1])
         best = best[idc].set_index(index_names)
 
-    #print()
-    #display(best.head(3).to_frame())
+    # print()
+    # display(best.head(3).to_frame())
 
     if head:
         best = best.head(1)
@@ -170,7 +171,7 @@ def select_results(results):
     params = {}
     for key, value in results.items():
         # if key != "cebra-t-sweep": continue
-        #print(key)
+        # print(key)
         # if key == "cebra-1-dims":
         #  idc = results[key].
         if key == "cebra-t-lowertemp":
@@ -191,18 +192,20 @@ def select_results(results):
             # params[key] = dict(zip(idx.names, idx[0]))
     return results_best
 
+
 def main(results_fn):
     results = results_fn()
     results_best = select_results(results)
     for key, filename in results_best.items():
-        root = '../data' / pathlib.Path(results_fn.__name__)
+        root = "../data" / pathlib.Path(results_fn.__name__)
         root.mkdir(exist_ok=True)
-        output = root / f'{key}.csv'
-        with output.open('w') as fh:
-            index_names = ','.join(filename.index.names)
-            print(index_names, file = fh)
-        filename.to_csv(root / f'{key}.csv', mode = 'a')
-        print("Writing", root / f'{key}.csv')
+        output = root / f"{key}.csv"
+        with output.open("w") as fh:
+            index_names = ",".join(filename.index.names)
+            print(index_names, file=fh)
+        filename.to_csv(root / f"{key}.csv", mode="a")
+        print("Writing", root / f"{key}.csv")
+
 
 def results_v1():
     return {
@@ -317,7 +320,8 @@ def results_v4():
         ]
     }
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main(results_v1)
     main(results_v2)
     main(results_v3)

@@ -39,7 +39,7 @@ def agg(values):
     return values.mean()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     maps = {
         "train": "train_consistency",
@@ -64,4 +64,4 @@ if __name__ == '__main__':
         .reset_index()
     )
 
-    results.to_csv('../data/Figure4SupplementMultisession.csv')
+    results.to_csv("../data/Figure4SupplementMultisession.csv")
