@@ -6,6 +6,9 @@ requirements:
 
 all: $(targets)
 
+html:
+	sphinx-build -M html . _build
+
 build/%.ipynb:
 	echo $% $@
 	mkdir -p build
