@@ -82,7 +82,7 @@ sns.despine(
 # ## Figure 1d
 
 # +
-label = viz["label"].numpy()
+label = viz["label"]
 r_ind = label[:, 1] == 1
 l_ind = label[:, 2] == 1
 
