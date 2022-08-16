@@ -12,6 +12,10 @@
 #     name: python3
 # ---
 
+# # Figure 5: TODO
+#
+# TODO: update figure title
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -410,4 +414,3 @@ plt.xlabel("# Neurons", fontsize=35)
 plt.ylabel("Acc (%, 1s time window)", fontsize=35)
 plt.ylim(5, 100)
 l = plt.legend(frameon=False, bbox_to_anchor=[1, 0.5], fontsize=25)
-# -

@@ -12,6 +12,8 @@
 #     name: python3
 # ---
 
+# # Figure 4: Spikes and calcium signaling reveal similar CEBRA embeddings
+
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
@@ -26,6 +28,9 @@ viz = data["visualization"]
 
 dims = [3, 4, 8, 16, 32, 64, 128]
 num_neurons = [10, 30, 50, 100, 200, 400, 600, 800, 900, 1000]
+# -
+
+# ## Figure 4c,d,f,g
 
 # +
 modality = ["ca", "np", "joint-ca", "joint-np"]
@@ -50,7 +55,10 @@ for m in modality:
         plt.xticks([])
         plt.yticks([])
         plt.axis("off")
+# -
 
+
+# ## Figure 4e+h
 
 # +
 plt.figure(figsize=(15, 10))
@@ -253,6 +261,10 @@ def make_line_strip_from_df(df, title, vmin, vmax, white=False):
 
 # -
 
+# ## Figure TODO
+#
+# TODO(update once fixed)
+
 make_heatmap_from_df(
     pd.DataFrame(data["cortices_consistency"]["joint_cortices"]),
     "Joint Ca-Joint NP",
@@ -260,6 +272,10 @@ make_heatmap_from_df(
     70,
 )
 
+
+# ## Figure TODO
+#
+# TODO(update once fixed)
 
 make_line_strip_from_df(
     data["cortices_consistency"]["joint_v1"], "V1 inter-intra", 50, 100
