@@ -54,67 +54,6 @@ results = load_results(result_name = 'results_v4')
 len(results)
 
 # +
-"""Confusion matrices (Figure 1e).
-
-For all algorithm, evaluate the linear consistency between embeddings computed on the
-four different rats.
-"""
-
-import numpy as np
-
-plt.rcParams['text.usetex'] = False
-
-def to_cfm(values):
-  values = np.concatenate(values)
-  assert len(values) == 12, len(values)
-  c = np.zeros((4,4))
-  c[:] = float("nan")
-  c[np.eye(4) == 0] = values
-  return c
-
-def plot_confusion_matrices(results_best):
-  fig, axs = plt.subplots(ncols=10, nrows=1, figsize=(14, 1.5),
-                          gridspec_kw={'width_ratios':[1,1,1,1,1,1,1,1,1,0.08]}, dpi = 500)
-
-  last_ax = axs[-1]
-
-  for ax in axs:
-    ax.axis("off")
-
-  for ax, (key, log) in zip(axs[:-1], results_best.items()):
-    cfm = log.pivot_table(
-        "train",
-        index = log.index.names,
-        columns = ["animal"],
-        aggfunc = "mean"
-    ).apply(to_cfm, axis = 1)
-    cfm, = cfm.values
-
-    #display(log["train_run_consistency"])
-    #print(cfm)
-    #break
-    #cfm = 100 * log.index(log.group_keys).loc[log.best_keys, "train_consistency"].apply(_to_matrix).mean()
-    #print(pd.DataFrame(cfm).to_latex())
-    #break
-
-    sns.heatmap(
-      data = np.minimum(cfm*100, 99),
-      vmin = 20, vmax = 100,
-      xticklabels = [],
-      yticklabels = [],
-      cmap = sns.color_palette('gray_r', as_cmap = True),
-      annot = True, annot_kws={"fontsize": 12},
-      cbar = True if (ax == axs[-2]) else False,
-      cbar_ax = last_ax if (ax == axs[-2]) else None,
-      ax = ax,
-    )
-    ax.set_title(f"{key} ({100*np.nanmean(cfm):.1f})", fontsize = 8)
-  return fig
-
-plot_confusion_matrices(results)
-plt.show()
-
-# +
 """Fine-grained plots for consistency and decoding across all animals and algorithms
 
 Supplementary figure.
