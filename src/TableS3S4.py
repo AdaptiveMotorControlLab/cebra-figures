@@ -5,12 +5,14 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.14.1
+#       jupytext_version: 1.13.7
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
 #     name: python3
 # ---
+
+# # Table S3-4
 
 import scipy.stats
 import numpy as np
@@ -58,7 +60,7 @@ def concat_neurons(decoding_results, task, decoder, method, window, modality):
 
 # -
 
-# ## ANOVA for CEBRA, CEBRA-joint, baseline 330 ms (10 frame window):
+# ### ANOVA for CEBRA, CEBRA-joint, baseline 330 ms (10 frame window):
 
 # +
 np_total_stats = scipy.stats.f_oneway(concat_neurons(decoding_results, 'frame_id', 'knn', 'cebra', '330', 'np'), 
@@ -71,7 +73,7 @@ np_total_stats = scipy.stats.f_oneway(concat_neurons(decoding_results, 'frame_id
 print(f'NP total stats \n {np_total_stats}')
 # -
 
-# ## ANOVA for CEBRA, CEBRA-joint, baseline 33 ms (1 frame window):
+# ### ANOVA for CEBRA, CEBRA-joint, baseline 33 ms (1 frame window):
 
 # +
 np_total_stats = scipy.stats.f_oneway(concat_neurons(decoding_results, 'frame_id', 'knn', 'cebra', '33', 'np'), 
@@ -84,7 +86,7 @@ np_total_stats = scipy.stats.f_oneway(concat_neurons(decoding_results, 'frame_id
 print(f'NP total stats \n {np_total_stats}')
 # -
 
-# ## ANOVA for CEBRA, CEBRA-joint, baseline for each neuron numbers
+# ### ANOVA for CEBRA, CEBRA-joint, baseline for each neuron numbers
 
 num_neurons = [10, 30, 50, 100, 200, 400, 600, 800, 900, 1000]
 for i in num_neurons:

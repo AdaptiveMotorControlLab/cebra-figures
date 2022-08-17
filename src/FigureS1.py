@@ -5,12 +5,14 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.14.1
+#       jupytext_version: 1.13.7
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
 #     name: python3
 # ---
+
+# # Figure S1: Overview of datasets
 
 # +
 import sys
@@ -23,6 +25,8 @@ import pandas as pd
 # -
 
 data=pd.read_hdf('../data/FigureS1.h5')
+
+# ## Rat Hippocampus dataset
 
 # +
 rat_neural = data['rat']['neural']
@@ -64,7 +68,10 @@ cb_r.set_ticks([])
 
 cb_r.ax.set_xlabel('Right', fontsize = 15)
 cb_l.ax.set_xlabel('Left', fontsize = 15)
+# -
 
+
+# ## Monkey S1 dataset
 
 # +
 active_target = data['monkey']['behavior']['active']['target']
@@ -103,6 +110,9 @@ plt.yticks([25,50], ['0', '50'])
 
 ax.spines['right'].set_visible(False)
 ax.spines['top'].set_visible(False)
+# -
+
+# ## Allen dataset
 
 # +
 neuropixel=data['mouse']['neural']['np'] 
@@ -138,6 +148,3 @@ for n,i in enumerate(data['mouse']['behavior']):
     ax = plt.subplot(1,3,n+1)
     ax.imshow(i, cmap='gray')
     plt.axis('off')
-    
-
-

@@ -5,12 +5,14 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.14.1
+#       jupytext_version: 1.13.7
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
 #     name: python3
 # ---
+
+# # Figure S8: Multi-session training and rapid decoding
 
 import numpy as np
 import pandas as pd
@@ -19,11 +21,16 @@ from matplotlib.lines import Line2D
 import seaborn as sns
 import joblib as jl
 
+# ## Figure S8 a-c
+
+# +
+# TODO (steffen)
+# -
+
 data=pd.read_hdf('../data/FigureS8d.h5')
 
 
 # +
-
 def one_rat(ax, rat_no, rat_df):
     adapt_reinit = [True, False]
     adapt_tune_all = [True, False]
@@ -73,14 +80,16 @@ def plot(rat_df):
 
 # -
 
-steps = 500
-yticks = np.arange(15, 55, 10)
-xticks = np.arange(0, steps+25, 25*10)
-plot(data)
+# ## Figure S8d
 
 steps = 5000
 yticks = np.arange(15, 55, 10)
 xticks = np.arange(0, 6000, 1000)
 plot(data)
 
+# ### Figure S8d, inset
 
+steps = 500
+yticks = np.arange(15, 55, 10)
+xticks = np.arange(0, steps+25, 25*10)
+plot(data)

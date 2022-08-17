@@ -12,7 +12,7 @@
 #     name: cebra_figures
 # ---
 
-# ## Figure S7: Persistence across dimensions
+# # Figure S7: Persistence across dimensions
 
 import numpy as np
 import pandas as pd
