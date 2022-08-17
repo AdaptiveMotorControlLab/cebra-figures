@@ -12,6 +12,8 @@
 #     name: python3
 # ---
 
+# # Figure S10: CEBRA produces consistent, highly decodable embeddings
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt

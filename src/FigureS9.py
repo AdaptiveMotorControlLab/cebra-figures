@@ -12,6 +12,8 @@
 #     name: python3
 # ---
 
+# # Figure S9: Monkey Decoding
+
 # +
 import numpy as np
 import matplotlib.pyplot as plt
@@ -27,9 +29,35 @@ from matplotlib import cm, colors
 
 data = pd.read_hdf("../data/FigureS9.h5")
 
+# ## Figure S9a
+
 # +
+results = data["direction_decoding"]
+cebra_acc_time = results["cebra"]
+pivae_acc_time = results["pivae"]
+ridge_acc_time = results["ridge"]
 
+fig = plt.figure(figsize=(8, 6))
+ax = plt.subplot(111)
+ax.plot(cebra_acc_time, label="CEBRA-Behavior", color="k", lw=5)
+ax.plot(pivae_acc_time, label="conv-piVAE", color="black", alpha=0.5, lw=5)
+ax.plot(ridge_acc_time, label="Ridge classifier", color="k", alpha=0.2, lw=5)
+# ax.plot(vel/vel.max()*100, label = 'hand speed')
+ax.spines["right"].set_visible(False)
+ax.spines["top"].set_visible(False)
+plt.legend(frameon=False, fontsize=12)
+plt.ylabel("ACC (%)", fontsize=20)
+plt.yticks(np.linspace(20, 100, 5), fontsize=15)
+plt.xlabel("Time from movement onset (ms)", fontsize=20)
+plt.xticks(
+    np.linspace(0, 600, 7, dtype=int), np.linspace(-100, 500, 7, dtype=int), fontsize=15
+)
+plt.show()
+# -
 
+# ## Figure S9b
+
+# +
 fig = plt.figure(figsize=(18, 6))
 plt.subplots_adjust(wspace=0.8)
 
@@ -194,7 +222,10 @@ plt.xlabel("Steps", fontsize=30)
 plt.xticks(np.linspace(0, 10000, 5), fontsize=25)
 plt.yticks(np.linspace(6.2, 5.6, 4), fontsize=25)
 plt.ylabel("Loss", fontsize=30)
+# -
 
+
+# ## Figure S9c
 
 # +
 ## All trials
@@ -256,27 +287,3 @@ for i in range(2):
     ax.spines["top"].set_visible(False)
 
 plt.show()
-
-# +
-results = data["direction_decoding"]
-cebra_acc_time = results["cebra"]
-pivae_acc_time = results["pivae"]
-ridge_acc_time = results["ridge"]
-
-fig = plt.figure(figsize=(8, 6))
-ax = plt.subplot(111)
-ax.plot(cebra_acc_time, label="CEBRA-Behavior", color="k", lw=5)
-ax.plot(pivae_acc_time, label="conv-piVAE", color="black", alpha=0.5, lw=5)
-ax.plot(ridge_acc_time, label="Ridge classifier", color="k", alpha=0.2, lw=5)
-# ax.plot(vel/vel.max()*100, label = 'hand speed')
-ax.spines["right"].set_visible(False)
-ax.spines["top"].set_visible(False)
-plt.legend(frameon=False, fontsize=12)
-plt.ylabel("ACC (%)", fontsize=20)
-plt.yticks(np.linspace(20, 100, 5), fontsize=15)
-plt.xlabel("Time from movement onset (ms)", fontsize=20)
-plt.xticks(
-    np.linspace(0, 600, 7, dtype=int), np.linspace(-100, 500, 7, dtype=int), fontsize=15
-)
-plt.show()
-# -

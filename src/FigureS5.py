@@ -12,6 +12,8 @@
 #     name: cebra_figures
 # ---
 
+# # Figure S5: Additional metrics used for benchmarking consistency
+
 # +
 import pprint
 
@@ -57,11 +59,6 @@ results = load_results(result_name="results_v4")
 len(results)
 
 # +
-"""Fine-grained plots for consistency and decoding across all animals and algorithms
-
-Supplementary figure.
-"""
-
 from matplotlib.markers import MarkerStyle
 import warnings
 import typing
@@ -148,6 +145,7 @@ def _agg(v):
     return sum(v) / len(v)
 
 
+# +
 def plot_boxplots(results_best):
     metadata = [
         ("train", "Consistency across subjects", 100, "R² (%)", [0, 25, 50, 75, 100]),
@@ -474,4 +472,3 @@ def plot_decoding_overview(results_best):
 
 
 plot_decoding_overview(results)
-# -

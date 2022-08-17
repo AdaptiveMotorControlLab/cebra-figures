@@ -12,12 +12,16 @@
 #     name: python3
 # ---
 
+# # Figure S2: original pi-VAE implementation vs. modified conv-pi-VAE
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
 data = pd.read_hdf("../data/FigureS2.h5", key="data")
+
+# ## Figure S2a
 
 for model in ["original_pivae", "conv_pivae"]:
     embs = data[model]
@@ -62,6 +66,8 @@ for model in ["original_pivae", "conv_pivae"]:
         l = ax.scatter(
             emb[l_ind, ind1], emb[l_ind, ind2], s=1, c=label[l_ind, 0], cmap="cool"
         )
+
+# ## Figure S2b
 
 # +
 methods_name = ["w/test time labels", "without labels"]
@@ -171,6 +177,3 @@ for i, method in enumerate(methods_name):
 
 plt.subplots_adjust(wspace=0.3)
 axs[-1].set_xlabel("R2")
-
-
-# -
