@@ -123,13 +123,13 @@ ax=plt.subplot(111)
 frame_err = frame_np_cebra_knn_330_err[1000][3]
 ax.scatter(np.arange(len(frame_err)), np.repeat(np.arange(900),4)+frame_err, s=5, c = 'darkgray' )
 ax.plot((0,len(frame_err)), (0,900), c="#9932EB", lw=3,)
-ax.set_xticks(np.linspace(0,3600, 4), np.linspace(0,900,4).astype(int), fontsize=30)
-ax.set_yticks(np.linspace(0,900, 4), np.linspace(0,900,4).astype(int), fontsize=30)
-ax.set_xlabel('True frame', fontsize=35)
-ax.set_ylabel('Predicted frame', fontsize=35)
+ax.set_xticks(np.linspace(0,3600, 4), np.linspace(0,900,4).astype(int), fontsize=20)
+ax.set_yticks(np.linspace(0,900, 4), np.linspace(0,900,4).astype(int), fontsize=20)
+ax.set_xlabel('True frame', fontsize=25)
+ax.set_ylabel('Predicted frame', fontsize=25)
 ax.spines['right'].set_visible(False)
 ax.spines['top'].set_visible(False)
-fig.savefig('true_vs_predict.png', transparent=True, bbox_inches = 'tight')
+
 
 # +
 white = False
@@ -140,7 +140,7 @@ else:
     white_c = 'black'
 
 
-fig_330 = plt.figure(figsize=(7,10) )
+fig_330 = plt.figure(figsize=(7,10))
 fig_330.suptitle('Frame identification', fontsize=30)
 plt.subplots_adjust(wspace = 0.5)
 ax1 = plt.subplot(111)
@@ -209,7 +209,6 @@ fig_330 = plt.figure(figsize=(7,10))
 fig_330.suptitle(f'Frame identification - mean abs frame difference', fontsize=30)
 plt.subplots_adjust(wspace = 0.5)
 ax1 = plt.subplot(111)
-ax1.set_ylabel('Frame difference', fontsize=35)
 c="#9932EB"
 
 ax1.errorbar(np.arange(8), n_mean_err_frame_diff(frame_np_knn_baseline_330_err)[0], 
@@ -235,7 +234,7 @@ ax1.errorbar(np.arange(8), n_mean_err_frame_diff_joint(frame_np_joint_cebra_knn_
 ax1.set_ylim(0, 150)
 set_ax(ax1, white_c)
 ax1.set_yticks(np.linspace(0,150,6), np.linspace(0,150,6, dtype = int), fontsize = 30,color = white_c)
-
+ax1.set_ylabel('Frame difference', fontsize=35)
 
 white = False
 
@@ -248,7 +247,7 @@ fig_33 = plt.figure(figsize=(7,10))
 fig_33.suptitle(f'Frame identification - mean abs frame difference', fontsize=30)
 plt.subplots_adjust(wspace = 0.5)
 ax1 = plt.subplot(111)
-ax1.set_ylabel('Frame difference', fontsize=35)
+
 c="#9932EB"
 
 ax1.errorbar(np.arange(8), n_mean_err_frame_diff(frame_np_knn_baseline_33_err)[0], 
@@ -274,8 +273,7 @@ ax1.errorbar(np.arange(8), n_mean_err_frame_diff_joint(frame_np_joint_cebra_knn_
 ax1.set_ylim(0, 300)
 set_ax(ax1, white_c)
 ax1.set_yticks(np.linspace(0,300,6), np.linspace(0,300,6, dtype = int), fontsize = 30,color = white_c)
-
-
+ax1.set_ylabel('Frame difference', fontsize=35)
 
 # +
 
