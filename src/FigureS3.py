@@ -13,7 +13,7 @@
 #     name: python3
 # ---
 
-# ## Figure S3: Hyperparameter changes on visualization and consistency.
+# # Figure S3: Hyperparameter changes on visualization and consistency.
 
 # ## Figure S3a
 

@@ -21,7 +21,7 @@ release = "0.0.1"
 # ones.
 extensions = [
     'sphinx.ext.autodoc', 'sphinx.ext.napoleon',
-    'sphinx_copybutton', 'nbsphinx'
+    'sphinx_copybutton', 'nbsphinx_adapted'
 ]
 
 coverage_show_missing_items = True
@@ -35,7 +35,8 @@ autodoc_member_order = 'bysource'
 #autodoc_typehints = "none"
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+# templates_path = ['_templates']
+templates_path = []
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -56,7 +57,6 @@ html_theme = "pydata_sphinx_theme"
 # More info on theme options:
 # https://pydata-sphinx-theme.readthedocs.io/en/latest/user_guide/configuring.html
 html_theme_options = {
-    'nosidebar': False,
     "icon_links": [{
         "name": "Github",
         "url": "https://github.com/stes/neural_cl",
@@ -78,20 +78,26 @@ html_theme_options = {
         "url": "https://scholar.google.com",
         "icon": "fas fa-graduation-cap"
     }],
-    "external_links": [
-        #{"name": "Mathis Lab", "url": "http://www.mackenziemathislab.org/"},
-        #{"name": "Bethgelab", "url": "http://bethgelab.org/"},
-    ],
     "collapse_navigation": False,
-    "navigation_depth": 4,
+    "show_nav_level": 2,
+    "navigation_depth": 2,
     "navbar_align": "content",
-    "show_prev_next": False
+    "show_prev_next": False,
+    'nosidebar': False,
+
+    "navbar_start": ["navbar-logo"],
+    "navbar_center": ["navbar-nav"],
+    "navbar_end": ["navbar-icon-links"]
 }
 
 html_logo = "_static/img/logo_large.png"
 
 # Remove the search field for now
 #html_sidebars = {'**': ['sidebar-nav-bs.html']}
+html_sidebars = {
+    #"**": ["search-field.html", 'localtoc.html', "sidebar-nav-bs.html"]
+    "**": ["search-field.html", "sidebar-nav-bs.html"]
+}
 
 # Disable links for embedded images
 html_scaled_image_link = False
