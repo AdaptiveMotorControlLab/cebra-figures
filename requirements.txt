@@ -7,6 +7,5 @@ persim
 jupyter
 jupytext
 nbconvert
-torch
 h5py
 statsmodels

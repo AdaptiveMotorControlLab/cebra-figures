@@ -35,4 +35,4 @@ jobs:
 
       - name: Build package
         run: |
-          make all
+          make -j4 all

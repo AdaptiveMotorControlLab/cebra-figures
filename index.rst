@@ -1,0 +1,6 @@
+Hello
+=====
+
+.. toctree::
+
+   figures
