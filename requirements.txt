@@ -8,3 +8,4 @@ jupyter
 jupytext
 nbconvert
 h5py
+statsmodels
