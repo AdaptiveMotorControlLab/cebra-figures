@@ -5,7 +5,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.13.7
+#       jupytext_version: 1.14.1
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -55,19 +55,35 @@ for i in range(4):
     plt.axis("off")
     ax.set_title(f"Mouse {i+1}", fontsize=20)
 
+non_shuffled_decoding = data["decoding"]["ca_non_shuffled"]
+shuffled_decoding = data["decoding"]["ca_shuffled"]
+print('Frame No. Decoding Acc (%, 1s frame window) \n')
+for i in range(1,5):
+    print(f'Mouse {i}: \n DINO {non_shuffled_decoding[i-1]:.2f} \n DINO-shuffled {shuffled_decoding[i-1]:.2f}')
+
+
 # +
-plt.figure(figsize=(20, 20))
-
-
 def get_mean_err_dic(score_dic):
     means = []
     errs = []
     for k in score_dic:
-        means.append(np.mean(score_dic[k]))
-        errs.append(np.std(score_dic[k], ddof=1) / np.sqrt(len(score_dic[k])))
+        means.append(np.mean(np.array(score_dic[k])*100))
+        errs.append(np.std(np.array(score_dic[k])*100, ddof=1) / np.sqrt(len(score_dic[k])))
     return means, errs
 
+def set_ax(ax):
+    ax.spines["right"].set_visible(False)
+    ax.spines["top"].set_visible(False)
+    ax.set_xticks(
+        np.arange(10)[::2], [10, 30, 50, 100, 200, 400, 600, 800, 900, 1000][::2], fontsize=30
+    )
+    ax.set_yticks(np.linspace(0, 100, 5), np.linspace(0, 100, 5).astype(int), fontsize=30)
+    ax.set_xlabel("# Neurons", fontsize=30)
+    ax.set_ylabel("$R^2$", fontsize=30)
+    l1 = ax.legend(fontsize=15, loc="lower right", title_fontsize=15, frameon=False)
 
+fig=plt.figure(figsize=(20, 16))
+plt.subplots_adjust(wspace=0.5, hspace=0.5)
 for i, d in enumerate([8, 64]):
     ax1 = plt.subplot(2, 2, i + 1)
 
@@ -93,16 +109,8 @@ for i, d in enumerate([8, 64]):
         markersize=20,
         linewidth=8,
     )
-    ax1.set_title(f"Dimension {d}", fontsize=20)
-    ax1.spines["right"].set_visible(False)
-    ax1.spines["top"].set_visible(False)
-    plt.xticks(
-        np.arange(10), [10, 30, 50, 100, 200, 400, 600, 800, 900, 1000], fontsize=20
-    )
-    plt.yticks(np.linspace(0, 1, 5), np.linspace(0, 1, 5), fontsize=20)
-    plt.xlabel("# Neurons", fontsize=20)
-    plt.ylabel("$R^2$", fontsize=20)
-    plt.legend(fontsize=20, loc="lower right")
+    set_ax(ax1)
+    ax1.set_title(f'Dimension {d}', fontsize=30)
 
     ax2 = plt.subplot(2, 2, (i + 3))
 
@@ -128,16 +136,8 @@ for i, d in enumerate([8, 64]):
         markersize=20,
         linewidth=8,
     )
-    ax2.set_title(f"Dimension {d}", fontsize=20)
-    ax2.spines["right"].set_visible(False)
-    ax2.spines["top"].set_visible(False)
-    plt.xticks(
-        np.arange(10), [10, 30, 50, 100, 200, 400, 600, 800, 900, 1000], fontsize=20
-    )
-    plt.yticks(np.linspace(0, 1, 5), np.linspace(0, 1, 5), fontsize=20)
-    plt.xlabel("# Neurons", fontsize=20)
-    plt.ylabel("$R^2$", fontsize=20)
-    plt.legend(fontsize=20, loc="lower right")
+    set_ax(ax2)
+    ax2.set_title(f"Dimension {d}", fontsize=30)
 
 
 # +
@@ -153,10 +153,21 @@ def mean_err(accs):
         errors[i] = error
     return means, errors
 
+def set_ax(ax):
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.set_xticks(
+        np.arange(10)[::2], [10, 30, 50, 100, 200, 400, 600, 800, 900, 1000][::2], fontsize=30
+    )
+    ax.set_yticks(np.linspace(0, 100, 5), np.linspace(0, 100, 5).astype(int), fontsize=30)
+    ax.set_xlabel("# Neurons", fontsize=30)
+    ax.set_ylabel("Acc(%, in 1s time window)", fontsize=30)
+    l1 = ax.legend(fontsize=15, loc="lower right", title_fontsize=15, frameon=False)
 
 # units = [32,64,128]
 
-plt.figure(figsize=(15, 7))
+fig=plt.figure(figsize=(16, 7))
+plt.subplots_adjust(wspace=0.5)
 
 ns = [10, 30, 50, 100, 200, 400, 600, 800, 900, 1000]
 dims = [3, 8, 16, 32, 64, 128]
@@ -183,27 +194,39 @@ for k, (data_dims, modality) in enumerate(
             markersize=20,
             linewidth=8,
         )
-    plt.legend()
-    plt.title(f"{modality}", fontsize=20)
-    plt.yticks(fontsize=15)
-    plt.ylabel("Acc(%) in 1 sec", fontsize=20)
-    plt.xlabel("number of neurons", fontsize=20)
-    plt.xticks(np.arange(10), ns, fontsize=15)
+        
+    set_ax(ax)
+    plt.title(f"{modality}", fontsize=30)
+    
+# -
 
 
-# +
-
-non_shuffled_decoding = data["decoding"]["ca_non_shuffled"]
-shuffled_decoding = data["decoding"]["ca_shuffled"]
-
-plt.figure(figsize=(5, 5))
-plt.plot(non_shuffled_decoding, "-o", c="black", linewidth=5, markersize=10)
-plt.plot(shuffled_decoding, "-o", c="gray", linewidth=5, markersize=10)
-plt.yticks(np.linspace(0, 75, 4), fontsize=20)
-plt.xticks(np.arange(4), np.arange(1, 5), fontsize=20)
-plt.ylabel("Acc (%) in 1 sec", fontsize=20)
-plt.xlabel("Mouse ID", fontsize=20)
-plt.title("Decoding Controls", fontsize=20)
+ca_decoding = data['decoding']['ca_pseudo_mouse']
+fig=plt.figure(figsize=(10,7))
+ax = plt.subplot(111)
+colors = {
+    'cebra_330': 'g', 'cebra_33': 'g', 'cebra_joint_330': 'g', 'cebra_joint_33': 'g', 'baseline_330': 'k', 
+    'baseline_33': 'k'
+}
+alphas = {
+    'cebra_330': 0.7, 'cebra_33': 0.3, 'cebra_joint_330': 0.7, 'cebra_joint_33': 0.3, 'baseline_330': 0.7, 
+    'baseline_33': 0.3
+}
+styles = {
+    'cebra_330': 'solid', 'cebra_33': 'solid', 'cebra_joint_330': 'dotted', 'cebra_joint_33': 'dotted', 
+    'baseline_330': '--', 
+    'baseline_33': '--'
+}
+labels = {
+    'cebra_330': 'CEBRA (10 frames)', 'cebra_33': 'CEBRA (1 frame)', 'cebra_joint_330': 'CEBRA joint (10 frames)', 
+    'cebra_joint_33': 'CEBRA joint (1 frame)', 
+    'baseline_330': 'kNN baseline (10 frames)', 
+    'baseline_33': 'kNN baseline (1 frame)'
+}
+for key in ['baseline_330', 'cebra_330', 'cebra_joint_330', 'baseline_33', 'cebra_33', 'cebra_joint_33']:
+    ax.errorbar(np.arange(10),ca_decoding['mean'][key], ca_decoding['err'][key], lw = 8,
+               ls = styles[key], alpha=alphas[key], c = colors[key], label = labels[key])
+set_ax(ax)
 
 # +
 v1_color = "#9932EB"
