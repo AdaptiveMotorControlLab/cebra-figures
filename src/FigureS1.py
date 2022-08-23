@@ -5,7 +5,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.13.7
+#       jupytext_version: 1.14.1
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -21,7 +21,10 @@ import sys
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-
+from matplotlib.lines import Line2D
+from matplotlib.patches import Circle
+import seaborn as sns
+import sklearn.linear_model
 # -
 
 data=pd.read_hdf('../data/FigureS1.h5')
@@ -148,3 +151,65 @@ for n,i in enumerate(data['mouse']['behavior']):
     ax = plt.subplot(1,3,n+1)
     ax.imshow(i, cmap='gray')
     plt.axis('off')
+
+
+# +
+def reindex(dic, list_name= ['poisson', 'gaussian','laplace', 'uniform','refractory_poisson']):
+    return rename(pd.DataFrame(dic).T.reindex(list_name).T*100)
+
+def rename(df):
+    return df.rename(columns = {'poisson': 'Poisson', 'gaussian': 'Gaussian', 'laplace': 'Laplace',
+                                              'uniform': 'uniform', 'refractory_poisson': 
+                                              'refractory Poisson'})
+
+
+# +
+data_pivae = data['noise_exp']['pivae']
+data_cebra = data['noise_exp']['cebra']
+fig = plt.figure(figsize=(10,7))
+
+ax=plt.subplot(111)
+
+sns.stripplot(data=reindex(data_pivae['x-s']['poisson']), jitter=0.15, s=3, color = 'black', label = 'pi_vae')
+sns.stripplot(data=reindex(data_cebra['x-s']['infonce']), jitter = 0.15, s=3, color = 'lightskyblue', label = 'cebra')
+
+
+ax.set_ylabel('Reconstruction $R^2$ [%]', fontsize=20)
+ax.set_xlabel('Noise type', fontsize=20)
+ax.spines['right'].set_visible(False)
+ax.spines['top'].set_visible(False)
+ax.set_ylim((70,100))
+ax.tick_params(axis='both', which='major', labelsize=15)
+legend_elements = [Line2D([0], [0], markersize=10,linestyle='none', marker = 'o', color='lightskyblue', label='cebra'),
+    Line2D([0], [0],markersize=10, linestyle='none', marker = 'o', color='black', label='piVAE'),
+                   ]
+ax.legend(handles=legend_elements, loc = (1.0,-0.05), frameon=False, fontsize=15)
+sns.despine(left = False, right=True, bottom = False, top = True, trim = True, offset={'bottom':40, 'left':15})
+plt.savefig('distribution_reconstruction.png', transparent = True, bbox_inches='tight')
+# -
+
+z = data['noise_exp_viz']['z']
+label = data['noise_exp_viz']['label']
+def fitting(x,y):
+    lin_model = sklearn.linear_model.LinearRegression()
+    lin_model.fit(x,y)
+    return lin_model.score(x,y), lin_model.predict(x)
+for i,dist in enumerate(['poisson', 'gaussian', 'laplace', 'uniform', 'refractory_poisson']) :
+    pivae_emission=data['noise_exp_viz']['pivae'][dist]
+    cebra_emission=data['noise_exp_viz']['cebra'][dist]
+    cebra_score, fit_cebra = fitting(cebra_emission, z)
+    pivae_score, fit_pivae = fitting(pivae_emission, z)
+    emission_dict['pivae'][dist] = pivae_emission
+    emission_dict['cebra'][dist] = cebra_emission
+    fig = plt.figure(figsize=(14,5))
+    plt.subplots_adjust(wspace = 0.3)
+    ax=plt.subplot(121)
+    ax.scatter(fit_cebra[:,0], fit_cebra[:,1], c = label, s=3, cmap = 'cool')
+    ax.set_title(f'CEBRA-{dist} \n$R^2$:{cebra_score:.2f}', fontsize=30)
+    ax.axis('off')
+    ax=plt.subplot(122)
+    ax.scatter(fit_pivae[:,0], fit_pivae[:,1], c = label, s=3,cmap = 'cool')
+    ax.set_title(f'piVAE-{dist} \n$R^2$:{pivae_score:.2f}', fontsize=30)
+    ax.axis('off')
+
+
