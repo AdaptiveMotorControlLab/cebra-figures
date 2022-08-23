@@ -29,12 +29,6 @@ from matplotlib import cm, colors
 
 data = pd.read_hdf('../data/FigureS9.h5')
 
-data=data.rename(columns={'acttive_mse_loss': 'active_mse_loss'})
-
-data.to_hdf('../data/FigureS9.h5', key = 'data', mode = 'w')
-
-data['active_mse_loss']
-
 # ## Figure S9a
 
 # +
@@ -60,10 +54,6 @@ plt.xticks(
 )
 plt.show()
 # -
-
-active_target_sh = active_mse_data["target_shuffle"]
-
-active_target_sh
 
 # ## Figure S9b
 
@@ -349,3 +339,57 @@ for i in range(2):
     ax.spines["top"].set_visible(False)
 
 plt.show()
+
+# +
+cebra_target = data['monkey_mse_viz']['cebra_target']['emission']
+target_label = data['monkey_mse_viz']['cebra_target']['label']
+cebra_pos = data['monkey_mse_viz']['cebra_pos']['emission']
+pos_label = data['monkey_mse_viz']['cebra_pos']['label']
+cebra_time = data['monkey_mse_viz']['cebra_time']['emission']
+
+
+fig = plt.figure(figsize=(12,5))
+plt.suptitle('CEBRA-behavior trained with target label using MSE loss', fontsize=20)
+ax=plt.subplot(121)
+ax.set_title('All trials embedding', fontsize=20, y=-0.1)
+x=ax.scatter(cebra_target[:,0], cebra_target[:,1],  c = target_label, cmap = plt.cm.hsv, s=0.05)
+ax.axis('off')
+ax=plt.subplot(122)
+ax.set_title('Post-averaged embs by direction', fontsize=20, y=-0.1)
+for i in range(8):
+    direction_trial = (target_label == i)
+    trial_avg = cebra_target[direction_trial, :].reshape(-1, 600, 2).mean(axis=0)
+    ax.scatter(trial_avg[:,0], trial_avg[:,1],  color=plt.cm.hsv(1 / 8 * i), s=3)
+ax.axis('off')
+
+fig = plt.figure(figsize=(12,5))
+plt.suptitle('CEBRA-behavior trained with position label using MSE loss', fontsize=20)
+ax=plt.subplot(121)
+ax.set_title('x', fontsize=20, y=0)
+x=ax.scatter(cebra_pos[:,0], cebra_pos[:,1],  c = pos_label[:,0], cmap = 'seismic', s=0.05,
+                vmin=-15,vmax=15)
+ax.axis('off')
+ax=plt.subplot(122)
+y=ax.scatter(cebra_pos[:,0], cebra_pos[:,1],  c = pos_label[:,1], cmap = 'seismic', s=0.05,
+            vmin=-15, vmax=15)
+ax.axis('off')
+ax.set_title('y', fontsize=20,y=0)
+yc = plt.colorbar(y, fraction=0.03, pad=0.05, ticks=np.linspace(-15, 15, 7))
+yc.ax.tick_params(labelsize=15)
+yc.ax.set_title("(cm)", fontsize=10)
+
+fig = plt.figure(figsize=(12,5))
+plt.suptitle('CEBRA-time traiend using MSE loss', fontsize=20)
+ax=plt.subplot(121)
+ax.set_title('x',  fontsize=20, y=-0.1)
+x=ax.scatter(cebra_time[:,0], cebra_time[:,1],  c = pos_label[:,0], cmap = 'seismic', s=0.05,
+                vmin=-15,vmax=15)
+ax.axis('off')
+ax=plt.subplot(122)
+y=ax.scatter(cebra_time[:,0], cebra_time[:,1],  c = pos_label[:,1], cmap = 'seismic', s=0.05,
+            vmin=-15, vmax=15)
+ax.axis('off')
+ax.set_title('y',  fontsize=20, y=-0.1)
+yc = plt.colorbar(y, fraction=0.03, pad=0.05, ticks=np.linspace(-15, 15, 7))
+yc.ax.tick_params(labelsize=15)
+yc.ax.set_title("(cm)", fontsize=10)
