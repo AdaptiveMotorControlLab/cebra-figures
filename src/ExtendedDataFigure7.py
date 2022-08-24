@@ -7,9 +7,9 @@
 #       format_version: '1.5'
 #       jupytext_version: 1.13.7
 #   kernelspec:
-#     display_name: cebra-figures
+#     display_name: CEBRA-figures
 #     language: python
-#     name: python3
+#     name: cebra_figures
 # ---
 
 # # Extended Data Figure 7: Multi-session training and rapid decoding
