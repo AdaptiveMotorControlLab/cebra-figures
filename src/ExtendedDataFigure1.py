@@ -221,7 +221,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-data = pd.read_hdf("../data/FigureS2.h5", key="data")
+data = pd.read_hdf("../data/EDFigure1de.h5", key="data")
 
 # ## panel d
 
