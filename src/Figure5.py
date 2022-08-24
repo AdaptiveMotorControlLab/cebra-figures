@@ -5,16 +5,14 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.13.7
+#       jupytext_version: 1.10.3
 #   kernelspec:
-#     display_name: Python 3 (ipykernel)
+#     display_name: Python 3
 #     language: python
 #     name: python3
 # ---
 
-# # Figure 5
-#
-# TODO: update with name
+# # Figure 5: Decoding of natural movie features from mouse visual cortical areas
 
 import numpy as np
 import pandas as pd

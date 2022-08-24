@@ -8,8 +8,7 @@ to custom datasets will be available in the [CEBRA github repository](https://gi
 
 ## Quickstart
 
-Make sure you are in an environment that supports the `pip install` command (e.g. a virtual environment or a conda environment).
-Then, start installing of dependencies and rendering of all figures using
+Make sure you are in a python>=3.8 environment that supports the `pip install` command (e.g., a virtual environment or a conda environment). Install dependencies, then render of all figures using:
 
 ```bash
 make -j8 all
@@ -20,12 +19,11 @@ Figures will be placed in `ipynb` format into the `figures/` directory.
 ## Dependencies
 
 ```bash
-pip install -r requirements 
+pip install -r requirements.txt
 ```
 
 ## Repo organization
 
 - ``src``: Jupyter notebooks for reproducing the paper figures, in python format
 - ``data``: Folder to data files
-- ``figures```: Rendered paper figures in `ipynb` format
-
+- ``figures``: Rendered paper figures in `ipynb` format

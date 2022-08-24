@@ -12,7 +12,7 @@
 #     name: python3
 # ---
 
-# # Figure 2
+# # Figure 2: Hypothesis-driven and discovery-driven analysis with CEBRA
 
 # +
 import numpy as np
