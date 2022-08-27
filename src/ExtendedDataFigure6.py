@@ -19,7 +19,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from persim import plot_diagrams
 
-data = pd.read_hdf("../data/EDFigure6.h5")
+data = pd.read_hdf("../data/FigureS7.h5") #TODO: rename this file to be 6.
 
 behavior_topology = data["behavior"]
 max_dims_behavior = data["shuffled-max"]
