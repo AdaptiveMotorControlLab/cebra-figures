@@ -12,7 +12,7 @@
 #     name: python3
 # ---
 
-# # Figure S1: Overview of datasets
+# # Extended Data Figure 1: Overview of datasets, synthetic data, & original pi-VAE implementation vs. modified conv-pi-VAE
 
 # +
 import sys
