@@ -7,7 +7,7 @@ requirements:
 all: $(targets)
 
 html:
-	PYTHONPATH=.:third_party/ sphinx-build -M html . _build
+	PYTHONPATH=.:third_party/ sphinx-build -M html . _build -D master_doc='figures' -W --keep-going
 
 build/%.ipynb:
 	echo $% $@
