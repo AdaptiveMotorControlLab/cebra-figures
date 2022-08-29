@@ -13,8 +13,9 @@
 # ---
 
 # # Extended Data Figure 10: Spikes and calcium signaling reveal similar embeddings
+
 #
-# TODO: Add headings once we decided on how to organize the panels.
+
 
 import numpy as np
 import matplotlib.pyplot as plt
