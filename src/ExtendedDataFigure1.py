@@ -12,7 +12,8 @@
 #     name: python3
 # ---
 
-# # Figure S1: Overview of datasets
+# # Extended Data Figure 1: Overview of datasets, synthetic data, & original pi-VAE implementation vs. modified conv-pi-VAE
+
 
 # +
 import sys
@@ -29,7 +30,7 @@ import sklearn.linear_model
 
 data=pd.read_hdf('../data/EDFigure1.h5')
 
-# ## Extended Data Figure 1: Overview of datasets, synthetic data, & original pi-VAE implementation vs. modified conv-pi-VAE
+#
 
 # +
 rat_neural = data['rat']['neural']
@@ -64,9 +65,9 @@ plt.xticks(fontsize = 45)
 plt.yticks(np.linspace(0,1.6,3), fontsize = 45)
 plt.xticks(np.linspace(0, len(rat_behavior),5)*0.025, np.arange(0,45,10))
 cb_r_axes = fig.add_axes([0.92, 0.15, 0.02, 0.7])
-cb_l_axes = fig.add_axes([0.96, 0.15, 0.02, 0.7]) 
+cb_l_axes = fig.add_axes([0.96, 0.15, 0.02, 0.7])
 cb_r = plt.colorbar(ax_r, cax = cb_r_axes,boundaries=np.linspace(0,1.6, 200))
-cb_l = plt.colorbar(ax_l, cax = cb_l_axes, boundaries=np.linspace(0,1.6,200), ticks = np.linspace(0,1.6, 5)) 
+cb_l = plt.colorbar(ax_l, cax = cb_l_axes, boundaries=np.linspace(0,1.6,200), ticks = np.linspace(0,1.6, 5))
 cb_r.set_ticks([])
 
 cb_r.ax.set_xlabel('Right', fontsize = 15)
@@ -118,8 +119,8 @@ ax.spines['top'].set_visible(False)
 # ## Allen dataset
 
 # +
-neuropixel=data['mouse']['neural']['np'] 
-ca=data['mouse']['neural']['ca'] 
+neuropixel=data['mouse']['neural']['np']
+ca=data['mouse']['neural']['ca']
 fig=plt.figure(figsize=(15,10), dpi=300)
 plt.subplots_adjust(hspace=0.5)
 ax1=plt.subplot(2,1,1)
@@ -161,7 +162,7 @@ def reindex(dic, list_name= ['poisson', 'gaussian','laplace', 'uniform','refract
 
 def rename(df):
     return df.rename(columns = {'poisson': 'Poisson', 'gaussian': 'Gaussian', 'laplace': 'Laplace',
-                                              'uniform': 'uniform', 'refractory_poisson': 
+                                              'uniform': 'uniform', 'refractory_poisson':
                                               'refractory Poisson'})
 
 
@@ -199,7 +200,7 @@ def fitting(x,y):
     lin_model.fit(x,y)
     return lin_model.score(x,y), lin_model.predict(x)
 emission_dict = {'pivae': {}, 'cebra':{}}
-    
+
 for i,dist in enumerate(['poisson', 'gaussian', 'laplace', 'uniform']) :
     pivae_emission=pivae_embs[dist]
     cebra_emission=cebra_embs[dist]
@@ -373,5 +374,3 @@ for i, method in enumerate(methods_name):
 plt.subplots_adjust(wspace=0.3)
 axs[-1].set_xlabel("R2")
 # -
-
-
