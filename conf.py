@@ -10,7 +10,7 @@ def get_years(start_year=2021):
 
 # -- Project information -----------------------------------------------------
 project = 'cebra'
-copyright = f'''{get_years(2021)}, Steffen Schneider, Jin H Lee, Mackenzie Mathis.'''
+copyright = f'''{get_years(2021)}, Steffen Schneider, Jin H Lee, Mackenzie Mathis'''
 author = 'Steffen Schneider, Jin H Lee, Mackenzie Mathis'
 release = "0.0.1"
 
