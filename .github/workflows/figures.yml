@@ -36,3 +36,9 @@ jobs:
       - name: Build package
         run: |
           make -j4 all
+      
+      - name: Build docs
+        run: |
+          make html
+      
+        
