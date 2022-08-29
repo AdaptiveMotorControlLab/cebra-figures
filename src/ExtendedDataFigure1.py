@@ -218,7 +218,7 @@ for i,dist in enumerate(['poisson', 'gaussian', 'laplace', 'uniform']) :
     fig.savefig(f'emission_viz_{dist}.png', transparent=True, bbox_inches = 'tight')
 # -
 
-# # original piVAE vs. conv-piVAE
+# ## original piVAE vs. conv-piVAE
 
 for model in ["original_pivae", "conv_pivae"]:
     embs = data[model]
@@ -372,3 +372,6 @@ for i, method in enumerate(methods_name):
 
 plt.subplots_adjust(wspace=0.3)
 axs[-1].set_xlabel("R2")
+# -
+
+
