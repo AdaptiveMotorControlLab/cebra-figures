@@ -5,14 +5,16 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.13.7
+#       jupytext_version: 1.14.1
 #   kernelspec:
-#     display_name: Python 3 (ipykernel)
+#     display_name: Python [conda env:cebra_m1] *
 #     language: python
-#     name: python3
+#     name: conda-env-cebra_m1-py
 # ---
 
 # # Figure 2: Hypothesis-driven and discovery-driven analysis with CEBRA
+
+# #### import plot and data loading dependencies
 
 # +
 import numpy as np
@@ -22,11 +24,16 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from matplotlib.collections import LineCollection
 
+import pandas as pd
+import numpy as np
+import pathlib
 # -
 
 data = pd.read_hdf("../data/Figure2.h5", key="data")
 
 # ## Figure 2b
+#
+# - CEBRA with position-hypothesis derived embedding, shuffled (erroneous), time-only, and Time+Behavior (hybrid; here, a 5D space was used, where first 3D is guided by both behavior+time, and last 2D is guided only by time, and the first 3 latents are plotted).
 
 # +
 method_viz = data["visualization"]
@@ -50,23 +57,18 @@ for i, model in enumerate(["hypothesis", "shuffled", "discovery", "hybrid"]):
 # -
 
 # ## Figure 2c
+#
+# - Embeddings with position-only, direction-only, and shuffled position-only, direction-only for hypothesis testing. The loss function can be used as a metric for embedding quality.
 
 # +
 # TODO hypothesis testing plot
 # -
 
 # ## Figure 2d
+#
+# - We utilized the hypothesis-driven (position) or the shuffle (erroneous) to decode the position of the rat, which produces a large difference in decoding performance: position+direction $R^2$ is 73.35\% vs. -49.90\% shuffled and median absolute error 5.8 cm vs 44.7 cm.  Purple line is decoding from the hypothesis-based latent space, dashed line is shuffled. Right is the performance across additional methods (The orange line indicates the median of the individual runs (n=10) that are indicated by black circles. Each run is averaged over 3 splits of the dataset). 
 
 # +
-# TODO decoding visualization
-
-# +
-"""Decoding plot (Figure 2 and supplementary figure)"""
-
-import pandas as pd
-import numpy as np
-import pathlib
-
 ROOT = pathlib.Path("../data")
 
 
@@ -255,6 +257,8 @@ plot_decoding_overview(results)
 # -
 
 # ## Figure 2f
+#
+# - Left: Visualization of the neural embeddings computed with different input dimensions, and the related persistent co-homology lifespan diagrams below.
 
 # +
 topology_viz = data["topology"]["viz"]
@@ -272,10 +276,14 @@ for i, dim in enumerate([3, 8, 16]):
     ax.scatter(
         emb[l, idx1], emb[l, idx2], emb[l, idx3], c=label[l, 0], cmap="cool", s=0.1
     )
-    ax.scatter(emb[r, idx1], emb[r, idx2], emb[r, idx3], c=label[r, 0], s=0.1)
+    ax.scatter(emb[r, idx1], emb[r, idx2], emb[r, idx3], cmap="viridis", c=label[r, 0], s=0.1)
     ax.axis("off")
     ax.set_title(f"Dimension {dim}", fontsize=20)
 # -
+
+# ## Figure 2f
+#
+# - Right: Betti numbers from shuffled embeddings (Sh.) and across increasing dimensions.
 
 dims = [3, 8, 16]
 cocycle = ["Points", "Loops", "Voids"]
