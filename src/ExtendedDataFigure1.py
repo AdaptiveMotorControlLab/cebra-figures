@@ -28,7 +28,7 @@ import sklearn.linear_model
 
 data=pd.read_hdf('../data/EDFigure1.h5')
 
-# ### Plot example data the rat hippocampus dataest, from rat 1: neurons and behavior
+# ### Plot example data the rat hippocampus dataset, from rat 1: neurons and behavior
 
 # +
 rat_neural = data['rat']['neural']
