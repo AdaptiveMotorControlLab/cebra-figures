@@ -7,18 +7,17 @@
 #       format_version: '1.5'
 #       jupytext_version: 1.14.1
 #   kernelspec:
-#     display_name: Python 3 (ipykernel)
+#     display_name: Python [conda env:cebra_m1] *
 #     language: python
-#     name: python3
+#     name: conda-env-cebra_m1-py
 # ---
 
 # # Extended Data Figure 1: Overview of datasets, synthetic data, & original pi-VAE implementation vs. modified conv-pi-VAE
 
 
-# +
+# #### import plot and data loading dependencies
+
 import sys
-
-
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -26,11 +25,10 @@ from matplotlib.lines import Line2D
 from matplotlib.patches import Circle
 import seaborn as sns
 import sklearn.linear_model
-# -
 
 data=pd.read_hdf('../data/EDFigure1.h5')
 
-#
+# ### Plot example data the rat hippocampus dataest, from rat 1: neurons and behavior
 
 # +
 rat_neural = data['rat']['neural']
@@ -75,7 +73,7 @@ cb_l.ax.set_xlabel('Left', fontsize = 15)
 # -
 
 
-# ## Monkey S1 dataset
+# ### Plot example behavior data from the monkey S1 dataset
 
 # +
 active_target = data['monkey']['behavior']['active']['target']
@@ -99,9 +97,11 @@ for n,i in enumerate(passive_pos.reshape(-1, 600,2)):
     k = passive_target[n*600]
     ax2.plot(i[:,0], i[:,1], color=plt.cm.hsv(1/8*k), linewidth = 0.5)
 plt.axis('off')
+# -
+
+# ### Plot example neural data from the monkey S1 dataset
 
 # +
-
 fig=plt.figure(figsize=(15,5))
 ephys = data['monkey']['neural']
 ax=plt.subplot(111)
@@ -116,7 +116,7 @@ ax.spines['right'].set_visible(False)
 ax.spines['top'].set_visible(False)
 # -
 
-# ## Allen dataset
+# ### Plot example behavior data from the Allen datasets: Neuropixels & 2P calcium imaging
 
 # +
 neuropixel=data['mouse']['neural']['np']
@@ -147,6 +147,8 @@ ax2.spines['right'].set_visible(False)
 ax2.spines['top'].set_visible(False)
 # -
 
+# ### Plot example video (natural movie 1) data from the Allen datasets
+
 plt.figure(figsize=(15,5))
 for n,i in enumerate(data['mouse']['behavior']):
     ax = plt.subplot(1,3,n+1)
@@ -154,7 +156,9 @@ for n,i in enumerate(data['mouse']['behavior']):
     plt.axis('off')
 
 
-# ## Synthetic data experiment
+# ## Synthetic data experiments: benchmarking
+#
+# - we test 5 different types of synthetic data:
 
 # +
 def reindex(dic, list_name= ['poisson', 'gaussian','laplace', 'uniform','refractory_poisson']):
@@ -165,6 +169,10 @@ def rename(df):
                                               'uniform': 'uniform', 'refractory_poisson':
                                               'refractory Poisson'})
 
+
+# -
+
+# #### Plot the 100 runs (seeds) for both piVAE and CEBRA on the 5 datasets:
 
 # +
 data_pivae = data['noise_exp']['pivae']
@@ -189,6 +197,9 @@ legend_elements = [Line2D([0], [0], markersize=10,linestyle='none', marker = 'o'
 ax.legend(handles=legend_elements, loc = (1.0,-0.05), frameon=False, fontsize=15)
 sns.despine(left = False, right=True, bottom = False, top = True, trim = True, offset={'bottom':40, 'left':15})
 plt.savefig('distribution_reconstruction.png', transparent = True, bbox_inches='tight')
+# -
+
+# ### Plot example output embeddings from CEBRA (left) and piVAE (right) with R^2 scores
 
 # +
 pivae_embs=data['noise_exp_viz']['pivae']
@@ -219,7 +230,7 @@ for i,dist in enumerate(['poisson', 'gaussian', 'laplace', 'uniform']) :
     fig.savefig(f'emission_viz_{dist}.png', transparent=True, bbox_inches = 'tight')
 # -
 
-# ## original piVAE vs. conv-piVAE
+# ### Plotting example embeddings from the original piVAE vs. our time-resolved conv-piVAE
 
 for model in ["original_pivae", "conv_pivae"]:
     embs = data[model]
@@ -264,6 +275,8 @@ for model in ["original_pivae", "conv_pivae"]:
         l = ax.scatter(
             emb[l_ind, ind1], emb[l_ind, ind2], s=1, c=label[l_ind, 0], cmap="cool"
         )
+
+# ### Plotting example embeddings from the original piVAE vs. our time-resolved conv-piVAE
 
 # +
 methods_name = ["w/test time labels", "without labels"]
@@ -353,7 +366,7 @@ for i, method in enumerate(methods_name):
             xticklabels=subjects,
             annot_kws={"fontsize": 16},
             yticklabels=subjects,
-            cbar=False,
+            cbar_ax=axs[2],
         )
     elif i == 1:
         hmap = sns.heatmap(
@@ -373,4 +386,3 @@ for i, method in enumerate(methods_name):
 
 plt.subplots_adjust(wspace=0.3)
 axs[-1].set_xlabel("R2")
-# -
