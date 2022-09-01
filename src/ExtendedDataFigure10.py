@@ -7,14 +7,14 @@
 #       format_version: '1.5'
 #       jupytext_version: 1.14.1
 #   kernelspec:
-#     display_name: Python 3 (ipykernel)
+#     display_name: Python [conda env:cebra_m1] *
 #     language: python
-#     name: python3
+#     name: conda-env-cebra_m1-py
 # ---
 
 # # Extended Data Figure 10: Spikes and calcium signaling reveal similar embeddings
 
-#
+# #### import plot and data loading dependencies
 
 
 import numpy as np
@@ -29,6 +29,10 @@ data = pd.read_hdf("../data/EDFigure10.h5", key="data")
 
 shuffled_embs = data["embedding"]["shuffled"]
 non_shuffled_embs = data["embedding"]["non-shuffled"]
+
+# ### Plot Allen data, 4 mice
+#
+# - As a control experiment we shuffled DINO features: CEBRA-Behavior used the DINO features as behavior labels and CEBRA-Shuffled used the shuffled DINO features. We shuffled the frame order of DINO features within a repeat. Same shuffled order was use for all repeats. Color code is frame number from the movie. The prediction is considered as true if the predicted frame is within 1 sec from the true frame, and the accuracy (\%) is noted next to the embedding. For Mice ID 1-4: 337, 353, 397, 475 neurons were recorded, respectively.
 
 idx1, idx2 = 0, 1
 plt.figure(figsize=(20, 5))
@@ -56,12 +60,18 @@ for i in range(4):
     plt.axis("off")
     ax.set_title(f"Mouse {i+1}", fontsize=20)
 
+# - "The prediction is considered as true if the predicted frame is within 1 sec from the true frame, and the accuracy (\%) is noted next to the embedding."
+
 non_shuffled_decoding = data["decoding"]["ca_non_shuffled"]
 shuffled_decoding = data["decoding"]["ca_shuffled"]
 print('Frame No. Decoding Acc (%, 1s frame window) \n')
 for i in range(1,5):
     print(f'Mouse {i}: \n DINO {non_shuffled_decoding[i-1]:.2f} \n DINO-shuffled {shuffled_decoding[i-1]:.2f}')
 
+
+# ### Consistency between the single modality embedding and jointly trained embedding from CEBRA.
+#
+# - a:  In higher dimensions, the embedding from single recording modality and the jointly trained embedding became highly consistent with more number of neurons. b: Consistency of embeddings from two recording modalities, when single modality was trained each and jointly trained. The consistency significantly improved with joint training. In higher dimensions, consistency between single modality embeddings improved as well, which shows that CEBRA can find 'common latents' in two different recording methods (that is theoretically meant to have same information) even without joint training (yet, joint training improves consistency). This data is also presented in Fig. 4e, h, but here plotted together to show improvement with joint training. 
 
 # +
 def get_mean_err_dic(score_dic):
@@ -141,6 +151,12 @@ for i, d in enumerate([8, 64]):
     ax2.set_title(f"Dimension {d}", fontsize=30)
 
 
+# -
+
+# ### CEBRA + kNN decoding performance (see Methods)
+#
+# - CEBRA embeddings of different output embedding dimensions, from calcium (2P) data or Neuropixels, as denoted.
+
 # +
 def mean_err(accs):
     accs = np.array(accs).reshape(10, 5)
@@ -202,6 +218,10 @@ for k, (data_dims, modality) in enumerate(
 # -
 
 
+# ### Decoding accuracy:
+#
+# - measured by considering predicted frame being within 1 sec difference to true frame as correct prediction using CEBRA (2P only), jointly trained (2P+NP), or a baseline population vector kNN decoder (using the time window 33 ms (single frame), or 330 ms (10 frame receptive field).
+
 ca_decoding = data['decoding']['ca_pseudo_mouse']
 fig=plt.figure(figsize=(10,7))
 ax = plt.subplot(111)
@@ -228,6 +248,9 @@ for key in ['baseline_330', 'cebra_330', 'cebra_joint_330', 'baseline_33', 'cebr
     ax.errorbar(np.arange(10),ca_decoding['mean'][key], ca_decoding['err'][key], lw = 8,
                ls = styles[key], alpha=alphas[key], c = colors[key], label = labels[key])
 set_ax(ax)
+
+# +
+#### Let's define some plotting functions:
 
 # +
 v1_color = "#9932EB"
@@ -359,6 +382,11 @@ def make_line_strip_from_df(df, title, vmin, vmax, white=False):
 
 
 # -
+
+# ###  Consistency across modalities and areas for CEBRA-Behavior and -Time (as computed in Fig.4 i-k). 
+#
+# The purple dots indicate mean of intra-V1 scores and inter-V1 scores (inter-V1 vs intra-V1 Welch's t-test; 2P (Behavior): T=1.52, p=0.081, 2P (Time): T=4.26 ,p=0.0005, NP (Behaivor): T=2.83, p=0.0085, NP (Time): T=15.51, p<0.00001)
+#
 
 for m in ["ca", "np"]:
     for s in ["behavior", "time"]:
