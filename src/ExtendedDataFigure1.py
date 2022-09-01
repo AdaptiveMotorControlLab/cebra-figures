@@ -200,6 +200,12 @@ plt.savefig('distribution_reconstruction.png', transparent = True, bbox_inches='
 # -
 
 # ### Plot example output embeddings from CEBRA (left) and piVAE (right) with R^2 scores
+#
+# For reference, here is the ground truth (left) and an example CEBRA embedding (right). 
+#
+# ![GT latents](https://images.squarespace-cdn.com/content/v1/57f6d51c9f74566f55ecf271/1662057845309-KXH17YAGBFI0AVMFJSEC/demoAFN.png?format=1000w)
+#
+# True 2D latent (Left). Each point is mapped to spiking rate of 100 neurons, and middle; \cebra \space embedding after linear regression to true latent. Reconstruction score of 100 seeds. Reconstruction score is $R^2$ of linear regression between true latent and resulting embedding from each method. The behavior label is a 1D random variable sampled from uniform distribution of [0, 2$\pi$] which is assigned to each time bin of synthetic neural data, visualized by the color map.
 
 # +
 pivae_embs=data['noise_exp_viz']['pivae']
