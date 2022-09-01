@@ -5,14 +5,16 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.13.7
+#       jupytext_version: 1.14.1
 #   kernelspec:
-#     display_name: Python 3 (ipykernel)
+#     display_name: Python [conda env:cebra_m1] *
 #     language: python
-#     name: python3
+#     name: conda-env-cebra_m1-py
 # ---
 
 # # Figure 4: Spikes and calcium signaling reveal similar CEBRA embeddings
+
+# #### import plot and data loading dependencies
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -30,7 +32,11 @@ dims = [3, 4, 8, 16, 32, 64, 128]
 num_neurons = [10, 30, 50, 100, 200, 400, 600, 800, 900, 1000]
 # -
 
-# ## Figure 4c,d,f,g
+# ## Figure 4 c,d, f,g
+#
+# - (c,d) Visualization of trained 8D latent CEBRA-Behavior embeddings with Neuropixels data or calcium imaging, respectively. The numbers on top of each embedding is the number of neurons subsampled from the multi-session concatenated dataset. Color map is the time in the movie (dark to light).
+#
+# - (f,g) Visualization of CEBRA-Behavior embedding (8D) trained with Neuropixels and calcium imaging, jointly. Color map is the same as above.
 
 # +
 modality = ["ca", "np", "joint-ca", "joint-np"]
@@ -58,7 +64,10 @@ for m in modality:
 # -
 
 
-# ## Figure 4e+h
+# ## Figure 4 e, h
+#
+# - (e) Linear consistency between embeddings trained with either calcium imaging data or Neuropixels data.
+# - (h) Linear consistency between embeddings of calcium imaging and Neuropixels which were trained jointly. 
 
 # +
 plt.figure(figsize=(15, 10))
@@ -261,9 +270,9 @@ def make_line_strip_from_df(df, title, vmin, vmax, white=False):
 
 # -
 
-# ## Figure TODO
+# ## Figure 4 j
 #
-# TODO(update once fixed)
+# - CEBRA-Behavior 32D model jointly trained with 2P+NP with 400 neurons then consistency measured within or across areas (2P vs. NP) across 2 unique sets of disjoint neurons for 3 seeds.
 
 make_heatmap_from_df(
     pd.DataFrame(data["cortices_consistency"]["joint_cortices"]),
@@ -273,9 +282,9 @@ make_heatmap_from_df(
 )
 
 
-# ## Figure TODO
+# ## Figure 4 k
 #
-# TODO(update once fixed)
+# - intra-V1 consistency measurement vs. all inter-area vs. V1 comparison. Purple dots indicate mean of V1 intra-V1 consistency (across n=12 runs) and inter-V1 consistency (n=60). Intra-V1 consistency is significantly higher than inter-area consistency (Welch's t-test, T=3.75, p=0.00019)
 
 make_line_strip_from_df(
     data["cortices_consistency"]["joint_v1"], "V1 inter-intra", 50, 100
