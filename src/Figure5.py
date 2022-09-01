@@ -5,14 +5,16 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.10.3
+#       jupytext_version: 1.14.1
 #   kernelspec:
-#     display_name: Python 3
+#     display_name: Python [conda env:cebra_m1] *
 #     language: python
-#     name: python3
+#     name: conda-env-cebra_m1-py
 # ---
 
 # # Figure 5: Decoding of natural movie features from mouse visual cortical areas
+
+# #### import plot and data loading dependencies
 
 import numpy as np
 import pandas as pd
@@ -51,6 +53,9 @@ frame_np_bayes_baseline_33_err = data['frame_err']['bayes']['np_baseline_33']
 frame_np_knn_baseline_33_err =data['frame_err']['knn']['np_baseline_33']
 frame_np_cebra_knn_33_err = data['frame_err']['knn']['np_cebra_33']
 frame_np_joint_cebra_knn_33_err = data['frame_err']['knn']['np_cebra_joint_33']
+# -
+
+# ### Define plotting functions & metrics
 
 # +
 num_neurons = [50,100,200,400, 600, 800,900, 1000]
@@ -117,21 +122,11 @@ def n_mean_err_frame_diff_joint(err_dict,data_type = 'np', ns = num_neurons):
     return means, errs
 
 
-
 # -
 
-fig= plt.figure(figsize=(7,7))
-ax=plt.subplot(111)
-frame_err = frame_np_cebra_knn_330_err[1000][3]
-ax.scatter(np.arange(len(frame_err)), np.repeat(np.arange(900),4)+frame_err, s=5, c = 'darkgray' )
-ax.plot((0,len(frame_err)), (0,900), c="#9932EB", lw=3,)
-ax.set_xticks(np.linspace(0,3600, 4), np.linspace(0,900,4).astype(int), fontsize=20)
-ax.set_yticks(np.linspace(0,900, 4), np.linspace(0,900,4).astype(int), fontsize=20)
-ax.set_xlabel('True frame', fontsize=25)
-ax.set_ylabel('Predicted frame', fontsize=25)
-ax.spines['right'].set_visible(False)
-ax.spines['top'].set_visible(False)
-
+# ## Fgure 5 c
+#
+# - Decoding accuracy measured by considering a predicted frame being within 1 sec to the true frame as a correct prediction using CEBRA (NP only), jointly trained (2P+NP), or a baseline population-vector plus kNN or Bayes decoder using either a 1 frame (33 ms) receptive field or 10 frames (330 ms); results shown for Neuropixels dataset (V1 data).
 
 # +
 white = False
@@ -198,6 +193,67 @@ set_ax(ax1, white_c)
 
 
 plt.show()
+# -
+
+# ## Figure 5 d
+#
+# - Decoding accuracy measured by the correct scene prediction using either CEBRA (NP only), jointly trained (2P+NP), or baseline population-vector plus kNN or Bayes decoder using a 1 frame (33 ms) receptive field (V1 data).
+
+# +
+
+white = False
+
+if white:
+    white_c='white'
+else:
+    white_c = 'black'
+
+fig_33 = plt.figure(figsize=(7,10))
+fig_33.suptitle('Scene annotation', fontsize=30)
+plt.subplots_adjust(wspace = 0.5)
+ax1 = plt.subplot(111)
+ax1.errorbar(np.arange(8), n_mean_err(scene_np_knn_baseline_33)[0]*100, n_mean_err(scene_np_knn_baseline_33)[1]*100, 
+             ls = '--', label = 'NP kNN baseline (1 frame)', color = 'k', alpha =0.7, 
+             markersize= 20, linewidth = 8)
+ax1.errorbar(np.arange(8), n_mean_err(scene_np_bayes_baseline_33)[0]*100, n_mean_err(scene_np_bayes_baseline_33)[1]*100, 
+             ls = '--',label = 'NP Bayes baseline (1 frame)', color = 'k', alpha =0.3, 
+             markersize= 20, linewidth = 8)
+
+ax1.errorbar(np.arange(8), n_mean_err(scene_np_cebra_knn_33)[0]*100, n_mean_err(scene_np_cebra_knn_33)[1]*100, 
+             label = 'NP kNN CEBRA (1 frame)', color = c, alpha =1, 
+             markersize= 20, linewidth = 8)
+
+ax1.errorbar(np.arange(8), n_mean_err_joint(scene_np_joint_cebra_knn_33, 'np')[0]*100, 
+             n_mean_err_joint(scene_np_joint_cebra_knn_33, 'np')[1]*100, 
+            ls = 'dotted',label = 'NP kNN CEBRA joint (1 frame)', color = c, alpha =1, 
+             markersize= 20, linewidth = 8)
+
+set_ax(ax1, white_c)
+ax1.set_ylim(25,100)
+ax1.set_ylabel(f'Acc (%)', fontsize= 35,  color = white_c)
+# -
+
+
+# ## Figure 5e
+#
+# - Single frame ground truth frame ID vs predicted frame ID for Neuropixels using a \cebra-Behavior model trained with a 330 ms receptive field (1K V1 neurons across mice used).
+
+fig= plt.figure(figsize=(7,7))
+ax=plt.subplot(111)
+frame_err = frame_np_cebra_knn_330_err[1000][3]
+ax.scatter(np.arange(len(frame_err)), np.repeat(np.arange(900),4)+frame_err, s=5, c = 'darkgray' )
+ax.plot((0,len(frame_err)), (0,900), c="#9932EB", lw=3,)
+ax.set_xticks(np.linspace(0,3600, 4), np.linspace(0,900,4).astype(int), fontsize=20)
+ax.set_yticks(np.linspace(0,900, 4), np.linspace(0,900,4).astype(int), fontsize=20)
+ax.set_xlabel('True frame', fontsize=25)
+ax.set_ylabel('Predicted frame', fontsize=25)
+ax.spines['right'].set_visible(False)
+ax.spines['top'].set_visible(False)
+
+
+# ## Figure 5 f
+#
+# - The mean absolute error of the correct frame index. Shown for baseline and CEBRA models as computed in c, d, e.
 
 # +
 white = False
@@ -276,63 +332,11 @@ ax1.set_ylim(0, 300)
 set_ax(ax1, white_c)
 ax1.set_yticks(np.linspace(0,300,6), np.linspace(0,300,6, dtype = int), fontsize = 30,color = white_c)
 ax1.set_ylabel('Frame difference', fontsize=35)
+# -
 
-# +
-
-white = False
-
-if white:
-    white_c='white'
-else:
-    white_c = 'black'
-
-fig_33 = plt.figure(figsize=(7,10))
-fig_33.suptitle('Scene annotation', fontsize=30)
-plt.subplots_adjust(wspace = 0.5)
-ax1 = plt.subplot(111)
-ax1.errorbar(np.arange(8), n_mean_err(scene_np_knn_baseline_33)[0]*100, n_mean_err(scene_np_knn_baseline_33)[1]*100, 
-             ls = '--', label = 'NP kNN baseline (1 frame)', color = 'k', alpha =0.7, 
-             markersize= 20, linewidth = 8)
-ax1.errorbar(np.arange(8), n_mean_err(scene_np_bayes_baseline_33)[0]*100, n_mean_err(scene_np_bayes_baseline_33)[1]*100, 
-             ls = '--',label = 'NP Bayes baseline (1 frame)', color = 'k', alpha =0.3, 
-             markersize= 20, linewidth = 8)
-
-ax1.errorbar(np.arange(8), n_mean_err(scene_np_cebra_knn_33)[0]*100, n_mean_err(scene_np_cebra_knn_33)[1]*100, 
-             label = 'NP kNN CEBRA (1 frame)', color = c, alpha =1, 
-             markersize= 20, linewidth = 8)
-
-ax1.errorbar(np.arange(8), n_mean_err_joint(scene_np_joint_cebra_knn_33, 'np')[0]*100, 
-             n_mean_err_joint(scene_np_joint_cebra_knn_33, 'np')[1]*100, 
-            ls = 'dotted',label = 'NP kNN CEBRA joint (1 frame)', color = c, alpha =1, 
-             markersize= 20, linewidth = 8)
-
-set_ax(ax1, white_c)
-ax1.set_ylim(25,100)
-ax1.set_ylabel(f'Acc (%)', fontsize= 35,  color = white_c)
-
-
-# +
-layer_decoding = data['layer_decoding'][900]
-fig=plt.figure(figsize=(7.5,10))
-ax=fig.add_subplot(111)
-
-labels =['900']
-colors =['black', 'gray', 'lightgray']
-
-ax.errorbar(np.arange(3), [np.mean(layer_decoding[layer])for layer in [2,4,5]], 
-            [np.std(layer_decoding[layer]) / np.sqrt(len(layer_decoding[layer]))for layer in [2,4,5]],
-           c='k', lw = 4)
-ax.set_xticks(np.arange(3))
-ax.set_xticklabels(['2/3', '4', '5/6'], fontsize=30)
-ax.set_yticks(np.linspace(70, 100, 4))
-ax.set_yticklabels(np.linspace(70, 100, 4, dtype= int), fontsize=30)
-ax.spines['top'].set_visible(False)
-ax.spines['right'].set_visible(False)
-plt.yticks(fontsize=30)
-plt.ylabel('Acc (%, 1s time window)', fontsize= 35)
-plt.xlabel('Layer', fontsize= 35)
-plt.ylim(75, 100)
-#plt.legend(frameon=False, fontsize='xx-large')
+# ## Figure 5 g 
+#
+# - Diagram of the cortical areas considered, and decoding performance from CEBRA jointly trained (2P+NP), 10 frame receptive field.
 
 # +
 colors = {
@@ -369,3 +373,31 @@ plt.xlabel('# Neurons', fontsize=35)
 plt.ylabel('Acc (%, 1s time window)', fontsize=35)
 plt.ylim(5,100)
 l=plt.legend(frameon = False, bbox_to_anchor=[1,0.5], fontsize=25 )
+# -
+
+# ## Figure 5 h
+#
+# - V1 decoding performance vs. layer category using 900 neurons with a 330 ms receptive field \cebra-Behavior model.
+
+# +
+layer_decoding = data['layer_decoding'][900]
+fig=plt.figure(figsize=(7.5,10))
+ax=fig.add_subplot(111)
+
+labels =['900']
+colors =['black', 'gray', 'lightgray']
+
+ax.errorbar(np.arange(3), [np.mean(layer_decoding[layer])for layer in [2,4,5]], 
+            [np.std(layer_decoding[layer]) / np.sqrt(len(layer_decoding[layer]))for layer in [2,4,5]],
+           c='k', lw = 4)
+ax.set_xticks(np.arange(3))
+ax.set_xticklabels(['2/3', '4', '5/6'], fontsize=30)
+ax.set_yticks(np.linspace(70, 100, 4))
+ax.set_yticklabels(np.linspace(70, 100, 4, dtype= int), fontsize=30)
+ax.spines['top'].set_visible(False)
+ax.spines['right'].set_visible(False)
+plt.yticks(fontsize=30)
+plt.ylabel('Acc (%, 1s time window)', fontsize= 35)
+plt.xlabel('Layer', fontsize= 35)
+plt.ylim(75, 100)
+#plt.legend(frameon=False, fontsize='xx-large')
