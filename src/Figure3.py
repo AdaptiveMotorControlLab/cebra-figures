@@ -5,14 +5,16 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.13.7
+#       jupytext_version: 1.14.1
 #   kernelspec:
-#     display_name: Python 3 (ipykernel)
+#     display_name: Python [conda env:cebra_m1] *
 #     language: python
-#     name: python3
+#     name: conda-env-cebra_m1-py
 # ---
 
 # # Figure 3: Forelimb movement behavior in a primate
+
+# #### import plot and data loading dependencies
 
 import numpy as np
 import pandas as pd
@@ -22,6 +24,8 @@ import seaborn as sns
 data = pd.read_hdf("../data/Figure3.h5")
 
 # ## Figure 3a
+#
+# - Behavioral setup: monkey makes either active movements in 8 directions with the manipulandum, or the arm is passively moved via the manipulandum (real behavioral trajectories shown, with cartoon depicting the task setup). Behavior and neural recordings are from area 2 of the primary somatosensory cortex from Chowdhury et al.
 
 # +
 active = data["behavior"]["active"]
@@ -42,6 +46,8 @@ ax2.axis("off")
 
 
 # ## Figure 3b
+#
+# - Comparison of embeddings of active trials generated with CEBRA-Behavior, CEBRA-Time, conv-pi-VAE variants, tSNE, and UMAP. The embeddings of trials (n=364) of each direction are post-hoc averaged.
 
 overview = data["overview"]
 fig = plt.figure(figsize=(30, 5))
@@ -121,6 +127,8 @@ for j in range(6):
 
 
 # ## Figure 3c
+#
+# - CEBRA-Behavior trained with x,y position of the hand. Left panel is color-coded to x position and right panel is color-coded to y position.
 
 # +
 def set_pane_axis(ax):
@@ -173,6 +181,8 @@ set_pane_axis(ax2)
 # -
 
 # ## Figure 3d
+#
+# - CEBRA-Time without any external behavior variables. As in \textbf{c}, left and right are color-coded to x and y position, respectively.
 
 # +
 features_time = data["behavior_time"]["time"]["embedding"]
@@ -213,6 +223,8 @@ set_pane_axis(ax2)
 # -
 
 # ## Figure 3e
+#
+# - Left, CEBRA-Behavior embedding trained with a 4D latent space, with target direction and active OR passive trials (trained separately) as behavior labels. Plotted separately, active vs. passive training condition.
 
 # +
 active_emission = data["cebra_ap_sep"]["active"]["embedding"]
@@ -302,6 +314,8 @@ ax2.set_title("Passive", fontsize=20)
 # -
 
 # ## Figure 3f
+#
+# - Left, CEBRA-Behavior embedding trained with a 4D latent space, with target direction and active and passive trials as behavior labels, but plotted separately, active vs. passive trials.
 
 # +
 target_emission = data["cebra_ap_all"]["embedding"]
@@ -402,6 +416,8 @@ ax2.set_title("Passive", fontsize=20)
 # -
 
 # ## Figure 3g
+#
+# - CEBRA-Behavior embedding trained with a 4D latent space using active and passive trials with continuous position as behavior labels, but post-hoc plotted separately, active vs. passive trials. The trajectory of each direction is averaged across trials (n=18--30 each, per directions) over time. Each trajectory represents 600ms from -100ms before the start of the movement.
 
 # +
 position_emission = data["cebra_pos"]["embedding"]
@@ -497,6 +513,8 @@ ax2.set_title("Passive", fontsize=20)
 # -
 
 # ## Figure 3h
+#
+# - Left to right: Decoding performance of: position using CEBRA-Behavior trained with x,y position (active trials); target direction using CEBRA-Behavior trained with target direction (active trials); or active vs. passive accuracy using CEBRA-Behavior trained with both active and passive movements. For each case, we trained and evaluated 5 seeds represented by black dot and the orange line represents median.
 
 # +
 position_acc = data["condition_decoding"]["position"]
@@ -555,6 +573,8 @@ plt.show()
 # -
 
 # ## Figure 3i
+#
+# - Decoded trajectory of hand position using CEBRA-Behavior trained on active trial with x,y position of hand. Grey line is true trajectory and red line is decoded trajectory.
 
 true = data["trajectory"]["true"]
 pred = data["trajectory"]["prediction"]
