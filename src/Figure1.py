@@ -5,19 +5,33 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.13.7
+#       jupytext_version: 1.14.1
 #   kernelspec:
-#     display_name: Python 3 (ipykernel)
+#     display_name: Python [conda env:cebra_m1] *
 #     language: python
-#     name: python3
+#     name: conda-env-cebra_m1-py
 # ---
 
 # # Figure 1: CEBRA for consistent and interpretable embeddings
 
+# #### import plot and data loading dependencies
+
+# +
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
+import pprint
+
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+import numpy as np
+
+import pandas as pd
+import numpy as np
+import pathlib
+# -
 
 data = pd.read_hdf("../data/Figure1.h5", key="data")
 
@@ -27,7 +41,9 @@ synthetic_scores = {
 }
 viz = data["visualization"]
 
-# ## Figure 1b (left)
+# ## Figure 1b (left):
+#
+# - True 2D latent (Left). Each point is mapped to spiking rate of 100 neurons, and middle; \cebra \space embedding after linear regression to true latent. Reconstruction score of 100 seeds. Reconstruction score is $R^2$ of linear regression between true latent and resulting embedding from each method. The "behavior label" is a 1D random variable sampled from uniform distribution of [0, 2$\pi$] which is assigned to each time bin of synthetic neural data, visualized by the color map. 
 
 plt.figure(figsize=(10, 5))
 ax1 = plt.subplot(121)
@@ -52,6 +68,8 @@ ax2.scatter(
 )
 
 # ## Figure 1b (right)
+#
+# - The orange line is median and each black dot is an individual run (n=100). CEBRA-Behavior shows significantly higher reconstruction score compare to pi-VAE, tSNE and UMAP (one-way ANOVA, F(3, 396)=278.31, p<0.00001 with Post Hoc Tukey HSD p<0.0001)
 
 # +
 plt.figure(figsize=(5, 5))
@@ -80,6 +98,10 @@ sns.despine(
 # -
 
 # ## Figure 1d
+#
+# - We benchmarked CEBRA against conv-pi-VAE (both with labels and without (self-supervised mode)), tSNE, and unsupervised UMAP. Note, for performance against the original pi-VAE see Extended Data Fig. 1. We plot the 3 latents (note, all CEBRA embedding figures show the first 3 latents).
+#
+# - The dimensionality (D) of the latent space is set to the minimum and equivalent dimension per method (3D for CEBRA and 2D for others) to fairly compare. Note, higher dimensions for CEBRA can give higher consistency values (see Fig. 4).
 
 # +
 label = viz["label"]
@@ -118,24 +140,11 @@ for i, k in enumerate(["cebra", "cebra_time", "pivae_w", "pivae_wo", "umap", "ts
 # -
 
 # ## Figure 1e
+#
+# - Correlation matrices depict the $R^2$ after fitting a linear model between behavior-aligned embeddings of two animals, one as the target one as the source (mean, n=10 runs). Parameters were picked by optimizing average run consistency across rats.
 
 # +
-"""Confusion matrices (Figure 1e).
 
-For all algorithm, evaluate the linear consistency between embeddings computed on the
-four different rats.
-"""
-
-import pprint
-
-import seaborn as sns
-import matplotlib.pyplot as plt
-
-import numpy as np
-
-import pandas as pd
-import numpy as np
-import pathlib
 
 ROOT = pathlib.Path("../data")
 
