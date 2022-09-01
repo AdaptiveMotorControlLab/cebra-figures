@@ -7,12 +7,14 @@
 #       format_version: '1.5'
 #       jupytext_version: 1.14.1
 #   kernelspec:
-#     display_name: Python 3 (ipykernel)
+#     display_name: Python [conda env:cebra_m1] *
 #     language: python
-#     name: python3
+#     name: conda-env-cebra_m1-py
 # ---
 
 # # Extended Data Figure 6: Persistence across dimensions
+
+# #### import plot and data loading dependencies
 
 import numpy as np
 import pandas as pd
@@ -20,6 +22,10 @@ import matplotlib.pyplot as plt
 from persim import plot_diagrams
 
 data = pd.read_hdf("../data/EDFigure6.h5")
+
+# ### CEBRA rat dataset toplogy analysis
+#
+# For each dimension of CEBRA-Behavior embedding from the rat hippocampus dataset, we obtained Betti number by applying persistent co-homology. The colored dots are lifespans observed in hypothesis based CEBRA-Behavior. To rule out noisy lifespans, we set a threshold (colored diagonal lines) as maximum lifespan based on 500 seeds of shuffled-CEBRA embedding for each dimension.
 
 behavior_topology = data["behavior"]
 max_dims_behavior = data["shuffled-max"]
@@ -69,3 +75,5 @@ for i, d in enumerate(dims):
         > max_dims_behavior[d][2]
     ).sum()
     plt.legend(frameon=False)
+
+
