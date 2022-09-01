@@ -5,14 +5,16 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.13.7
+#       jupytext_version: 1.14.1
 #   kernelspec:
-#     display_name: CEBRA-figures
+#     display_name: Python [conda env:cebra_m1] *
 #     language: python
-#     name: cebra_figures
+#     name: conda-env-cebra_m1-py
 # ---
 
 # # Extended Data Figure 7: Multi-session training and rapid decoding
+
+# #### import plot and data loading dependencies
 
 import numpy as np
 import pandas as pd
@@ -20,11 +22,15 @@ import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 import seaborn as sns
 import joblib as jl
+import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sns
+from matplotlib.markers import MarkerStyle
+
+
+# #### Define data loading & functions
 
 # +
-import matplotlib.pyplot as plt
-
-
 def recover_python_datatypes(element):
     if isinstance(element, str):
         if element.startswith("[") and element.endswith("]"):
@@ -34,18 +40,16 @@ def recover_python_datatypes(element):
                 element = np.fromstring(element[1:-1], dtype=float, sep=" ")
     return element
 
-
-# -
-
-
 def figure():
     plt.figure(figsize=(2, 2), dpi=200)
 
 
+# -
+
+
+# #### Define metric functions
+
 # +
-import numpy as np
-
-
 def mean(v):
     return sum(v) / len(v)
 
@@ -99,6 +103,9 @@ results = pd.read_csv("../data/Figure4SupplementMultisession_rat.csv").applymap(
 sorted_results = sort_results(metrics, full_metrics, results)
 # -
 
+# #### Load and check metrics
+
+# +
 aggregated_metrics = [m for m in full_metrics if m not in ["repeat", "seed"]]
 aggregated_results = sorted_results.groupby(aggregated_metrics).agg(mean).reset_index()
 aggregated_results.columns
@@ -114,57 +121,6 @@ idx = (
 sorted_results.set_index(aggregated_metrics).loc[idx].reset_index().groupby(
     aggregated_metrics + ["seed"]
 ).mean().reset_index().to_csv("cebra-behavior.csv")
-
-# +
-import seaborn as sns
-
-
-def tradeoff_plot(data, key, condition):
-    styles = "1o", "2^", "3v", "4>", "5s"
-    plt.figure(figsize=(3, 3), dpi=150)
-
-    for (color, marker), dim in zip(styles, condition):
-        filtered_data = data[(data[key] == dim) & (data.data_mode == "single-session")]
-
-        plt.scatter(
-            filtered_data.valid_position_error,
-            filtered_data.valid_consistency,
-            facecolor="none",
-            edgecolor=f"black",
-            alpha=0.8,
-            linewidth=0.6,
-            s=8,
-            marker=marker,
-            label=dim,
-        )
-
-        filtered_data = data[(data[key] == dim) & (data.data_mode == "multi-session")]
-
-        plt.scatter(
-            filtered_data.valid_position_error,
-            filtered_data.valid_consistency,
-            facecolor="none",
-            edgecolor=f"#8B168B",
-            alpha=0.8,
-            linewidth=0.6,
-            s=8,
-            marker=marker,
-        )
-
-    plt.legend(frameon=False)
-    plt.gca().invert_xaxis()
-    sns.despine(trim=True)
-    plt.xlabel("valid_error")
-    plt.ylabel("valid_consistency")
-    plt.show()
-
-
-data = aggregated_results[aggregated_results.steps > 500].sort_values(
-    "valid_position_error"
-)
-# tradeoff_plot(data, key = 'num_output', condition = [3, 8, 16, 32])
-tradeoff_plot(data, key="num_hidden_units", condition=[3, 8, 16, 32])
-# -
 
 
 # +
@@ -202,27 +158,16 @@ result = (
     .T
 )
 
-# result.to_pickle("figure4_decoding_results.pkl")
 
-# .sort_values("mean_train_run_consistency"
-# ).groupby(["data_mode", "seed", "repeat", "num_output"]
-# ).tail(1)
+# -
 
-# 10 seeds x 3 repeats
+# ### Comparison of decoding vs. consistency
+#
+# - Define plotting function
+#
+# - Comparison of decoding metrics for single or multi-session training at various consistency levels (averaged across all 12 comparisons). Models were trained for 5,000 (single) or 10,000 (multi-session) steps with a 0.003 learning rate; batch size was 7,200 samples per session. Multi-session training requires longer training or higher learning rates to obtain the same accuracy due to the 4-fold larger batch size, but converges to same decoding accuracy. We plot points at intervals of 500 steps (n=10 seeds); training progresses from lower right to upper left corner within both plots.
 
 # +
-from matplotlib.markers import MarkerStyle
-
-"""
-  baseline = sorted_results[
-    (sorted_results.num_hidden_units == 32) &
-    (sorted_results.steps == 0)
-  ].sort_values("valid_position_error"
-  ).groupby(["data_mode", "seed", "repeat", "num_output"]
-  ).head(1)
-"""
-
-
 def plot(sorted_results, metric, yaxis):
 
     filtered_results = (
@@ -240,19 +185,6 @@ def plot(sorted_results, metric, yaxis):
     filtered_results = filtered_results[filtered_results.steps % 250 == 0]
     filtered_results["train_consistency"] *= 100
     filtered_results["test_position_error"] *= 100
-    # baseline['data_mode'] = "baseline"
-    # baseline = baseline.set_index("data_mode").copy()
-    # filtered_results = pd.concat([filtered_results, baseline]).sort_values("valid_position_error", ascending = False)
-
-    # fig = sns.catplot(
-    #    data=filtered_results.reset_index(), kind="swarm",
-    #    hue="data_mode", y=metric, x="data_mode",
-    #    palette="dark", alpha=.6, height=6,
-    #    legend = False
-    # )
-
-    # display(filtered_results)
-
     filtered_results = filtered_results.groupby(["steps", "data_mode", "seed"]).mean()
     display(filtered_results.reset_index().steps.value_counts())
 
@@ -273,24 +205,24 @@ def plot(sorted_results, metric, yaxis):
     plt.legend(loc=(1, 0), frameon=False)
     plt.xlabel("Consistency [% R²]")
 
-    # fig.figure.set_size_inches(2, 2)
-    # fig.figure.set_dpi(200)
-
-    # plt.xlim([.95, 1.0])
     plt.xticks([90, 92, 94, 96, 98])
-    # plt.gca().spines["bottom"].set_bounds([.96, 1.0])
+
     sns.despine(trim=True)
     plt.ylabel(yaxis)
     plt.xlabel("Consistency [% R²]")
-    # plt.gca().set_xticklabels(["random", "single", "multi"])
+
     plt.xticks(rotation=90)
     plt.gca().invert_yaxis()
     plt.show()
 
-
 plot(sorted_results, metric="test_position_error", yaxis="Decoding Error [cm]")
-# plot(sorted_results, metric = "train_consistency", yaxis = "Consistency [R², train]")
-# plot(sorted_results, metric = "test_consistency", yaxis = "Consistency [R², test]")
+
+
+# -
+
+# ### consistency matrix single vs. multi-session training for hippocampus (32D embedding) and Allen data (128D embedding) respectively.  
+#
+# - Consistency is reported at the point in training where the average position decoding error is less than 14 cm (corresponds to 7 cm error for rat 1), and a decoding accuracy of 60\% on the Allen dataset.
 
 # +
 def show_sweep(df):
@@ -355,6 +287,8 @@ filtered_results[f"train_consistency_raw"].loc["multi-session"], filtered_result
     f"train_consistency_raw"
 ].loc["single-session"]
 
+# #### Statistics
+
 # +
 import scipy.stats
 
@@ -364,6 +298,10 @@ scipy.stats.ttest_rel(
     alternative="greater",
 )
 
+
+# -
+
+# #### Accuracy on train, validation, and test sets:
 
 # +
 def _select(values):
@@ -443,6 +381,8 @@ for key in select_metrics:
 #
 # -
 
+# ### Load data for Fine-tuning on unseen subject experiments, and define plotting code
+
 data=pd.read_hdf('../data/EDFigure7.h5')
 
 
@@ -496,7 +436,9 @@ def plot(rat_df):
 
 # -
 
-# ## panel d
+# ### Adapt to an unseen dataset
+#
+# - Here, 3 rats were used for pretraining, and rat \#4 was used as a held-out test. The grey lines are from scratch training. We also tested fine-tuning the input or full model, as the diagram, left, describes. We measured the average time to adapt 100 steps (0.65 ± 0.13 sec) and 500 steps (3.07± 0.61 sec) on 40 repeated experiments.
 
 steps = 5000
 yticks = np.arange(15, 55, 10)
@@ -509,3 +451,5 @@ steps = 500
 yticks = np.arange(15, 55, 10)
 xticks = np.arange(0, steps+25, 25*10)
 plot(data)
+
+
