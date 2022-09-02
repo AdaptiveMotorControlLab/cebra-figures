@@ -7,9 +7,9 @@
 #       format_version: '1.5'
 #       jupytext_version: 1.14.1
 #   kernelspec:
-#     display_name: Python [conda env:cebra_m1] *
+#     display_name: Python 3 (ipykernel)
 #     language: python
-#     name: conda-env-cebra_m1-py
+#     name: python3
 # ---
 
 # # Figure 2: Hypothesis-driven and discovery-driven analysis with CEBRA
@@ -61,8 +61,42 @@ for i, model in enumerate(["hypothesis", "shuffled", "discovery", "hybrid"]):
 # - Embeddings with position-only, direction-only, and shuffled position-only, direction-only for hypothesis testing. The loss function can be used as a metric for embedding quality.
 
 # +
-# TODO hypothesis testing plot
+hypothesis_viz = data['hypothesis_testing']['viz']
+
+fig = plt.figure(figsize=(15, 10))
+titles = {'pos': 'position_only', 'dir': 'direction_only', 'posdir': 'position+direction',
+         'pos-shuffled': 'position, shuffled', 'dir-shuffled': 'direction, shuffled', 'posdir-shuffled': 'p+d, shuffled'}
+for i, model in enumerate(["pos", "dir", "posdir", "pos-shuffled", 'dir-shuffled', 'posdir-shuffled']):
+    emb = hypothesis_viz[model]
+    ax = fig.add_subplot(2, 3, i + 1, projection="3d")
+    idx1, idx2, idx3=(0,1,2)
+    ax.scatter(
+        emb[:, idx1], emb[:, idx2], emb[:, idx3], c='gray', s=0.1
+    )
+    ax.axis("off")
+    ax.set_title(f"{titles[model]}", fontsize=20)
 # -
+
+hypothesis_loss = data['hypothesis_testing']['loss']
+fig = plt.figure(figsize=(4,4))
+ax = plt.subplot(111)
+titles = {'pos': 'position_only', 'dir': 'direction_only', 'posdir': 'position+direction',
+         'pos-shuffled': 'position, shuffled', 'dir-shuffled': 'direction, shuffled', 'posdir-shuffled': 'p+d, shuffled'}
+alphas = {'pos': 0.3, 'dir': 0.6, 'posdir': 1,
+         'pos-shuffled': 0.3, 'dir-shuffled': 0.6, 'posdir-shuffled': 1}
+for model in ["pos", "dir", "posdir", "pos-shuffled", 'dir-shuffled', 'posdir-shuffled']:
+    if 'shuffled' in model:
+        c = 'gray'
+    else:
+        c='deepskyblue'
+    ax.plot(hypothesis_loss[model], c=c, alpha = alphas[model], label = titles[model])
+ax.spines['top'].set_visible(False)
+ax.spines['right'].set_visible(False)
+ax.set_xlabel('Iterations', fontsize=15)
+ax.set_ylabel('InfoNCE Loss', fontsize=15)
+plt.xticks(fontsize=10)
+plt.yticks(fontsize=10)
+plt.legend(bbox_to_anchor=(1,0.5), frameon = False, fontsize=10)
 
 # ## Figure 2d
 #
