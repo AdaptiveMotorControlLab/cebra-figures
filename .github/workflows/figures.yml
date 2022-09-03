@@ -36,7 +36,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Checkout, build and push figures 
+      - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Install dependencies 
@@ -59,4 +59,8 @@ jobs:
           git config user.email github-actions@github.com
           git add figures
           git commit -m "[actions] Build figures"
-          git push origin ${{ github.ref_name }}
+      
+      - name: Push changes 
+        if: github.ref != 'refs/heads/main'
+        run: |
+          git push origin ${{ github.base_ref }}
