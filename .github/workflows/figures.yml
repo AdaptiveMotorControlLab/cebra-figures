@@ -59,4 +59,4 @@ jobs:
           git config user.email github-actions@github.com
           git add figures
           git commit -m "[actions] Build figures"
-          git push      
+          git push origin ${{ github.ref_name }}
