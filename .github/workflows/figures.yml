@@ -36,26 +36,27 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Checkout, build and push figures 
         uses: actions/checkout@v3
+
+      - name: Install dependencies 
         run: |
-          # Install dependencies 
           python -m pip install --upgrade pip setuptools wheel
           pip install -r requirements.txt
           sudo apt-get install -y pandoc
 
-          # Build the figures
+      - name: Build the figures
+        run: |
           make -j4 all
 
-          # Adapt the commit
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          git add figures
-          git commit -m "Build figures"
-          git push      
-      
       - name: Check doc build
         run: |
           make html
-      
-       
+
+      - name: Commit changes 
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add figures
+          git commit -m "[actions] Build figures"
+          git push      
