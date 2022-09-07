@@ -82,7 +82,8 @@ def plot_polar(radial_angle, label, ax, first, last):
     if last:
         ax.set_xticklabels(['0$^\circ$','45$^\circ$', '90$^\circ$', '135$^\circ$', '', '225$^\circ$', '270$^\circ$','315$^\circ$'])
     if not first and not last:
-        ax.set_xticklabels(['','45$^\circ$', '90$^\circ$', '135$^\circ$', '', '225$^\circ$', '315$^\circ$', ''])
+        ax.set_xticks(np.pi/180. * np.linspace(0,  360, 9))
+        ax.set_xticklabels(['','45$^\circ$', '90$^\circ$', '135$^\circ$', '', '225$^\circ$', '270$^\circ$', '315$^\circ$', ''])
     ax.tick_params(labelsize=11)
     return right, left
     
@@ -125,7 +126,7 @@ behavior_topology = data["behavior"]
 max_dims_behavior = data["shuffled-max"]
 circular_coord = data['circular_coord_analysis']
 dims = [3, 8, 16, 32, 64]
-fig=plt.figure(figsize=(15, 10), dpi=300)
+fig=plt.figure(figsize=(15, 11), dpi=300)
 subfigs = fig.subfigures(3, 1,)
 barcode_axs = subfigs[0].subplots(1,5, sharey=True)
 polar_axs = subfigs[1].subplots(1,5, sharey=True, subplot_kw={'projection': 'polar'})
@@ -160,23 +161,4 @@ r_bar.set_ticks([])
 l_bar.set_ticks([0, 1.5], fontsize=15)
 l_bar.set_label('position [cm]', rotation = 0, y=-0.1, fontsize=12)
 subfigs[2].legend(position_legend, ['right', 'left'], frameon = False, bbox_to_anchor=[0.98,0.4], fontsize=15)
-
-# -
-
-dic = data.to_dict()
-circular_coord['position'] = circular_coord['position'].numpy()
-dic['circular_coord_analysis']= circular_coord
-df=pd.DataFrame.from_dict(dic)
-df.to_hdf('../data/EDFigure6.h5', key ='data', mod)
-
-
-# +
-
-dic['circular_coord_analysis']
-
-# +
-
-circular_coord['position'].numpy()
-# -
-
 
