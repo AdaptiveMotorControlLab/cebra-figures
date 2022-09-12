@@ -5,11 +5,11 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.14.1
+#       jupytext_version: 1.13.8
 #   kernelspec:
-#     display_name: Python [conda env:cebra_m1] *
+#     display_name: Python 3 (ipykernel)
 #     language: python
-#     name: conda-env-cebra_m1-py
+#     name: python3
 # ---
 
 # # Figure 1: CEBRA for consistent and interpretable embeddings
@@ -43,7 +43,7 @@ viz = data["visualization"]
 
 # ## Figure 1b (left):
 #
-# - True 2D latent (Left). Each point is mapped to spiking rate of 100 neurons, and middle; \cebra \space embedding after linear regression to true latent. Reconstruction score of 100 seeds. Reconstruction score is $R^2$ of linear regression between true latent and resulting embedding from each method. The "behavior label" is a 1D random variable sampled from uniform distribution of [0, 2$\pi$] which is assigned to each time bin of synthetic neural data, visualized by the color map. 
+# - True 2D latent (Left). Each point is mapped to spiking rate of 100 neurons, and middle; \cebra \space embedding after linear regression to true latent. Reconstruction score of 100 seeds. Reconstruction score is $R^2$ of linear regression between true latent and resulting embedding from each method. The "behavior label" is a 1D random variable sampled from uniform distribution of [0, 2$\pi$] which is assigned to each time bin of synthetic neural data, visualized by the color map.
 
 plt.figure(figsize=(10, 5))
 ax1 = plt.subplot(121)
@@ -78,11 +78,14 @@ ax = plt.subplot(111)
 df = pd.DataFrame(synthetic_scores)
 sns.stripplot(data=df * 100, color="black", s=3, zorder=1, jitter=0.15)
 sns.scatterplot(data=df.median() * 100, color="orange", s=50)
-plt.xticks([0, 1, 2, 3], list(synthetic_scores.keys()), fontsize=20, rotation=45)
+plt.xticks([0, 1, 2, 3],
+           list(synthetic_scores.keys()),
+           fontsize=20,
+           rotation=45)
 plt.ylabel("$R^2$", fontsize=20)
-plt.yticks(
-    np.linspace(0, 100, 11, dtype=int), np.linspace(0, 100, 11, dtype=int), fontsize=20
-)
+plt.yticks(np.linspace(0, 100, 11, dtype=int),
+           np.linspace(0, 100, 11, dtype=int),
+           fontsize=20)
 plt.ylim(70, 100)
 ax.spines["right"].set_visible(False)
 ax.spines["top"].set_visible(False)
@@ -93,7 +96,10 @@ sns.despine(
     bottom=False,
     top=True,
     trim=True,
-    offset={"bottom": 40, "left": 15},
+    offset={
+        "bottom": 40,
+        "left": 15
+    },
 )
 # -
 
@@ -109,13 +115,22 @@ r_ind = label[:, 1] == 1
 l_ind = label[:, 2] == 1
 
 fig = plt.figure(figsize=(30, 5))
-for i, k in enumerate(["cebra", "cebra_time", "pivae_w", "pivae_wo", "umap", "tsne"]):
+for i, k in enumerate(
+    ["cebra", "cebra_time", "pivae_w", "pivae_wo", "umap", "tsne"]):
 
     fs = viz[k]
     if not "cebra" in k:
         ax = plt.subplot(1, 6, i + 1)
-        ax.scatter(fs[r_ind, 1], fs[r_ind, 0], c=label[r_ind, 0], cmap="viridis", s=1)
-        ax.scatter(fs[l_ind, 1], fs[l_ind, 0], c=label[l_ind, 0], cmap="cool", s=1)
+        ax.scatter(fs[r_ind, 1],
+                   fs[r_ind, 0],
+                   c=label[r_ind, 0],
+                   cmap="viridis",
+                   s=1)
+        ax.scatter(fs[l_ind, 1],
+                   fs[l_ind, 0],
+                   c=label[l_ind, 0],
+                   cmap="cool",
+                   s=1)
         ax.axis("off")
     else:
         ax = plt.subplot(1, 6, i + 1, projection="3d")
@@ -144,8 +159,6 @@ for i, k in enumerate(["cebra", "cebra_time", "pivae_w", "pivae_wo", "umap", "ts
 # - Correlation matrices depict the $R^2$ after fitting a linear model between behavior-aligned embeddings of two animals, one as the target one as the source (mean, n=10 runs). Parameters were picked by optimizing average run consistency across rats.
 
 # +
-
-
 ROOT = pathlib.Path("../data")
 
 
@@ -176,11 +189,7 @@ def load_results(result_name):
     return results
 
 
-results = load_results(result_name="results_v4")
-len(results)
-
-plt.rcParams["text.usetex"] = False
-
+results = load_results(result_name="results_v3")
 
 def to_cfm(values):
     values = np.concatenate(values)
@@ -205,10 +214,20 @@ def plot_confusion_matrices(results_best):
     for ax in axs:
         ax.axis("off")
 
-    for ax, (key, log) in zip(axs[:-1], results_best.items()):
-        cfm = log.pivot_table(
-            "train", index=log.index.names, columns=["animal"], aggfunc="mean"
-        ).apply(to_cfm, axis=1)
+    result_names = [('cebra-10-b', 'CEBRA-Behavior'),
+                    ('cebra-10-t', 'CEBRA-Time'),
+                    ('pivae-10-w', 'conv-piVAE\nw/labels'),
+                    ('pivae-10-wo', 'conv-piVAE'), ('tsne', 'tSNE'),
+                    ('umap', 'UMAP')]
+
+    for ax, (key, name) in zip(axs[:-1], result_names):
+
+        log = results_best[key]
+
+        cfm = log.pivot_table("train",
+                              index=log.index.names,
+                              columns=["animal"],
+                              aggfunc="mean").apply(to_cfm, axis=1)
         (cfm,) = cfm.values
 
         sns.heatmap(
@@ -224,7 +243,7 @@ def plot_confusion_matrices(results_best):
             cbar_ax=last_ax if (ax == axs[-2]) else None,
             ax=ax,
         )
-        ax.set_title(f"{key} ({100*np.nanmean(cfm):.1f})", fontsize=8)
+        ax.set_title(f"{name} ({100*np.nanmean(cfm):.1f})", fontsize=8)
     return fig
 
 
