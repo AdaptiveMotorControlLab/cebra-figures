@@ -5,7 +5,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.14.1
+#       jupytext_version: 1.13.8
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -103,8 +103,13 @@ plt.legend(bbox_to_anchor=(1,0.5), frameon = False, fontsize=10)
 # - We utilized the hypothesis-driven (position) or the shuffle (erroneous) to decode the position of the rat, which produces a large difference in decoding performance: position+direction $R^2$ is 73.35\% vs. -49.90\% shuffled and median absolute error 5.8 cm vs 44.7 cm.  Purple line is decoding from the hypothesis-based latent space, dashed line is shuffled. Right is the performance across additional methods (The orange line indicates the median of the individual runs (n=10) that are indicated by black circles. Each run is averaged over 3 splits of the dataset). 
 
 # +
-ROOT = pathlib.Path("../data")
+from matplotlib.markers import MarkerStyle
+import warnings
+import typing
+import seaborn as sns
+import matplotlib.pyplot as plt
 
+ROOT = pathlib.Path("../data")
 
 def recover_python_datatypes(element):
     if isinstance(element, str):
@@ -132,31 +137,15 @@ def load_results(result_name):
             results[result_csv.stem] = df
     return results
 
-
-results = load_results(result_name="results_v4")
-len(results)
-
-from matplotlib.markers import MarkerStyle
-import warnings
-import typing
-import seaborn as sns
-import matplotlib.pyplot as plt
-
-
 def show_boxplot(df, metric, ax, labels=None, color="C1"):
-
-    sns.set_style("white")
-
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-
         sns.boxplot(
             data=df,
             y="method",
             x=metric,
             orient="h",
-            order=labels,  # unique(labels.values()),
-            # hue = "rat",
+            order=labels,
             width=0.5,
             color="k",
             linewidth=2,
@@ -165,21 +154,18 @@ def show_boxplot(df, metric, ax, labels=None, color="C1"):
                 c=color, markersize=0, marker=".", linewidth=2, solid_capstyle="round"
             ),
             whiskerprops=dict(solid_capstyle="butt", linewidth=0),
-            # capprops = dict(c = 'C1', markersize = 0, marker = 'o', linewidth = 1),
             showbox=False,
             showcaps=False,
-            # shownotches = True
             ax=ax,
         )
         marker_style = MarkerStyle("o", "none")
-
         sns.stripplot(
             data=df,
             y="method",
             x=metric,
             orient="h",
             size=4,
-            color="black",
+            color="k",
             order=labels,
             marker=marker_style,
             linewidth=1,
@@ -188,106 +174,75 @@ def show_boxplot(df, metric, ax, labels=None, color="C1"):
             jitter=0.15,
             zorder=-1,
         )
-        # sns.despine(left = True, ax = ax)
-        # ax.get_legend().remove()
         ax.set_ylabel("")
         sns.despine(left=True, bottom=False, ax=ax)
-        # ax.tick_params(axis = 'x', length = 2, colors = "black")
         ax.tick_params(
             axis="x", which="both", bottom=True, top=False, length=5, labelbottom=True
         )
         return ax
-
 
 def _add_value(df, **kwargs):
     for key, value in kwargs.items():
         df[key] = value
     return df
 
-
 def join(results):
     return pd.concat([_add_value(df, method=key) for key, df in results.items()])
+  
+def get_metrics(results):
+  for key, results_ in results.items():
+    df = results_.copy()
+    df['method'] = key
+    df['test_position_error'] *= 100
+    df = df[df.animal == 0].pivot_table(
+      'test_position_error',
+      index = ('method', 'seed'),
+      aggfunc = "mean"
+    )
+    yield df
 
 
-metadata = [
-    (
-        "test_position_error",
-        "Decoding (positional error)",
-        100,
-        "Error [cm]",
-        [0, 10, 20, 30, 40, 50, 60],
-    ),
-]
+# +
+results = load_results(result_name="results_v1")    
+results['pivae-mcmc'] = pd.read_csv(
+  "../data/Figure2/figure2_pivae_mcmc.csv", 
+  index_col = 0
+)
 
+df = pd.concat(get_metrics(results)).reset_index()
 
-def plot_decoding_overview(results_best):
-
-    results_ = join(results_best)
-    fig, axes = plt.subplots(1, 4, figsize=(10, 2.5), dpi=500, sharey=True, sharex=True)
-
-    # label_order = tuple(results_best.keys())
-
-    def _agg(v):
-        return sum(v) / len(v)
-
-    for metric_id, (metric, metric_name, scale, xlabel, xlim) in enumerate(metadata):
-        table = (
-            results_.reset_index(drop=True)
-            .pivot_table(
-                metric,
-                index=["animal", "repeat"],
-                columns=["method"],
-                aggfunc=list,  # lambda v : list(itertools.chain.from_iterable(v) if isinstance(v, list) else list(v))
-            )
-            .applymap(
-                lambda v: list(
-                    itertools.chain.from_iterable(v)
-                    if isinstance(v[0], typing.Iterable)
-                    else v
-                )
-            )
-            .groupby("animal", level=0)
-            .agg(lambda v: np.stack(v).mean(0))
-        )
-
-        for animal in table.index:
-            df = table.loc[animal].reset_index()
-            df.columns = "method", "metric"
-            df = df.explode("metric")
-            df["metric"] *= scale
-
-            label_order = sorted(tuple(df.method.unique()))
-
-            show_boxplot(
-                df=df,
-                metric="metric",
-                ax=axes[animal],
-                color="C2" if ("svm" in metric) else "C1",
-            )
-            ax = axes[animal]
-            ax.set_xlabel(xlabel)
-            ax.set_xticks(xlim)
-            ax.spines["bottom"].set_bounds(min(xlim), max(xlim))
-
-            # axes[0, metric_id].set_title(metric_name, fontsize = 10)
-            # axes[animal, 0].set_ylabel(f"Rat {animal+1}")
-
-            # ax.set_yticklabels([
-            #  "CEBRA-Behavior",
-            #  "pi-VAE, MCMC",
-            #  "CEBRA-Time",
-            #  "pi-VAE, kNN",
-            #  "t-SNE",
-            #  "UMAP",
-            #  "PCA"
-            # ])
-            ax.set_ylabel("")
-            ax.set_title(f"Rat {animal+1}")
-
-    plt.tight_layout()
-
-
-plot_decoding_overview(results)
+sns.set_style("white")
+plt.figure(figsize = (2, 2), dpi = 200)
+ax = plt.gca()
+show_boxplot(
+  df = df,
+  metric = 'test_position_error',
+  ax = ax,
+  color = "C1",
+  labels = [
+    'cebra-b',
+    'pivae-mcmc',
+    'cebra-t',
+    'pivae-wo',
+    'tsne',
+    'umap',
+    'pca',
+  ]
+)
+ticks = [0, 10, 20, 30, 40]
+ax.set_xlim(min(ticks), max(ticks))
+ax.set_xticks(ticks)
+ax.set_xlabel("Error [cm]")
+ax.set_yticklabels([
+  "CEBRA-Behavior",
+  "conv-pi-VAE",
+  "CEBRA-Time",
+  "conv-piVAE (kNN)",
+  "t-SNE",
+  "UMAP",
+  "PCA"
+])
+plt.show()
 # -
 
 # ## Figure 2f
