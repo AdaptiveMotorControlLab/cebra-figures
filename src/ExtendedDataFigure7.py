@@ -5,11 +5,11 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.14.1
+#       jupytext_version: 1.13.8
 #   kernelspec:
-#     display_name: Python [conda env:cebra_m1] *
+#     display_name: Python 3 (ipykernel)
 #     language: python
-#     name: conda-env-cebra_m1-py
+#     name: python3
 # ---
 
 # # Extended Data Figure 7: Multi-session training and rapid decoding
@@ -133,10 +133,6 @@ def compute(sorted_results):
     groupby = [m for m in metrics if m != "repeat"] + ["data_mode"]
     sorted_results
 
-    # .groupby(groupby).mean().sort_values("mean_train_consistency") #.tail(1)
-
-    # .apply(np.mean) #.explode("test_position_error_raw")
-
     sorted_results = sorted_results[
         (sorted_results.num_hidden_units == 32) & (sorted_results.steps == 5000)
     ].explode("test_position_error_raw")
@@ -168,7 +164,7 @@ result = (
 # - Comparison of decoding metrics for single or multi-session training at various consistency levels (averaged across all 12 comparisons). Models were trained for 5,000 (single) or 10,000 (multi-session) steps with a 0.003 learning rate; batch size was 7,200 samples per session. Multi-session training requires longer training or higher learning rates to obtain the same accuracy due to the 4-fold larger batch size, but converges to same decoding accuracy. We plot points at intervals of 500 steps (n=10 seeds); training progresses from lower right to upper left corner within both plots.
 
 # +
-def plot(sorted_results, metric, yaxis):
+def plot_hippocampus(sorted_results, metric, yaxis):
 
     filtered_results = (
         sorted_results[
@@ -186,7 +182,7 @@ def plot(sorted_results, metric, yaxis):
     filtered_results["train_consistency"] *= 100
     filtered_results["test_position_error"] *= 100
     filtered_results = filtered_results.groupby(["steps", "data_mode", "seed"]).mean()
-    display(filtered_results.reset_index().steps.value_counts())
+    #display(filtered_results.reset_index().steps.value_counts())
 
     plt.figure(figsize=(2, 2), dpi=200)
     sns.scatterplot(
@@ -214,8 +210,47 @@ def plot(sorted_results, metric, yaxis):
     plt.xticks(rotation=90)
     plt.gca().invert_yaxis()
     plt.show()
+    
+from matplotlib.markers import MarkerStyle
 
-plot(sorted_results, metric="test_position_error", yaxis="Decoding Error [cm]")
+
+def plot_allen(results):
+  
+    def add_seed(line):
+        line["seed"] = np.arange(10)
+        return line
+
+    traj_results = results.groupby(["data_mode", "repeat", "steps"]).apply(add_seed)
+    traj_results = traj_results.groupby(["data_mode", "seed", "steps"]).apply("mean").reset_index()
+    traj_results = traj_results.set_index("data_mode").drop("time-contrastive").reset_index()
+    traj_results.train_consistency *= 100
+    traj_results = traj_results[traj_results.steps % 500 == 0]
+    traj_results.data_mode = traj_results.data_mode.apply({"multi-session" : "multi", "single-session" : "single"}.get)
+
+    plt.figure(figsize = (2, 2), dpi = 200)
+    sns.scatterplot(
+      data = traj_results[['data_mode', 'steps', 'test_accuracy', 'train_consistency']],
+      x = 'train_consistency',
+      y = 'test_accuracy',
+      style = 'data_mode',
+      hue = 'data_mode',
+      palette = ['#840884', 'k'],
+      markers=[MarkerStyle('v', 'none'), MarkerStyle('o', 'none')],
+      #s = 10,
+      alpha = .6,
+      ci = None
+    )
+    plt.xlabel("Consistency [% R²]")
+    plt.ylabel("Decoding Accuracy [%]")
+    plt.xticks([94,96,98,100])
+    sns.despine(trim = True)
+    plt.legend(frameon = False)
+    plt.show()
+
+plot_hippocampus(sorted_results, metric="test_position_error", yaxis="Decoding Error [cm]")
+
+allen_results = pd.read_hdf("../data/EDFigure7/allen-consistency.h5", key = "allen")
+plot_allen(allen_results)
 
 
 # -
@@ -253,6 +288,7 @@ filtered_results = (
     filtered_results.sort_values("valid_position_error").groupby("data_mode").tail(1)
 )
 
+print("Rat hippocampus dataset")
 _, axes = plt.subplots(2, 2, figsize=(4, 4), dpi=200)
 
 for ax_row, data_mode in zip(axes, ["single-session", "multi-session"]):
@@ -281,6 +317,71 @@ for ax in axes.flatten():
 
 plt.subplots_adjust(wspace=-0.005, hspace=0.05)
 plt.show()
+
+
+# +
+def agg(values):
+  if values.name.endswith("_raw"):
+    return np.stack(values, axis = 0).mean(axis = 0)
+  return values.mean()
+
+def show_sweep(df):
+  for c in df.columns:
+    try:
+      values = df[c].unique()
+    except TypeError:
+      continue
+    #if len(values) != len(df):
+    if len(values) > 1:
+      print(c, values)
+      
+def filter_results(results):
+  results_ = results.groupby([ c for c in metrics + ["data_mode"] if c != 'repeat']).agg(agg).reset_index()
+  filtered_results = results_[
+    (results.batch_size == 7200) & 
+    (results.learning_rate == 0.003) & 
+    (results.num_output == 128) &
+    (results.num_hidden_units == 128) #&
+  ].set_index("data_mode")
+
+  filtered_results = filtered_results[filtered_results["valid_accuracy"] > 60]
+  filtered_results = filtered_results.sort_values("valid_accuracy").groupby("data_mode").head(1)#["valid_accuracy"]
+  # close to 60% accuracy
+  # filtered_results["valid_accuracy"]
+  return filtered_results
+
+def plot_consistency_allen(filtered_results):
+  _, axes = plt.subplots(2, 1,figsize=(4, 4), dpi = 200)
+
+  for ax, data_mode in zip(axes, ["single-session", "multi-session"]):
+    
+    split = "train"
+    values = filtered_results[f"{split}_consistency_raw"].loc[data_mode]
+
+    cfm = np.zeros((4,4))
+    cfm[:] = float("nan")
+    cfm[~np.eye(4).astype(bool)] = values
+    sns.heatmap(
+      cfm * 100, 
+      cmap = 'gray_r', 
+      vmin = 50, 
+      vmax = 100, 
+      annot = True, 
+      fmt = '.1f', 
+      square = True, 
+      cbar = False,
+      ax = ax
+    )
+    ax.axis("off")
+
+  plt.subplots_adjust(wspace=-0.005, hspace=0.05)
+  plt.show()
+  
+  
+allen_results = pd.read_hdf("../data/EDFigure7/allen-consistency.h5", key = 'allen')
+filtered_results_allen = filter_results(allen_results)
+print("Allen dataset")
+plot_consistency_allen(filtered_results_allen)
 # -
 
 filtered_results[f"train_consistency_raw"].loc["multi-session"], filtered_results[
