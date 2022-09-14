@@ -7,9 +7,9 @@
 #       format_version: '1.5'
 #       jupytext_version: 1.14.1
 #   kernelspec:
-#     display_name: Python [conda env:cebra_m1] *
+#     display_name: Python 3 (ipykernel)
 #     language: python
-#     name: conda-env-cebra_m1-py
+#     name: python3
 # ---
 
 # # Extended Data Figure 10: Spikes and calcium signaling reveal similar embeddings
@@ -86,7 +86,7 @@ def set_ax(ax):
     ax.spines["right"].set_visible(False)
     ax.spines["top"].set_visible(False)
     ax.set_xticks(
-        np.arange(10)[::2], [10, 30, 50, 100, 200, 400, 600, 800, 900, 1000][::2], fontsize=30
+        np.arange(10), [10, 30, 50, 100, 200, 400, 600, 800, 900, 1000], fontsize=15
     )
     ax.set_yticks(np.linspace(0, 100, 5), np.linspace(0, 100, 5).astype(int), fontsize=30)
     ax.set_xlabel("# Neurons", fontsize=30)
@@ -149,108 +149,12 @@ for i, d in enumerate([8, 64]):
     )
     set_ax(ax2)
     ax2.set_title(f"Dimension {d}", fontsize=30)
-
-
 # -
 
-# ### CEBRA + kNN decoding performance (see Methods)
+# ###  Consistency across modalities and areas for CEBRA-Behavior and -Time (as computed in Fig.4 i-k). 
 #
-# - CEBRA embeddings of different output embedding dimensions, from calcium (2P) data or Neuropixels, as denoted.
-
-# +
-def mean_err(accs):
-    accs = np.array(accs).reshape(10, 5)
-    means = np.zeros(10)
-    errors = np.zeros(10)
-    for i, n in enumerate(accs):
-        mask = n != None
-        mean = n[mask].sum() / mask.sum()
-        means[i] = mean
-        error = np.std(n[mask], ddof=1) / np.sqrt(n[mask].size)
-        errors[i] = error
-    return means, errors
-
-def set_ax(ax):
-    ax.spines['top'].set_visible(False)
-    ax.spines['right'].set_visible(False)
-    ax.set_xticks(
-        np.arange(10)[::2], [10, 30, 50, 100, 200, 400, 600, 800, 900, 1000][::2], fontsize=30
-    )
-    ax.set_yticks(np.linspace(0, 100, 5), np.linspace(0, 100, 5).astype(int), fontsize=30)
-    ax.set_xlabel("# Neurons", fontsize=30)
-    ax.set_ylabel("Acc(%, in 1s time window)", fontsize=30)
-    l1 = ax.legend(fontsize=15, loc="lower right", title_fontsize=15, frameon=False)
-
-# units = [32,64,128]
-
-fig=plt.figure(figsize=(16, 7))
-plt.subplots_adjust(wspace=0.5)
-
-ns = [10, 30, 50, 100, 200, 400, 600, 800, 900, 1000]
-dims = [3, 8, 16, 32, 64, 128]
-
-ca_dims = data["decoding"]["ca_dims"]
-np_dims = data["decoding"]["np_dims"]
-
-for k, (data_dims, modality) in enumerate(
-    zip([ca_dims, np_dims], ["Ca", "Neuropixels"])
-):
-    ax = plt.subplot(1, 2, k + 1)
-    for i, d in enumerate(dims):
-        mean = data_dims["mean"][d]
-        err = data_dims["err"][d]
-        a = (i + 1) * 0.1
-        ax.errorbar(
-            np.arange(10),
-            mean,
-            err,
-            ls="--",
-            label=f"Dimension {d}",
-            color="k",
-            alpha=a,
-            markersize=20,
-            linewidth=8,
-        )
-
-    set_ax(ax)
-    plt.title(f"{modality}", fontsize=30)
-
-# -
-
-
-# ### Decoding accuracy:
+# The purple dots indicate mean of intra-V1 scores and inter-V1 scores (inter-V1 vs intra-V1 Welch's t-test; 2P (Behavior): T=1.52, p=0.081, 2P (Time): T=4.26 ,p=0.0005, NP (Behaivor): T=2.83, p=0.0085, NP (Time): T=15.51, p<0.00001)
 #
-# - measured by considering predicted frame being within 1 sec difference to true frame as correct prediction using CEBRA (2P only), jointly trained (2P+NP), or a baseline population vector kNN decoder (using the time window 33 ms (single frame), or 330 ms (10 frame receptive field).
-
-ca_decoding = data['decoding']['ca_pseudo_mouse']
-fig=plt.figure(figsize=(10,7))
-ax = plt.subplot(111)
-colors = {
-    'cebra_330': 'g', 'cebra_33': 'g', 'cebra_joint_330': 'g', 'cebra_joint_33': 'g', 'baseline_330': 'k',
-    'baseline_33': 'k'
-}
-alphas = {
-    'cebra_330': 0.7, 'cebra_33': 0.3, 'cebra_joint_330': 0.7, 'cebra_joint_33': 0.3, 'baseline_330': 0.7,
-    'baseline_33': 0.3
-}
-styles = {
-    'cebra_330': 'solid', 'cebra_33': 'solid', 'cebra_joint_330': 'dotted', 'cebra_joint_33': 'dotted',
-    'baseline_330': '--',
-    'baseline_33': '--'
-}
-labels = {
-    'cebra_330': 'CEBRA (10 frames)', 'cebra_33': 'CEBRA (1 frame)', 'cebra_joint_330': 'CEBRA joint (10 frames)',
-    'cebra_joint_33': 'CEBRA joint (1 frame)',
-    'baseline_330': 'kNN baseline (10 frames)',
-    'baseline_33': 'kNN baseline (1 frame)'
-}
-for key in ['baseline_330', 'cebra_330', 'cebra_joint_330', 'baseline_33', 'cebra_33', 'cebra_joint_33']:
-    ax.errorbar(np.arange(10),ca_decoding['mean'][key], ca_decoding['err'][key], lw = 8,
-               ls = styles[key], alpha=alphas[key], c = colors[key], label = labels[key])
-set_ax(ax)
-
-# +
-#### Let's define some plotting functions:
 
 # +
 v1_color = "#9932EB"
@@ -379,17 +283,14 @@ def make_line_strip_from_df(df, title, vmin, vmax, white=False):
     plt.xticks(color=_c)
 
     plt.show()
+    return d
 
 
 # -
 
-# ###  Consistency across modalities and areas for CEBRA-Behavior and -Time (as computed in Fig.4 i-k). 
-#
-# The purple dots indicate mean of intra-V1 scores and inter-V1 scores (inter-V1 vs intra-V1 Welch's t-test; 2P (Behavior): T=1.52, p=0.081, 2P (Time): T=4.26 ,p=0.0005, NP (Behaivor): T=2.83, p=0.0085, NP (Time): T=15.51, p<0.00001)
-#
-
-for m in ["ca", "np"]:
-    for s in ["behavior", "time"]:
+import scipy.stats
+for m in ["ca",'np' ]:
+    for s in ["behavior", 'time' ]:
         if s == "behavior":
             vmin = 70
             vmax = 90
@@ -408,6 +309,271 @@ for m in ["ca", "np"]:
         else:
             vmin = 0
             vmax = 100
-        make_line_strip_from_df(
+        d= make_line_strip_from_df(
             data["cortical_consistency"][s][m]["v1"], f"{m}-{s}", vmin, vmax
         )
+        intra_VISp=d[(d['type']=='intra') & (d['area_type'] =='primary') ]['value']
+        inter_VISp=d[(d['type']=='inter') & ((d['area1'] =='VISp') | (d['area2']=='VISp')) ]['value']
+        
+
+# ### CEBRA + kNN decoding performance (see Methods)
+#
+# - CEBRA embeddings of different output embedding dimensions, from calcium (2P) data or Neuropixels, as denoted.
+
+# +
+def mean_err(accs):
+    accs = np.array(accs).reshape(10, 5)
+    means = np.zeros(10)
+    errors = np.zeros(10)
+    for i, n in enumerate(accs):
+        mask = n != None
+        mean = n[mask].sum() / mask.sum()
+        means[i] = mean
+        error = np.std(n[mask], ddof=1) / np.sqrt(n[mask].size)
+        errors[i] = error
+    return means, errors
+
+def set_ax(ax):
+    _num_neurons = [200,400,600,800,1000]
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.set_xticks(
+        _num_neurons, _num_neurons, fontsize=25
+    )
+    ax.set_yticks(np.linspace(0, 100, 5), np.linspace(0, 100, 5).astype(int), fontsize=30)
+    ax.set_xlabel("# Neurons", fontsize=30)
+    ax.set_ylabel("Acc(%, in 1s time window)", fontsize=30)
+    l1 = ax.legend(fontsize=15, loc="lower right", title_fontsize=15, frameon=False)
+
+
+fig=plt.figure(figsize=(16, 7))
+plt.subplots_adjust(wspace=0.5)
+
+ns = [10, 30, 50, 100, 200, 400, 600, 800, 900, 1000]
+dims = [3, 8, 16, 32, 64, 128]
+
+ca_dims = data["decoding"]["ca_dims"]
+np_dims = data["decoding"]["np_dims"]
+
+for k, (data_dims, modality) in enumerate(
+    zip([ca_dims, np_dims], ["Ca", "Neuropixels"])
+):
+    ax = plt.subplot(1, 2, k + 1)
+    for i, d in enumerate(dims):
+        mean = data_dims["mean"][d]
+        err = data_dims["err"][d]
+        a = (i + 1) * 0.1
+        ax.errorbar(
+            ns,
+            mean,
+            err,
+            ls="--",
+            label=f"Dimension {d}",
+            color="k",
+            alpha=a,
+            markersize=20,
+            linewidth=8,
+        )
+
+    set_ax(ax)
+    plt.title(f"{modality}", fontsize=30)
+# -
+
+
+# ### Decoding accuracy:
+#
+# - measured by considering predicted frame being within 1 sec difference to true frame as correct prediction using CEBRA (2P only), jointly trained (2P+NP), or a baseline population vector kNN decoder (using the time window 33 ms (single frame), or 330 ms (10 frame receptive field).
+#
+# - single frame decoding performance (1 frame receptive field) using kNN, bayes baseline, CEBRA (NP only) and jointly trained CEBRA (2P + NP), as done in Figure 5 e), f).
+#
+# - Decoding performance from 2P data from different visual cortical areas from different layers using a 10 frame window CEBRA-behavior model using DINO features with 128 output dimension.
+
+ca_decoding = data['decoding']['ca_pseudo_mouse']
+fig=plt.figure(figsize=(10,7))
+ax = plt.subplot(111)
+colors = {
+    'cebra_330': 'g', 'cebra_33': 'g', 'cebra_joint_330': 'g', 'cebra_joint_33': 'g', 'baseline_330': 'k',
+    'baseline_33': 'k'
+}
+alphas = {
+    'cebra_330': 0.7, 'cebra_33': 0.3, 'cebra_joint_330': 0.7, 'cebra_joint_33': 0.3, 'baseline_330': 0.7,
+    'baseline_33': 0.3
+}
+styles = {
+    'cebra_330': 'solid', 'cebra_33': 'solid', 'cebra_joint_330': 'dotted', 'cebra_joint_33': 'dotted',
+    'baseline_330': '--',
+    'baseline_33': '--'
+}
+labels = {
+    'cebra_330': 'CEBRA (10 frames)', 'cebra_33': 'CEBRA (1 frame)', 'cebra_joint_330': 'CEBRA joint (10 frames)',
+    'cebra_joint_33': 'CEBRA joint (1 frame)',
+    'baseline_330': 'kNN baseline (10 frames)',
+    'baseline_33': 'kNN baseline (1 frame)'
+}
+for key in ['baseline_330', 'cebra_330', 'cebra_joint_330', 'baseline_33', 'cebra_33', 'cebra_joint_33']:
+    ax.errorbar(ns,ca_decoding['mean'][key], ca_decoding['err'][key], lw = 8,
+               ls = styles[key], alpha=alphas[key], c = colors[key], label = labels[key])
+set_ax(ax)
+
+frame_np_bayes_baseline_33_err = data['frame_err']['bayes']['np_baseline_33']
+frame_np_knn_baseline_33_err =data['frame_err']['knn']['np_baseline_33']
+frame_np_cebra_knn_33_err = data['frame_err']['knn']['np_cebra_33']
+frame_np_joint_cebra_knn_33_err = data['frame_err']['knn']['np_cebra_joint_33']
+
+# +
+num_neurons = [50,100,200,400, 600, 800,900, 1000]
+
+def set_ax(ax, white_c):
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.spines['left'].set_color(white_c)
+    ax.spines['bottom'].set_color(white_c)
+    ax.set_xticks([200,400, 600, 800,1000], [200,400, 600, 800,1000], fontsize = 30, color = white_c)
+    ax.set_yticks(np.linspace(0,100,5), np.linspace(0,100,5, dtype = int), fontsize = 30,color = white_c)
+    ax.set_xlabel('# Neurons', fontsize = 35, color = white_c)
+    ax.set_ylabel('Acc (%, in 1s time window)', fontsize=35, color = white_c)
+    ax.tick_params(colors=white_c)
+    l1=ax.legend(fontsize= 15, loc = 'best', title_fontsize = 15,  frameon = False  )
+    
+    for text in l1.get_texts():
+        text.set_color(white_c)
+        
+def n_mean_err(dic, ns = num_neurons):
+    means=[]
+    errs=[]
+    for n in ns:
+        means.append(np.mean(dic[n]))
+        errs.append(np.std(dic[n])/np.sqrt(len(dic[n])))
+    return np.array(means), np.array(errs)
+
+def n_mean_err_joint(dic, modality, ns = num_neurons):
+    means=[]
+    errs=[]
+    if modality == 'np':
+        ind = 1
+    elif modality == 'ca':
+        ind = 0
+    for n in ns:
+        _d = np.array(dic[n])[:,ind]
+        means.append(np.mean(_d))
+        errs.append(np.std(_d)/np.sqrt(len(_d)))
+    return np.array(means), np.array(errs)
+
+def n_mean_err_frame_diff(err_dict, ns = num_neurons):
+    means = []
+    errs = []
+    for n in ns:
+        err_seeds = err_dict[n]
+        accs=[np.mean(abs(seed_result)) for seed_result in err_seeds]
+        means.append(np.mean(accs))
+        errs.append(np.std(accs)/np.sqrt(len(accs)))
+    return means, errs
+
+
+def n_mean_err_frame_diff_joint(err_dict,data_type = 'np', ns = num_neurons):
+    if data_type == 'np':
+        index = 1
+    else:
+        index = 0
+    means = []
+    errs = []
+    for n in ns:
+        err_seeds = err_dict[n]
+        accs=[np.mean(abs(seed_result[index])) for seed_result in err_seeds]
+        means.append(np.mean(accs))
+        errs.append(np.std(accs)/np.sqrt(len(accs)))
+    return means, errs
+
+
+# +
+white = False
+
+if white:
+    white_c='white'
+else:
+    white_c = 'black'
+    
+fig= plt.figure(figsize=(7,7))
+ax=plt.subplot(111)
+frame_err = frame_np_cebra_knn_33_err[1000][1]
+ax.scatter(np.arange(len(frame_err)), np.arange(900)+frame_err, s=5, c = 'darkgray' )
+ax.plot((0,len(frame_err)), (0,900), c="#9932EB", lw=3,)
+ax.set_xticks(np.linspace(0,900, 4), np.linspace(0,900,4).astype(int), fontsize=20)
+ax.set_yticks(np.linspace(0,900, 4), np.linspace(0,900,4).astype(int), fontsize=20)
+ax.set_xlabel('True frame', fontsize=25)
+ax.set_ylabel('Predicted frame', fontsize=25)
+ax.spines['right'].set_visible(False)
+ax.spines['top'].set_visible(False)
+
+
+
+fig_33 = plt.figure(figsize=(7,10))
+fig_33.suptitle(f'Frame identification - mean abs frame difference', fontsize=30)
+plt.subplots_adjust(wspace = 0.5)
+ax1 = plt.subplot(111)
+
+c="#9932EB"
+
+ax1.errorbar(num_neurons, n_mean_err_frame_diff(frame_np_knn_baseline_33_err)[0], 
+             n_mean_err_frame_diff(frame_np_knn_baseline_33_err)[1],
+             ls = '--',label = 'NP kNN baseline (1 frame)', color = 'k', alpha =0.7, 
+             markersize= 20, linewidth = 8)
+
+ax1.errorbar(num_neurons, n_mean_err_frame_diff(frame_np_bayes_baseline_33_err)[0],
+             n_mean_err_frame_diff(frame_np_bayes_baseline_33_err)[1],
+             ls='--',  label = 'NP Bayes baseline (1 frame)', color = 'k', alpha =0.3, 
+             markersize= 20, linewidth = 8)
+
+ax1.errorbar(num_neurons, n_mean_err_frame_diff(frame_np_cebra_knn_33_err)[0], 
+             n_mean_err_frame_diff(frame_np_cebra_knn_33_err)[1], 
+             label = 'NP kNN CEBRA (1 frame)', color = c, alpha =1, 
+             markersize= 20, linewidth = 8)
+             
+ax1.errorbar(num_neurons, n_mean_err_frame_diff_joint(frame_np_joint_cebra_knn_33_err,'np')[0], 
+             n_mean_err_frame_diff_joint(frame_np_joint_cebra_knn_33_err,'np')[1], 
+            ls = 'dotted',label = 'NP kNN CEBRA joint (1 frame)', color = c, alpha =1, 
+             markersize= 20, linewidth = 8)
+
+ax1.set_ylim(0, 300)
+set_ax(ax1, white_c)
+ax1.set_yticks(np.linspace(0,300,6), np.linspace(0,300,6, dtype = int), fontsize = 30,color = white_c)
+ax1.set_ylabel('Frame difference', fontsize=35)
+
+# +
+colors = {
+    'VISl':'#A7D1F9',
+    'VISrl': '#10CCF5',
+    'VISal': '#49E7DD',
+    'VISp': "#9932EB",
+    'VISam':"#99F7CA",
+    'VISpm':"#9EF19D"
+    
+}
+
+ca_decoding = data['ca_area']
+
+fig=plt.figure(figsize=(7.5,7.5))
+#plt.title('Decoding by cortical area - DINO feature', fontsize=35, y=1.1)
+ax = plt.subplot(111)
+for area in ['VISal', 'VISl', 'VISrl', 'VISp', 'VISam', 'VISpm']:
+    ax.errorbar([10,30, 50, 100, 200, 400, 600, 800, 900,1000], [np.mean(ca_decoding[area][k])
+                                for k in [10,30, 50, 100, 200, 400, 600, 800, 900, 1000]], 
+                [np.std(ca_decoding[area][k])/np.sqrt(len(ca_decoding[area][k]))
+                                for k in [10,30, 50, 100, 200, 400, 600, 800, 900, 1000]],
+                label = area, 
+                lw = 5, color = colors[area])
+    
+ax.spines.right.set_visible(False)
+ax.spines.top.set_visible(False)
+
+plt.xticks([10,30, 50, 100, 200, 400, 600, 800, 1000][4:], [10,30, 50, 100, 200, 400, 600, 800, 1000][4:], fontsize = 30, color = 'k')
+
+plt.yticks( np.linspace(0, 100, 5),np.linspace(0, 100, 5,dtype = int), color = 'k', fontsize=30)
+
+plt.xlabel('# Neurons', fontsize=35)
+plt.ylabel('Acc (%, 1s time window)', fontsize=35)
+plt.ylim(5,100)
+l=plt.legend(frameon = False, bbox_to_anchor=[1,1], fontsize=25 )
+# -
+
+

@@ -7,9 +7,9 @@
 #       format_version: '1.5'
 #       jupytext_version: 1.14.1
 #   kernelspec:
-#     display_name: Python [conda env:cebra_m1] *
+#     display_name: Python 3 (ipykernel)
 #     language: python
-#     name: conda-env-cebra_m1-py
+#     name: python3
 # ---
 
 # # Figure 5: Decoding of natural movie features from mouse visual cortical areas
@@ -65,7 +65,7 @@ def set_ax(ax, white_c):
     ax.spines['top'].set_visible(False)
     ax.spines['left'].set_color(white_c)
     ax.spines['bottom'].set_color(white_c)
-    ax.set_xticks(np.arange(8)[1::2], [50, 100, 200, 400, 600, 800, 900, 1000][1::2], fontsize = 30, color = white_c)
+    ax.set_xticks([200,400, 600, 800,1000], [200,400, 600, 800,1000], fontsize = 30, color = white_c)
     ax.set_yticks(np.linspace(0,100,5), np.linspace(0,100,5, dtype = int), fontsize = 30,color = white_c)
     ax.set_xlabel('# Neurons', fontsize = 35, color = white_c)
     ax.set_ylabel('Acc (%, in 1s time window)', fontsize=35, color = white_c)
@@ -144,19 +144,19 @@ ax1 = plt.subplot(111)
 
 c="#9932EB"
 
-ax1.errorbar(np.arange(8), n_mean_err(frame_np_knn_baseline_330)[0], n_mean_err(frame_np_knn_baseline_330)[1],
+ax1.errorbar(num_neurons, n_mean_err(frame_np_knn_baseline_330)[0], n_mean_err(frame_np_knn_baseline_330)[1],
              ls = '--',label = 'NP kNN baseline (10 frames)', color = 'k', alpha =0.7, 
              markersize= 20, linewidth = 8)
 
-ax1.errorbar(np.arange(8), n_mean_err(frame_np_bayes_baseline_330)[0], n_mean_err(frame_np_bayes_baseline_330)[1],
+ax1.errorbar(num_neurons, n_mean_err(frame_np_bayes_baseline_330)[0], n_mean_err(frame_np_bayes_baseline_330)[1],
              ls='--',  label = 'NP Bayes baseline (10 frames)', color = 'k', alpha =0.3, 
              markersize= 20, linewidth = 8)
 
-ax1.errorbar(np.arange(8), n_mean_err(frame_np_cebra_knn_330)[0], n_mean_err(frame_np_cebra_knn_330)[1], 
+ax1.errorbar(num_neurons, n_mean_err(frame_np_cebra_knn_330)[0], n_mean_err(frame_np_cebra_knn_330)[1], 
              label = 'NP kNN CEBRA (10 frames)', color = c, alpha =1, 
              markersize= 20, linewidth = 8)
              
-ax1.errorbar(np.arange(8), n_mean_err_joint(frame_np_joint_cebra_knn_330, 'np')[0], 
+ax1.errorbar(num_neurons, n_mean_err_joint(frame_np_joint_cebra_knn_330, 'np')[0], 
              n_mean_err_joint(frame_np_joint_cebra_knn_330, 'np')[1], 
             ls = 'dotted',label = 'NP kNN CEBRA joint (10 frames)', color = c, alpha =1, 
              markersize= 20, linewidth = 8)
@@ -171,20 +171,20 @@ ax1 = plt.subplot(111)
 
 c="#9932EB"
 
-ax1.errorbar(np.arange(8), n_mean_err(frame_np_knn_baseline_33)[0], n_mean_err(frame_np_knn_baseline_33)[1], 
+ax1.errorbar(num_neurons, n_mean_err(frame_np_knn_baseline_33)[0], n_mean_err(frame_np_knn_baseline_33)[1], 
              ls = '--', label = 'NP kNN baseline (1 frame)', color = 'k', alpha =0.7, 
              markersize= 20, linewidth = 8)
 
-ax1.errorbar(np.arange(8), n_mean_err(frame_np_bayes_baseline_33)[0], n_mean_err(frame_np_bayes_baseline_33)[1], 
+ax1.errorbar(num_neurons, n_mean_err(frame_np_bayes_baseline_33)[0], n_mean_err(frame_np_bayes_baseline_33)[1], 
              ls = '--',label = 'NP Bayes baseline (1 frame)', color = 'k', alpha =0.3, 
              markersize= 20, linewidth = 8)
 
 
-ax1.errorbar(np.arange(8), n_mean_err(frame_np_cebra_knn_33)[0], n_mean_err(frame_np_cebra_knn_33)[1], 
+ax1.errorbar(num_neurons, n_mean_err(frame_np_cebra_knn_33)[0], n_mean_err(frame_np_cebra_knn_33)[1], 
              label = 'NP kNN CEBRA (1 frame)', color = c, alpha =1, 
              markersize= 20, linewidth = 8)
          
-ax1.errorbar(np.arange(8), n_mean_err_joint(frame_np_joint_cebra_knn_33, 'np')[0], 
+ax1.errorbar(num_neurons, n_mean_err_joint(frame_np_joint_cebra_knn_33, 'np')[0], 
              n_mean_err_joint(frame_np_joint_cebra_knn_33, 'np')[1], 
             ls = 'dotted',label = 'NP kNN CEBRA joint (1 frame)', color = c, alpha =1, 
              markersize= 20, linewidth = 8)
@@ -212,18 +212,18 @@ fig_33 = plt.figure(figsize=(7,10))
 fig_33.suptitle('Scene annotation', fontsize=30)
 plt.subplots_adjust(wspace = 0.5)
 ax1 = plt.subplot(111)
-ax1.errorbar(np.arange(8), n_mean_err(scene_np_knn_baseline_33)[0]*100, n_mean_err(scene_np_knn_baseline_33)[1]*100, 
+ax1.errorbar(num_neurons, n_mean_err(scene_np_knn_baseline_33)[0]*100, n_mean_err(scene_np_knn_baseline_33)[1]*100, 
              ls = '--', label = 'NP kNN baseline (1 frame)', color = 'k', alpha =0.7, 
              markersize= 20, linewidth = 8)
-ax1.errorbar(np.arange(8), n_mean_err(scene_np_bayes_baseline_33)[0]*100, n_mean_err(scene_np_bayes_baseline_33)[1]*100, 
+ax1.errorbar(num_neurons, n_mean_err(scene_np_bayes_baseline_33)[0]*100, n_mean_err(scene_np_bayes_baseline_33)[1]*100, 
              ls = '--',label = 'NP Bayes baseline (1 frame)', color = 'k', alpha =0.3, 
              markersize= 20, linewidth = 8)
 
-ax1.errorbar(np.arange(8), n_mean_err(scene_np_cebra_knn_33)[0]*100, n_mean_err(scene_np_cebra_knn_33)[1]*100, 
+ax1.errorbar(num_neurons, n_mean_err(scene_np_cebra_knn_33)[0]*100, n_mean_err(scene_np_cebra_knn_33)[1]*100, 
              label = 'NP kNN CEBRA (1 frame)', color = c, alpha =1, 
              markersize= 20, linewidth = 8)
 
-ax1.errorbar(np.arange(8), n_mean_err_joint(scene_np_joint_cebra_knn_33, 'np')[0]*100, 
+ax1.errorbar(num_neurons, n_mean_err_joint(scene_np_joint_cebra_knn_33, 'np')[0]*100, 
              n_mean_err_joint(scene_np_joint_cebra_knn_33, 'np')[1]*100, 
             ls = 'dotted',label = 'NP kNN CEBRA joint (1 frame)', color = c, alpha =1, 
              markersize= 20, linewidth = 8)
@@ -269,22 +269,22 @@ plt.subplots_adjust(wspace = 0.5)
 ax1 = plt.subplot(111)
 c="#9932EB"
 
-ax1.errorbar(np.arange(8), n_mean_err_frame_diff(frame_np_knn_baseline_330_err)[0], 
+ax1.errorbar(num_neurons, n_mean_err_frame_diff(frame_np_knn_baseline_330_err)[0], 
              n_mean_err_frame_diff(frame_np_knn_baseline_330_err)[1],
              ls = '--',label = 'NP kNN baseline (10 frames)', color = 'k', alpha =0.7, 
              markersize= 20, linewidth = 8)
 
-ax1.errorbar(np.arange(8), n_mean_err_frame_diff(frame_np_bayes_baseline_330_err)[0],
+ax1.errorbar(num_neurons, n_mean_err_frame_diff(frame_np_bayes_baseline_330_err)[0],
              n_mean_err_frame_diff(frame_np_bayes_baseline_330_err)[1],
              ls='--',  label = 'NP Bayes baseline (10 frames)', color = 'k', alpha =0.3, 
              markersize= 20, linewidth = 8)
 
-ax1.errorbar(np.arange(8), n_mean_err_frame_diff(frame_np_cebra_knn_330_err)[0], 
+ax1.errorbar(num_neurons, n_mean_err_frame_diff(frame_np_cebra_knn_330_err)[0], 
              n_mean_err_frame_diff(frame_np_cebra_knn_330_err)[1], 
              label = 'NP kNN CEBRA (10 frames)', color = c, alpha =1, 
              markersize= 20, linewidth = 8)
              
-ax1.errorbar(np.arange(8), n_mean_err_frame_diff_joint(frame_np_joint_cebra_knn_330_err,'np')[0], 
+ax1.errorbar(num_neurons, n_mean_err_frame_diff_joint(frame_np_joint_cebra_knn_330_err,'np')[0], 
              n_mean_err_frame_diff_joint(frame_np_joint_cebra_knn_330_err,'np')[1], 
             ls = 'dotted',label = 'NP kNN CEBRA joint (10 frames)', color = c, alpha =1, 
              markersize= 20, linewidth = 8)
@@ -308,22 +308,22 @@ ax1 = plt.subplot(111)
 
 c="#9932EB"
 
-ax1.errorbar(np.arange(8), n_mean_err_frame_diff(frame_np_knn_baseline_33_err)[0], 
+ax1.errorbar(num_neurons, n_mean_err_frame_diff(frame_np_knn_baseline_33_err)[0], 
              n_mean_err_frame_diff(frame_np_knn_baseline_33_err)[1],
              ls = '--',label = 'NP kNN baseline (1 frame)', color = 'k', alpha =0.7, 
              markersize= 20, linewidth = 8)
 
-ax1.errorbar(np.arange(8), n_mean_err_frame_diff(frame_np_bayes_baseline_33_err)[0],
+ax1.errorbar(num_neurons, n_mean_err_frame_diff(frame_np_bayes_baseline_33_err)[0],
              n_mean_err_frame_diff(frame_np_bayes_baseline_33_err)[1],
              ls='--',  label = 'NP Bayes baseline (1 frame)', color = 'k', alpha =0.3, 
              markersize= 20, linewidth = 8)
 
-ax1.errorbar(np.arange(8), n_mean_err_frame_diff(frame_np_cebra_knn_33_err)[0], 
+ax1.errorbar(num_neurons, n_mean_err_frame_diff(frame_np_cebra_knn_33_err)[0], 
              n_mean_err_frame_diff(frame_np_cebra_knn_33_err)[1], 
              label = 'NP kNN CEBRA (1 frame)', color = c, alpha =1, 
              markersize= 20, linewidth = 8)
              
-ax1.errorbar(np.arange(8), n_mean_err_frame_diff_joint(frame_np_joint_cebra_knn_33_err,'np')[0], 
+ax1.errorbar(num_neurons, n_mean_err_frame_diff_joint(frame_np_joint_cebra_knn_33_err,'np')[0], 
              n_mean_err_frame_diff_joint(frame_np_joint_cebra_knn_33_err,'np')[1], 
             ls = 'dotted',label = 'NP kNN CEBRA joint (1 frame)', color = c, alpha =1, 
              markersize= 20, linewidth = 8)
@@ -351,11 +351,11 @@ colors = {
 
 np_decoding = data['cortex_decoding']
 
-plt.figure(figsize=(7.5,10))
+fig=plt.figure(figsize=(7.5,10))
 #plt.title('Decoding by cortical area - DINO feature', fontsize=35, y=1.1)
 ax = plt.subplot(111)
 for area in ['VISal', 'VISl', 'VISrl', 'VISp', 'VISam', 'VISpm']:
-    ax.errorbar(np.arange(8), [np.mean(np_decoding[area][k])
+    ax.errorbar([10,30, 50, 100, 200, 400, 600, 800], [np.mean(np_decoding[area][k])
                                 for k in [10,30, 50, 100, 200, 400, 600, 800]], 
                 [np.std(np_decoding[area][k])/np.sqrt(len(np_decoding[area][k]))
                                 for k in [10,30, 50, 100, 200, 400, 600, 800]],
@@ -365,7 +365,7 @@ for area in ['VISal', 'VISl', 'VISrl', 'VISp', 'VISam', 'VISpm']:
 ax.spines.right.set_visible(False)
 ax.spines.top.set_visible(False)
 
-plt.xticks(np.arange(1,8,2), [10,30, 50, 100, 200, 400, 600, 800][1::2], fontsize = 30, color = 'k')
+plt.xticks([10,30, 50, 100, 200, 400, 600, 800][4:], [10,30, 50, 100, 200, 400, 600, 800][4:], fontsize = 30, color = 'k')
 
 plt.yticks( np.linspace(0, 100, 5),np.linspace(0, 100, 5,dtype = int), color = 'k', fontsize=30)
 
