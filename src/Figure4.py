@@ -7,9 +7,9 @@
 #       format_version: '1.5'
 #       jupytext_version: 1.14.1
 #   kernelspec:
-#     display_name: Python [conda env:cebra_m1] *
+#     display_name: Python 3 (ipykernel)
 #     language: python
-#     name: conda-env-cebra_m1-py
+#     name: python3
 # ---
 
 # # Figure 4: Spikes and calcium signaling reveal similar CEBRA embeddings
@@ -70,14 +70,14 @@ for m in modality:
 # - (h) Linear consistency between embeddings of calcium imaging and Neuropixels which were trained jointly. 
 
 # +
-plt.figure(figsize=(15, 10))
+fig1=plt.figure(figsize=(10,7))
 ax = plt.subplot(111)
 
 for i, d in enumerate(dims):
     mean = consistency["individual"]["mean"][d]
     err = consistency["individual"]["err"][d]
     ax.errorbar(
-        np.arange(10),
+        num_neurons,
         mean,
         err,
         label=d,
@@ -90,21 +90,23 @@ for i, d in enumerate(dims):
 
 ax.spines["right"].set_visible(False)
 ax.spines["top"].set_visible(False)
-plt.xticks(np.arange(10), [10, 30, 50, 100, 200, 400, 600, 800, 900, 1000], fontsize=30)
-plt.yticks(np.linspace(0, 1.0, 5), fontsize=35)
-plt.xlabel("# Neurons", fontsize=40)
-plt.ylabel("$R^2$", fontsize=40)
+plt.xticks([10, 200, 400, 600, 800, 1000], [10, 200, 400, 600, 800, 1000], fontsize=25)
+plt.yticks(np.linspace(0, 1.0, 5), fontsize=25)
+plt.xlabel("# Neurons", fontsize=25)
+plt.ylabel("$R^2$", fontsize=25)
 plt.suptitle("Consistency between individually trained Ca/Neuropixel ", fontsize=40)
 plt.legend(
-    fontsize=30,
+    fontsize=18,
     loc="lower right",
     title="Dimension",
-    title_fontsize=20,
-    bbox_to_anchor=(1.2, 0),
+    title_fontsize=18,
+    bbox_to_anchor=(1., -0.03),
+    frameon = False,
+    ncol=2
 )
 
 
-plt.figure(figsize=(15, 10))
+fig2=plt.figure(figsize=(10,7))
 ax = plt.subplot(111)
 
 dims = [3, 4, 8, 16, 32, 64, 128]
@@ -113,7 +115,7 @@ for i, d in enumerate(dims):
     mean = consistency["joint"]["mean"][d]
     err = consistency["joint"]["err"][d]
     ax.errorbar(
-        np.arange(10),
+        num_neurons,
         mean,
         err,
         label=d,
@@ -126,18 +128,21 @@ for i, d in enumerate(dims):
 
 ax.spines["right"].set_visible(False)
 ax.spines["top"].set_visible(False)
-plt.xticks(np.arange(10), num_neurons, fontsize=30)
-plt.yticks(np.linspace(0, 1.0, 5), fontsize=35)
-plt.xlabel("# Neurons", fontsize=40)
-plt.ylabel("$R^2$", fontsize=40)
+plt.xticks([10, 200, 400, 600, 800, 1000], [10, 200, 400, 600, 800, 1000], fontsize=25)
+plt.yticks(np.linspace(0, 1.0, 5), fontsize=25)
+plt.xlabel("# Neurons", fontsize=25)
+plt.ylabel("$R^2$", fontsize=25)
 plt.suptitle("Consistency between jointly trained Ca/Neuropixel ", fontsize=40)
+
 plt.legend(
-    fontsize=30,
+    fontsize=18,
     loc="lower right",
     title="Dimension",
-    title_fontsize=20,
-    bbox_to_anchor=(1.2, 0),
+    title_fontsize=18,
+    bbox_to_anchor=(1, 0),
+    frameon = False
 )
+
 
 # +
 v1_color = "#9932EB"
@@ -266,6 +271,8 @@ def make_line_strip_from_df(df, title, vmin, vmax, white=False):
     plt.xticks(color=_c)
 
     plt.show()
+    
+    return d
 
 
 # -
@@ -286,6 +293,19 @@ make_heatmap_from_df(
 #
 # - intra-V1 consistency measurement vs. all inter-area vs. V1 comparison. Purple dots indicate mean of V1 intra-V1 consistency (across n=12 runs) and inter-V1 consistency (n=60). Intra-V1 consistency is significantly higher than inter-area consistency (Welch's t-test, T=3.75, p=0.00019)
 
-make_line_strip_from_df(
+d=make_line_strip_from_df(
     data["cortices_consistency"]["joint_v1"], "V1 inter-intra", 50, 100
 )
+
+# ! pip install scipy==1.9.1
+
+scipy.__version__
+
+import scipy.stats
+scipy.stats.ttest_ind(d[(d['type']=='intra') &(d['area1']=='VISp')]['value'], d[(d['type']=='inter') &((d['area1']=='VISp')|(d['area2']=='VISp'))]['value'], equal_var= False, alternative = 'greater' )
+
+len(d[(d['type']=='inter') &(d['area1']=='VISp')])
+
+np.var(d[(d['type']=='inter') &((d['area1']=='VISp')|(d['area2']=='VISp'))]['val'])
+
+
