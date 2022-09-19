@@ -86,15 +86,16 @@ def set_ax(ax):
     ax.spines["right"].set_visible(False)
     ax.spines["top"].set_visible(False)
     ax.set_xticks(
-        np.arange(10), [10, 30, 50, 100, 200, 400, 600, 800, 900, 1000], fontsize=15
+        [10, 200, 400, 600, 800, 1000], [10, 200, 400, 600, 800, 1000], fontsize=30
     )
     ax.set_yticks(np.linspace(0, 100, 5), np.linspace(0, 100, 5).astype(int), fontsize=30)
     ax.set_xlabel("# Neurons", fontsize=30)
     ax.set_ylabel("$R^2$", fontsize=30)
-    l1 = ax.legend(fontsize=15, loc="lower right", title_fontsize=15, frameon=False)
+    l1 = ax.legend(fontsize=20, loc="lower right", title_fontsize=15, frameon=False)
 
 fig=plt.figure(figsize=(20, 16))
 plt.subplots_adjust(wspace=0.5, hspace=0.5)
+ns = [10, 30, 50, 100, 200, 400, 600, 800, 900, 1000]
 for i, d in enumerate([8, 64]):
     ax1 = plt.subplot(2, 2, i + 1)
 
@@ -102,7 +103,7 @@ for i, d in enumerate([8, 64]):
     np_np_joint_res = get_mean_err_dic(data["consistency"]["np-np_joint"][d])
 
     ax1.errorbar(
-        np.arange(10),
+        ns,
         ca_ca_joint_res[0],
         ca_ca_joint_res[1],
         label="Ca-Ca joint",
@@ -111,7 +112,7 @@ for i, d in enumerate([8, 64]):
         linewidth=8,
     )
     ax1.errorbar(
-        np.arange(10),
+        ns,
         np_np_joint_res[0],
         np_np_joint_res[1],
         label="Neuropixel-Neuropixel joint",
@@ -129,7 +130,7 @@ for i, d in enumerate([8, 64]):
     joint = get_mean_err_dic(data["consistency"]["joint"][d])
 
     ax2.errorbar(
-        np.arange(10),
+        ns,
         joint[0],
         joint[1],
         label="Joint",
@@ -138,7 +139,7 @@ for i, d in enumerate([8, 64]):
         linewidth=8,
     )
     ax2.errorbar(
-        np.arange(10),
+        ns,
         individual[0],
         individual[1],
         label="Individual",
@@ -149,6 +150,8 @@ for i, d in enumerate([8, 64]):
     )
     set_ax(ax2)
     ax2.set_title(f"Dimension {d}", fontsize=30)
+
+
 # -
 
 # ###  Consistency across modalities and areas for CEBRA-Behavior and -Time (as computed in Fig.4 i-k). 
@@ -286,6 +289,7 @@ def make_line_strip_from_df(df, title, vmin, vmax, white=False):
     return d
 
 
+
 # -
 
 import scipy.stats
@@ -334,11 +338,11 @@ def mean_err(accs):
     return means, errors
 
 def set_ax(ax):
-    _num_neurons = [200,400,600,800,1000]
+    _num_neurons = [10,200,400,600,800,1000]
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     ax.set_xticks(
-        _num_neurons, _num_neurons, fontsize=25
+        _num_neurons, _num_neurons, fontsize=27
     )
     ax.set_yticks(np.linspace(0, 100, 5), np.linspace(0, 100, 5).astype(int), fontsize=30)
     ax.set_xlabel("# Neurons", fontsize=30)
@@ -377,6 +381,8 @@ for k, (data_dims, modality) in enumerate(
 
     set_ax(ax)
     plt.title(f"{modality}", fontsize=30)
+    
+
 # -
 
 
@@ -415,25 +421,26 @@ for key in ['baseline_330', 'cebra_330', 'cebra_joint_330', 'baseline_33', 'cebr
                ls = styles[key], alpha=alphas[key], c = colors[key], label = labels[key])
 set_ax(ax)
 
+
 frame_np_bayes_baseline_33_err = data['frame_err']['bayes']['np_baseline_33']
 frame_np_knn_baseline_33_err =data['frame_err']['knn']['np_baseline_33']
 frame_np_cebra_knn_33_err = data['frame_err']['knn']['np_cebra_33']
 frame_np_joint_cebra_knn_33_err = data['frame_err']['knn']['np_cebra_joint_33']
 
 # +
-num_neurons = [50,100,200,400, 600, 800,900, 1000]
+num_neurons = [10,30,50,100,200,400, 600, 800,900, 1000]
 
 def set_ax(ax, white_c):
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
     ax.spines['left'].set_color(white_c)
     ax.spines['bottom'].set_color(white_c)
-    ax.set_xticks([200,400, 600, 800,1000], [200,400, 600, 800,1000], fontsize = 30, color = white_c)
+    ax.set_xticks([10,200,400, 600, 800,1000], [10,200,400, 600, 800,1000], fontsize = 30, color = white_c)
     ax.set_yticks(np.linspace(0,100,5), np.linspace(0,100,5, dtype = int), fontsize = 30,color = white_c)
     ax.set_xlabel('# Neurons', fontsize = 35, color = white_c)
     ax.set_ylabel('Acc (%, in 1s time window)', fontsize=35, color = white_c)
     ax.tick_params(colors=white_c)
-    l1=ax.legend(fontsize= 15, loc = 'best', title_fontsize = 15,  frameon = False  )
+    l1=ax.legend(fontsize= 18, loc = 'best', title_fontsize =18,  frameon = False  )
     
     for text in l1.get_texts():
         text.set_color(white_c)
@@ -498,8 +505,8 @@ ax=plt.subplot(111)
 frame_err = frame_np_cebra_knn_33_err[1000][1]
 ax.scatter(np.arange(len(frame_err)), np.arange(900)+frame_err, s=5, c = 'darkgray' )
 ax.plot((0,len(frame_err)), (0,900), c="#9932EB", lw=3,)
-ax.set_xticks(np.linspace(0,900, 4), np.linspace(0,900,4).astype(int), fontsize=20)
-ax.set_yticks(np.linspace(0,900, 4), np.linspace(0,900,4).astype(int), fontsize=20)
+ax.set_xticks(np.linspace(0,900, 4), np.linspace(0,900,4).astype(int), fontsize=25)
+ax.set_yticks(np.linspace(0,900, 4), np.linspace(0,900,4).astype(int), fontsize=25)
 ax.set_xlabel('True frame', fontsize=25)
 ax.set_ylabel('Predicted frame', fontsize=25)
 ax.spines['right'].set_visible(False)
@@ -537,7 +544,8 @@ ax1.errorbar(num_neurons, n_mean_err_frame_diff_joint(frame_np_joint_cebra_knn_3
 ax1.set_ylim(0, 300)
 set_ax(ax1, white_c)
 ax1.set_yticks(np.linspace(0,300,6), np.linspace(0,300,6, dtype = int), fontsize = 30,color = white_c)
-ax1.set_ylabel('Frame difference', fontsize=35)
+ax1.set_ylabel('Frame difference', fontsize=30)
+
 
 # +
 colors = {
@@ -552,7 +560,7 @@ colors = {
 
 ca_decoding = data['ca_area']
 
-fig=plt.figure(figsize=(7.5,7.5))
+fig=plt.figure(figsize=(7.5,8))
 #plt.title('Decoding by cortical area - DINO feature', fontsize=35, y=1.1)
 ax = plt.subplot(111)
 for area in ['VISal', 'VISl', 'VISrl', 'VISp', 'VISam', 'VISpm']:
@@ -566,7 +574,7 @@ for area in ['VISal', 'VISl', 'VISrl', 'VISp', 'VISam', 'VISpm']:
 ax.spines.right.set_visible(False)
 ax.spines.top.set_visible(False)
 
-plt.xticks([10,30, 50, 100, 200, 400, 600, 800, 1000][4:], [10,30, 50, 100, 200, 400, 600, 800, 1000][4:], fontsize = 30, color = 'k')
+plt.xticks([10, 200, 400, 600, 800, 1000], [10, 200, 400, 600, 800, 1000], fontsize = 30, color = 'k')
 
 plt.yticks( np.linspace(0, 100, 5),np.linspace(0, 100, 5,dtype = int), color = 'k', fontsize=30)
 

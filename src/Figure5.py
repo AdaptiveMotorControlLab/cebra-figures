@@ -58,14 +58,14 @@ frame_np_joint_cebra_knn_33_err = data['frame_err']['knn']['np_cebra_joint_33']
 # ### Define plotting functions & metrics
 
 # +
-num_neurons = [50,100,200,400, 600, 800,900, 1000]
+num_neurons = [10,30,50,100,200,400, 600, 800,900, 1000]
 
 def set_ax(ax, white_c):
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
     ax.spines['left'].set_color(white_c)
     ax.spines['bottom'].set_color(white_c)
-    ax.set_xticks([200,400, 600, 800,1000], [200,400, 600, 800,1000], fontsize = 30, color = white_c)
+    ax.set_xticks([10,200,400,600,800,1000], [10,200,400,600,800,1000], fontsize=30, color = white_c)
     ax.set_yticks(np.linspace(0,100,5), np.linspace(0,100,5, dtype = int), fontsize = 30,color = white_c)
     ax.set_xlabel('# Neurons', fontsize = 35, color = white_c)
     ax.set_ylabel('Acc (%, in 1s time window)', fontsize=35, color = white_c)
@@ -163,7 +163,7 @@ ax1.errorbar(num_neurons, n_mean_err_joint(frame_np_joint_cebra_knn_330, 'np')[0
 
 
 set_ax(ax1, white_c)
-ax1.set_ylim(25,100)
+ax1.set_ylim(0,100)
 fig_33 = plt.figure(figsize=(7,10))
 fig_33.suptitle('Frame identification', fontsize=30)
 plt.subplots_adjust(wspace = 0.5)
@@ -193,6 +193,7 @@ set_ax(ax1, white_c)
 
 
 plt.show()
+
 # -
 
 # ## Figure 5 d
@@ -263,7 +264,24 @@ if white:
 else:
     white_c = 'black'
 
-fig_330 = plt.figure(figsize=(7,10))
+num_neurons = [10,30,50,100,200,400, 600, 800,900, 1000]
+
+def set_ax(ax, white_c):
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.spines['left'].set_color(white_c)
+    ax.spines['bottom'].set_color(white_c)
+    ax.set_xticks([10,200,400,600,800,1000], [10,200,400,600,800,1000], fontsize=30, color = white_c)
+    ax.set_yticks(np.linspace(0,100,5), np.linspace(0,100,5, dtype = int), fontsize = 30,color = white_c)
+    ax.set_xlabel('# Neurons', fontsize = 35, color = white_c)
+    ax.set_ylabel('Acc (%, in 1s time window)', fontsize=35, color = white_c)
+    ax.tick_params(colors=white_c)
+    l1=ax.legend(fontsize= 15, loc = 'best', title_fontsize = 15,  frameon = False  )
+    
+    for text in l1.get_texts():
+        text.set_color(white_c)
+    
+fig_330 = plt.figure(figsize=(7,7))
 fig_330.suptitle(f'Frame identification - mean abs frame difference', fontsize=30)
 plt.subplots_adjust(wspace = 0.5)
 ax1 = plt.subplot(111)
@@ -289,9 +307,9 @@ ax1.errorbar(num_neurons, n_mean_err_frame_diff_joint(frame_np_joint_cebra_knn_3
             ls = 'dotted',label = 'NP kNN CEBRA joint (10 frames)', color = c, alpha =1, 
              markersize= 20, linewidth = 8)
 
-ax1.set_ylim(0, 150)
+ax1.set_ylim(0, 300)
 set_ax(ax1, white_c)
-ax1.set_yticks(np.linspace(0,150,6), np.linspace(0,150,6, dtype = int), fontsize = 30,color = white_c)
+ax1.set_yticks(np.linspace(0,300,4), np.linspace(0,300,4, dtype = int), fontsize = 30,color = white_c)
 ax1.set_ylabel('Frame difference', fontsize=35)
 
 white = False
@@ -328,10 +346,11 @@ ax1.errorbar(num_neurons, n_mean_err_frame_diff_joint(frame_np_joint_cebra_knn_3
             ls = 'dotted',label = 'NP kNN CEBRA joint (1 frame)', color = c, alpha =1, 
              markersize= 20, linewidth = 8)
 
-ax1.set_ylim(0, 300)
+ax1.set_ylim(0, 400)
 set_ax(ax1, white_c)
-ax1.set_yticks(np.linspace(0,300,6), np.linspace(0,300,6, dtype = int), fontsize = 30,color = white_c)
+ax1.set_yticks(np.linspace(0,400,5), np.linspace(0,400,5, dtype = int), fontsize = 30,color = white_c)
 ax1.set_ylabel('Frame difference', fontsize=35)
+
 # -
 
 # ## Figure 5 g 
@@ -365,14 +384,14 @@ for area in ['VISal', 'VISl', 'VISrl', 'VISp', 'VISam', 'VISpm']:
 ax.spines.right.set_visible(False)
 ax.spines.top.set_visible(False)
 
-plt.xticks([10,30, 50, 100, 200, 400, 600, 800][4:], [10,30, 50, 100, 200, 400, 600, 800][4:], fontsize = 30, color = 'k')
-
+plt.xticks([10,200, 400, 600, 800], [10, 200, 400, 600, 800], fontsize = 30, color = 'k')
 plt.yticks( np.linspace(0, 100, 5),np.linspace(0, 100, 5,dtype = int), color = 'k', fontsize=30)
 
 plt.xlabel('# Neurons', fontsize=35)
 plt.ylabel('Acc (%, 1s time window)', fontsize=35)
 plt.ylim(5,100)
 l=plt.legend(frameon = False, bbox_to_anchor=[1,0.5], fontsize=25 )
+
 # -
 
 # ## Figure 5 h
