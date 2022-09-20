@@ -12,7 +12,7 @@
 #     name: python3
 # ---
 
-# # Table SX (TODO name)
+# # Table S6 
 
 import scipy.stats
 import numpy as np
