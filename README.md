@@ -1,4 +1,4 @@
-# CEBRA -- Figures and Demos for paper
+# 🦓 CEBRA - Figures and Data
 
 Code and data for reproducing the figures in
 [Learnable latent embeddings for joint behavioral and neural analysis (Schneider, Lee and Mathis, 2022)](https://arxiv.org/abs/2204.00673).
