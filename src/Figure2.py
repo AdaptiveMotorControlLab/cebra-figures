@@ -5,7 +5,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.13.8
+#       jupytext_version: 1.14.1
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -313,3 +313,40 @@ for d in range(3):
         if k == 2:
             axs[k].set_xticks(np.linspace(0, 2, 3), np.linspace(0, 2, 3), fontsize=15)
             axs[k].set_xlabel("Lifespan", fontsize=20)
+
+# ## Figure 2g
+#
+# - Topology preserving circular coordinates using the first co-cycle from persistent co-homology analysis
+
+# +
+circular_coord=data['topology']['circular_coord']
+
+fig = plt.figure(figsize=(5,7))
+ax = plt.subplot(projection = "3d", computed_zorder=False)
+
+angle = np.linspace(0, 21, 300)
+
+label = circular_coord['label']
+radial_angle = circular_coord['radial_angle']
+r_ind = label[:,1]==1
+l_ind = label[:,2]==1
+x = np.cos(radial_angle)
+y = np.sin(radial_angle)
+z = np.cumsum(label[:,0])
+
+
+fine_angle = circular_coord['finer_angle']
+fine_z = circular_coord['fine_z']
+
+ax.scatter(x[r_ind], y[r_ind], z[r_ind], c =label[r_ind, 0], cmap = "cool", zorder = -1)
+ax.scatter(x[l_ind], y[l_ind], z[l_ind], c =label[l_ind, 0], cmap = "viridis", zorder = -1)
+ax.plot(np.cos(fine_angle), np.sin(fine_angle), fine_z, c='gray', zorder=-10, lw=1)
+
+radius = 1.3
+
+offset = 180
+ax.plot([radius*np.cos(radial_angle[offset]), radius*np.cos(np.pi+radial_angle[offset])], [radius*np.sin(radial_angle[offset]), radius*np.sin(np.pi+radial_angle[offset])], [0,0], lw=0.5, c='lightgray', zorder=-20)
+ax.plot([radius*np.cos(radial_angle[offset]+np.pi/2), radius*np.cos(radial_angle[offset]+np.pi*3/2)], [radius*np.sin(radial_angle[offset]+np.pi/2), radius*np.sin(3/2*np.pi+radial_angle[offset])], [0,0], lw=0.5, c = 'lightgray', zorder = -20)
+
+
+ax.axis("off")

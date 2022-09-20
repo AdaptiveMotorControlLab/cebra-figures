@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.13.8
+#       jupytext_version: 1.14.1
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -270,3 +270,53 @@ plot_heatmap(df, 3)
 
 scatter_grid(df, 8)
 plot_heatmap(df, 8)
+
+# +
+hypothesis_loss=joblib.load('../data/EDFigure5/hypothesis_testing_loss.jl')
+
+fig = plt.figure(figsize=(5,5))
+ax = plt.subplot(111)
+ax.plot(hypothesis_loss['posdir'], c='deepskyblue', label = 'position+direction')
+ax.plot(hypothesis_loss['pos'], c='deepskyblue', alpha = 0.3, label = 'position')
+ax.plot(hypothesis_loss['dir'], c='deepskyblue', alpha=0.6,label = 'direction')
+ax.plot(hypothesis_loss['posdir-shuffled'], c='gray', label = 'pos+dir, shuffled')
+ax.plot(hypothesis_loss['pos-shuffled'], c='gray', alpha = 0.3, label = 'position, shuffled')
+ax.plot(hypothesis_loss['dir-shuffled'],c='gray', alpha=0.6,label = 'direction, shuffled')
+
+ax.spines['top'].set_visible(False)
+ax.spines['right'].set_visible(False)
+ax.set_xlabel('Iterations')
+ax.set_ylabel('InfoNCE Loss')
+plt.legend(bbox_to_anchor=(0.5,0.3), frameon = False )
+plt.show()
+# -
+
+hypothesis_decode=joblib.load('../data/EDFigure5/hypothesis_testing_decode.jl')
+
+# +
+fig = plt.figure(figsize=(10,4))
+ax1= plt.subplot(121)
+ax1.bar(np.arange(6), 
+        [hypothesis_decode['posdir'], hypothesis_decode['pos'], hypothesis_decode['dir'], 
+         hypothesis_decode['posdir-shuffled'], hypothesis_decode['pos-shuffled'], hypothesis_decode['dir-shuffled']],
+         width = 0.5, color = 'gray')
+ax1.spines['top'].set_visible(False)
+ax1.spines['right'].set_visible(False)
+ax1.set_xticks(np.arange(6))
+ax1.set_xticklabels(['pos+dir', 'pos', 'dir', 'pos+dir,\nshuffled', 'pos,\nshuffled', 'dir,\nshuffled'])
+ax1.set_ylabel('Median err. [m]')
+
+ax2 = plt.subplot(122)
+ax2.scatter(hypothesis_loss['posdir'][-1],hypothesis_decode['posdir'], s=50, c='deepskyblue', label = 'position+direction')
+ax2.scatter(hypothesis_loss['pos'][-1],hypothesis_decode['pos'], s=50, c='deepskyblue', alpha = 0.3, label = 'position_only')
+ax2.scatter(hypothesis_loss['dir'][-1],hypothesis_decode['dir'], s=50, c='deepskyblue', alpha=0.6,label = 'direction_only')
+ax2.scatter(hypothesis_loss['posdir-shuffled'][-1],hypothesis_decode['posdir-shuffled'], s=50, c='gray', label = 'pos+dir, shuffled')
+ax2.scatter(hypothesis_loss['pos-shuffled'][-1],hypothesis_decode['pos-shuffled'], s=50, c='gray', alpha = 0.3, label = 'position, shuffled')
+ax2.scatter(hypothesis_loss['dir-shuffled'][-1],hypothesis_decode['dir-shuffled'], s=50, c='gray', alpha=0.6,label = 'direction, shuffled')
+
+ax2.spines['top'].set_visible(False)
+ax2.spines['right'].set_visible(False)
+ax2.set_xlabel('InfoNCE Loss')
+ax2.set_ylabel('Decoding Median Err.')
+plt.legend(bbox_to_anchor=(1,1), frameon = False )
+plt.show()
