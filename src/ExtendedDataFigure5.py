@@ -320,3 +320,6 @@ ax2.set_xlabel('InfoNCE Loss')
 ax2.set_ylabel('Decoding Median Err.')
 plt.legend(bbox_to_anchor=(1,1), frameon = False )
 plt.show()
+# -
+
+
