@@ -6,6 +6,8 @@ Code and data for reproducing the figures in
 This repo only contains plotting functions which can be applied to pre-computed results. Code for reproducing experiments and applying CEBRA
 to custom datasets will be available in the [CEBRA github repository](https://github.com/AdaptiveMotorControlLab/CEBRA).
 
+All notebooks can be viewed [directly in the repository](./figures) or in the [CEBRA online documentation](https://cebra.ai/docs/figures.html).
+
 ## Quickstart
 
 Make sure you are in a python>=3.8 environment that supports the `pip install` command (e.g., a virtual environment or a conda environment). Install dependencies, then render of all figures using:
