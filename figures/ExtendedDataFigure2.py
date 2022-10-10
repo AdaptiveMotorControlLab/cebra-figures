@@ -143,10 +143,10 @@ def to_cfm(values):
 
 
 fig, axs = plt.subplots(
-    ncols=5,
+    ncols=10,
     nrows=1,
-    figsize=(6, 1.25),
-    gridspec_kw={"width_ratios": [1, 1, 1, 1, 0.08]},
+    figsize=(14, 1.5),
+    gridspec_kw={"width_ratios": [1, 1, 1, 1, 1, 1, 1, 1, 1, 0.08]},
     dpi=500,
 )
 
@@ -155,7 +155,7 @@ last_ax = axs[-1]
 for ax in axs:
     ax.axis("off")
 
-for ax, (key, log) in zip(axs[:-1], sorted(results_temperature.items())):
+for ax, (key, log) in zip(axs[:-1], results_temperature.items()):
     cfm = log.pivot_table(
         "train", index=log.index.names, columns=["animal"], aggfunc="mean"
     ).apply(to_cfm, axis=1)

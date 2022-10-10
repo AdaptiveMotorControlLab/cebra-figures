@@ -7,7 +7,7 @@ import numpy as np
 import joblib
 import pathlib
 
-ROOT = pathlib.Path("./ssh/cebra_public/results")
+ROOT = pathlib.Path("/home/stes/ssh/cebra_public/results")
 
 
 def load_result(name: str, pattern: str, num_seeds: int, root: pathlib.Path = ROOT):
@@ -321,8 +321,93 @@ def results_v4():
     }
 
 
+def results_temperature():
+    args = [
+        {
+            "algorithm": "cebra-time",
+            "logdir": "/logs",
+            "datasets": "rat-hippocampus-*-3fold-trial-split-0",
+            "offset_left": 5,
+            "offset_right": 5,
+            "time_offsets": 10,
+            "max_iterations": 1000,
+            "batch_size": 20000,
+            "num_hidden_units": 64,
+            "output_dimension": 3,
+            "learning_rate": 0.001438,
+            "temperature": 0.108007,
+        },
+        {
+            "algorithm": "cebra-time",
+            "logdir": "/logs",
+            "datasets": "rat-hippocampus-*-3fold-trial-split-0",
+            "offset_left": 5,
+            "offset_right": 5,
+            "time_offsets": 10,
+            "max_iterations": 1000,
+            "batch_size": 20000,
+            "num_hidden_units": 64,
+            "output_dimension": 3,
+            "learning_rate": 0.000153,
+            "temperature": 0.209805,
+        },
+        {
+            "algorithm": "cebra-time",
+            "logdir": "/logs",
+            "datasets": "rat-hippocampus-*-3fold-trial-split-0",
+            "offset_left": 5,
+            "offset_right": 5,
+            "time_offsets": 10,
+            "max_iterations": 1000,
+            "batch_size": 20000,
+            "num_hidden_units": 64,
+            "output_dimension": 3,
+            "learning_rate": 0.000191,
+            "temperature": 1.198007,
+        },
+        {
+            "algorithm": "cebra-time",
+            "logdir": "/logs",
+            "datasets": "rat-hippocampus-*-3fold-trial-split-0",
+            "offset_left": 5,
+            "offset_right": 5,
+            "time_offsets": 10,
+            "max_iterations": 1000,
+            "batch_size": 20000,
+            "num_hidden_units": 64,
+            "output_dimension": 3,
+            "learning_rate": 0.0028521675677231,
+            "temperature": 3.212991682008965,
+        },
+    ]
+    results = {
+        key: _load(key, fname, num_seeds=num_seeds)
+        for key, fname, num_seeds in [
+            ("cebra-10-lowtemp", f"figure2_update_v5/cebra-time-lowertemp*.json", 10),
+            ("cebra-10-hightemp", f"figure2_update_v5/cebra-time-allrats*.json", 10),
+        ]
+    }
+
+    result_df = pd.concat([results["cebra-10-lowtemp"], results["cebra-10-hightemp"]])
+
+    fuzzy_match_keys = ["temperature"]
+
+    temperature_results = {}
+
+    for arg in args:
+        df = result_df.copy().reset_index()
+        for key in fuzzy_match_keys:
+            df = df[np.isclose(df[key], arg[key])]
+        df = df.set_index(result_df.index.names)
+        assert len(df) == 120, len(df)
+        temperature_results["temp. {:.2f}".format(arg["temperature"])] = df
+
+    return temperature_results
+
+
 if __name__ == "__main__":
     main(results_v1)
     main(results_v2)
     main(results_v3)
     main(results_v4)
+    main(results_temperature)
