@@ -48,7 +48,7 @@ ca_neural = allen_ex_ca['ca_trace'][:80]
 np_neural = allen_ex_neural['np_data']
 
 
-movie = data['movie']['frames']
+movie = jl.load('../data/movie1_frames.jl')['frames']
 
 spl_ca = make_interp_spline(np.arange(900), ca_test[:,:3], k=3)
 ca_test_smooth = spl_ca(np.arange(900))
