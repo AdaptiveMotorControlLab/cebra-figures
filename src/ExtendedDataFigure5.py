@@ -40,7 +40,7 @@ def load_emission(path, which):
 
 def load_loss(path):
     emission = torch.load(path, map_location="cpu")
-    return emission['loss']
+    return emission["loss"]
 
 
 def load_args(path):
@@ -48,21 +48,21 @@ def load_args(path):
         idx = [5, 7, 9, -1]
         args = json.load(fh)
         position, velocity, direction, loader = [
-            args['data'].split("-")[i] for i in idx
+            args["data"].split("-")[i] for i in idx
         ]
-        args['direction'] = direction
-        args['velocity'] = velocity
-        args['position'] = position
-        args['loader'] = loader
-        return args, (position, velocity, direction, loader, args['num_output'])
+        args["direction"] = direction
+        args["velocity"] = velocity
+        args["position"] = position
+        args["loader"] = loader
+        return args, (position, velocity, direction, loader, args["num_output"])
 
 
 def prepare_data():
-    keys = ['position', 'velocity', 'direction']
-    options = list(itertools.product(keys, ['original', 'shuffle']))
-    options = np.array(options).reshape(3, 2,
-                                        2).transpose(1, 0,
-                                                     2).reshape(6, 2).tolist()
+    keys = ["position", "velocity", "direction"]
+    options = list(itertools.product(keys, ["original", "shuffle"]))
+    options = (
+        np.array(options).reshape(3, 2, 2).transpose(1, 0, 2).reshape(6, 2).tolist()
+    )
     options = list(map(tuple, options))
     print(options)
 
@@ -80,11 +80,13 @@ def prepare_data():
         kwargs = {opt: set() for opt in keys}
         for k, v in selection:
             kwargs[k].add(v)
-        args.append({
-            "src": tuple(selection[0]),
-            "tgt": tuple(selection[1]),
-            "config": tuple(rep(kwargs[k]) for k in keys)
-        })
+        args.append(
+            {
+                "src": tuple(selection[0]),
+                "tgt": tuple(selection[1]),
+                "config": tuple(rep(kwargs[k]) for k in keys),
+            }
+        )
 
     df = pd.DataFrame(args).pivot("src", "tgt")
     return df
@@ -98,7 +100,7 @@ def scatter(data, ax):
     data /= data.max(keepdims=True)
     x, y = data[:, :2].T
 
-    ax.scatter(x, y, s=1, alpha=.25, edgecolor='none', c='k')  #, c = f"C{n}")
+    ax.scatter(x, y, s=1, alpha=0.25, edgecolor="none", c="k")  # , c = f"C{n}")
 
 
 def apply_style(ax):
@@ -107,8 +109,8 @@ def apply_style(ax):
     ax.set_ylim([-1, 1])
     ax.set_xticklabels([])
     ax.set_yticklabels([])
-    ax.tick_params(axis=u'both', which=u'both', length=0)
-    ax.set_aspect('equal')
+    ax.tick_params(axis="both", which="both", length=0)
+    ax.set_aspect("equal")
 
 
 def scatter_grid(df, dim):
@@ -120,9 +122,9 @@ def scatter_grid(df, dim):
         for j, (column, ax) in enumerate(zip(df.columns, row)):
             apply_style(ax)
             if i == 5:
-                ax.set_xlabel('{}\n{}'.format(*column[1]), fontsize=6)
+                ax.set_xlabel("{}\n{}".format(*column[1]), fontsize=6)
             if j == 0:
-                ax.set_ylabel('{}\n{}'.format(*index), fontsize=6)
+                ax.set_ylabel("{}\n{}".format(*index), fontsize=6)
             if j > i:
                 continue
             entry = df[column][index]
@@ -135,26 +137,27 @@ def scatter_grid(df, dim):
 
 
 def plot_heatmap(df, dim):
-
     def to_heatmap(entry):
         key = entry + ("continuous", dim, "loss")
         return min(files.get(key, [float("nan")]))
 
     df = df.iloc[[0, 2, 4, 1, 3, 5], [0, 2, 4, 1, 3, 5]]
-    labels = ['{}\n{}'.format(*i) for i in df.index]
+    labels = ["{}\n{}".format(*i) for i in df.index]
     hm = df.applymap(to_heatmap)
     for i, j in itertools.product(range(len(hm)), range(len(hm))):
         if j > i:
             hm.iloc[i, j] = float("nan")
 
     plt.figure(figsize=(4, 4), dpi=150)
-    sns.heatmap(hm,
-                cmap='gray',
-                xticklabels=labels,
-                yticklabels=labels,
-                annot=True,
-                fmt=".2f",
-                square=True)
+    sns.heatmap(
+        hm,
+        cmap="gray",
+        xticklabels=labels,
+        yticklabels=labels,
+        annot=True,
+        fmt=".2f",
+        square=True,
+    )
     plt.xlabel("")
     plt.ylabel("")
     plt.gca().set_xticklabels(labels, fontsize=8)
@@ -167,18 +170,15 @@ df = prepare_data()
 emission_files = sorted(glob.glob("../data/EDFigure5/*/emission*"))
 arg_files = sorted(glob.glob("../data/EDFigure5/*/args.json"))
 
-losses = [load_emission(e, 'losses') for e in emission_files]
-emissions = [load_emission(e, 'train') for e in emission_files]
-emissions_test = [load_emission(e, 'test') for e in emission_files]
+losses = [load_emission(e, "losses") for e in emission_files]
+emissions = [load_emission(e, "train") for e in emission_files]
+emissions_test = [load_emission(e, "test") for e in emission_files]
 args = [load_args(path) for path in arg_files]
-files = {
-    keys + ('train',): values for (_, keys), values in zip(args, emissions)
-}
-files.update({
-    keys + ('test',): values for (_, keys), values in zip(args, emissions_test)
-})
+files = {keys + ("train",): values for (_, keys), values in zip(args, emissions)}
 files.update(
-    {keys + ('loss',): values for (_, keys), values in zip(args, losses)})
+    {keys + ("test",): values for (_, keys), values in zip(args, emissions_test)}
+)
+files.update({keys + ("loss",): values for (_, keys), values in zip(args, losses)})
 # -
 
 # ### Relationship between velocity and position.
@@ -188,15 +188,17 @@ import os
 import joblib
 
 
-def prepare_dataset(cache='../data/EDFigure5/achilles_behavior.jl'):
+def prepare_dataset(cache="../data/EDFigure5/achilles_behavior.jl"):
     """If you have CEBRA installed, you can adapt this function to load other
-  rats, or adapt the data loading in other ways. Otherwise, pre-computed data
-  will be loaded."""
+    rats, or adapt the data loading in other ways. Otherwise, pre-computed data
+    will be loaded."""
     if not os.path.exists(cache):
         import cebra.datasets
-        DATADIR = '/home/stes/projects/neural_cl/cebra_public/data'
+
+        DATADIR = "/home/stes/projects/neural_cl/cebra_public/data"
         dataset = cebra.datasets.init(
-            "rat-hippocampus-achilles-3fold-trial-split-0", root=DATADIR)
+            "rat-hippocampus-achilles-3fold-trial-split-0", root=DATADIR
+        )
         index = dataset.index
         joblib.dump(index, cache)
     return joblib.load(cache)
@@ -210,43 +212,41 @@ import seaborn as sns
 
 def dataset_plots(index):
     """Make a summary plot of the hippocampus dataset.
-  
-  Args:
-    index is the [position, left, right] behavior index also used for training
-    CEBRA models.
-  """
+
+    Args:
+      index is the [position, left, right] behavior index also used for training
+      CEBRA models.
+    """
 
     # preprocess the dataset
     position = index[:, 0]
-    velocity = scipy.signal.savgol_filter(index[:, 0],
-                                          window_length=31,
-                                          polyorder=2,
-                                          deriv=1)
-    accel = scipy.signal.savgol_filter(index[:, 0],
-                                       window_length=11,
-                                       polyorder=2,
-                                       deriv=2)
+    velocity = scipy.signal.savgol_filter(
+        index[:, 0], window_length=31, polyorder=2, deriv=1
+    )
+    accel = scipy.signal.savgol_filter(
+        index[:, 0], window_length=11, polyorder=2, deriv=2
+    )
     direction = index[:, 1] - index[:, 2]
 
     # plot figure
     fig, axes = plt.subplots(3, 1, figsize=(12, 3), sharex=True, dpi=150)
-    axes[0].plot(index[:, 0], c='k')
+    axes[0].plot(index[:, 0], c="k")
     axes[0].set_ylim([-0.05, 1.65])
     axes[0].set_yticks([0, 1.6])
     axes[0].set_yticklabels([0, 1.6])
 
-    axes[1].plot(velocity, c='k')
-    axes[2].plot(direction, c='k')
+    axes[1].plot(velocity, c="k")
+    axes[2].plot(direction, c="k")
 
     for i, ax in enumerate(axes):
         sns.despine(ax=ax, trim=True, bottom=i != 2)
-    for ax, lbl in zip(axes, ['pos', 'vel', 'dir']):
+    for ax, lbl in zip(axes, ["pos", "vel", "dir"]):
         ax.set_ylabel(lbl)
 
     plt.show()
 
     plt.figure(figsize=(3, 3), dpi=150)
-    plt.plot(index[:, 0], velocity, linewidth=.5, color='black', alpha=.8)
+    plt.plot(index[:, 0], velocity, linewidth=0.5, color="black", alpha=0.8)
     plt.xlabel("position")
     plt.ylabel("velocity")
     sns.despine(trim=True)
@@ -272,54 +272,107 @@ scatter_grid(df, 8)
 plot_heatmap(df, 8)
 
 # +
-hypothesis_loss=joblib.load('../data/EDFigure5/hypothesis_testing_loss.jl')
+hypothesis_loss = joblib.load("../data/EDFigure5/hypothesis_testing_loss.jl")
 
-fig = plt.figure(figsize=(5,5))
+fig = plt.figure(figsize=(5, 5))
 ax = plt.subplot(111)
-ax.plot(hypothesis_loss['posdir'], c='deepskyblue', label = 'position+direction')
-ax.plot(hypothesis_loss['pos'], c='deepskyblue', alpha = 0.3, label = 'position')
-ax.plot(hypothesis_loss['dir'], c='deepskyblue', alpha=0.6,label = 'direction')
-ax.plot(hypothesis_loss['posdir-shuffled'], c='gray', label = 'pos+dir, shuffled')
-ax.plot(hypothesis_loss['pos-shuffled'], c='gray', alpha = 0.3, label = 'position, shuffled')
-ax.plot(hypothesis_loss['dir-shuffled'],c='gray', alpha=0.6,label = 'direction, shuffled')
+ax.plot(hypothesis_loss["posdir"], c="deepskyblue", label="position+direction")
+ax.plot(hypothesis_loss["pos"], c="deepskyblue", alpha=0.3, label="position")
+ax.plot(hypothesis_loss["dir"], c="deepskyblue", alpha=0.6, label="direction")
+ax.plot(hypothesis_loss["posdir-shuffled"], c="gray", label="pos+dir, shuffled")
+ax.plot(
+    hypothesis_loss["pos-shuffled"], c="gray", alpha=0.3, label="position, shuffled"
+)
+ax.plot(
+    hypothesis_loss["dir-shuffled"], c="gray", alpha=0.6, label="direction, shuffled"
+)
 
-ax.spines['top'].set_visible(False)
-ax.spines['right'].set_visible(False)
-ax.set_xlabel('Iterations')
-ax.set_ylabel('InfoNCE Loss')
-plt.legend(bbox_to_anchor=(0.5,0.3), frameon = False )
+ax.spines["top"].set_visible(False)
+ax.spines["right"].set_visible(False)
+ax.set_xlabel("Iterations")
+ax.set_ylabel("InfoNCE Loss")
+plt.legend(bbox_to_anchor=(0.5, 0.3), frameon=False)
 plt.show()
 # -
 
-hypothesis_decode=joblib.load('../data/EDFigure5/hypothesis_testing_decode.jl')
+hypothesis_decode = joblib.load("../data/EDFigure5/hypothesis_testing_decode.jl")
 
 # +
-fig = plt.figure(figsize=(10,4))
-ax1= plt.subplot(121)
-ax1.bar(np.arange(6), 
-        [hypothesis_decode['posdir'], hypothesis_decode['pos'], hypothesis_decode['dir'], 
-         hypothesis_decode['posdir-shuffled'], hypothesis_decode['pos-shuffled'], hypothesis_decode['dir-shuffled']],
-         width = 0.5, color = 'gray')
-ax1.spines['top'].set_visible(False)
-ax1.spines['right'].set_visible(False)
+fig = plt.figure(figsize=(10, 4))
+ax1 = plt.subplot(121)
+ax1.bar(
+    np.arange(6),
+    [
+        hypothesis_decode["posdir"],
+        hypothesis_decode["pos"],
+        hypothesis_decode["dir"],
+        hypothesis_decode["posdir-shuffled"],
+        hypothesis_decode["pos-shuffled"],
+        hypothesis_decode["dir-shuffled"],
+    ],
+    width=0.5,
+    color="gray",
+)
+ax1.spines["top"].set_visible(False)
+ax1.spines["right"].set_visible(False)
 ax1.set_xticks(np.arange(6))
-ax1.set_xticklabels(['pos+dir', 'pos', 'dir', 'pos+dir,\nshuffled', 'pos,\nshuffled', 'dir,\nshuffled'])
-ax1.set_ylabel('Median err. [m]')
+ax1.set_xticklabels(
+    ["pos+dir", "pos", "dir", "pos+dir,\nshuffled", "pos,\nshuffled", "dir,\nshuffled"]
+)
+ax1.set_ylabel("Median err. [m]")
 
 ax2 = plt.subplot(122)
-ax2.scatter(hypothesis_loss['posdir'][-1],hypothesis_decode['posdir'], s=50, c='deepskyblue', label = 'position+direction')
-ax2.scatter(hypothesis_loss['pos'][-1],hypothesis_decode['pos'], s=50, c='deepskyblue', alpha = 0.3, label = 'position_only')
-ax2.scatter(hypothesis_loss['dir'][-1],hypothesis_decode['dir'], s=50, c='deepskyblue', alpha=0.6,label = 'direction_only')
-ax2.scatter(hypothesis_loss['posdir-shuffled'][-1],hypothesis_decode['posdir-shuffled'], s=50, c='gray', label = 'pos+dir, shuffled')
-ax2.scatter(hypothesis_loss['pos-shuffled'][-1],hypothesis_decode['pos-shuffled'], s=50, c='gray', alpha = 0.3, label = 'position, shuffled')
-ax2.scatter(hypothesis_loss['dir-shuffled'][-1],hypothesis_decode['dir-shuffled'], s=50, c='gray', alpha=0.6,label = 'direction, shuffled')
+ax2.scatter(
+    hypothesis_loss["posdir"][-1],
+    hypothesis_decode["posdir"],
+    s=50,
+    c="deepskyblue",
+    label="position+direction",
+)
+ax2.scatter(
+    hypothesis_loss["pos"][-1],
+    hypothesis_decode["pos"],
+    s=50,
+    c="deepskyblue",
+    alpha=0.3,
+    label="position_only",
+)
+ax2.scatter(
+    hypothesis_loss["dir"][-1],
+    hypothesis_decode["dir"],
+    s=50,
+    c="deepskyblue",
+    alpha=0.6,
+    label="direction_only",
+)
+ax2.scatter(
+    hypothesis_loss["posdir-shuffled"][-1],
+    hypothesis_decode["posdir-shuffled"],
+    s=50,
+    c="gray",
+    label="pos+dir, shuffled",
+)
+ax2.scatter(
+    hypothesis_loss["pos-shuffled"][-1],
+    hypothesis_decode["pos-shuffled"],
+    s=50,
+    c="gray",
+    alpha=0.3,
+    label="position, shuffled",
+)
+ax2.scatter(
+    hypothesis_loss["dir-shuffled"][-1],
+    hypothesis_decode["dir-shuffled"],
+    s=50,
+    c="gray",
+    alpha=0.6,
+    label="direction, shuffled",
+)
 
-ax2.spines['top'].set_visible(False)
-ax2.spines['right'].set_visible(False)
-ax2.set_xlabel('InfoNCE Loss')
-ax2.set_ylabel('Decoding Median Err.')
-plt.legend(bbox_to_anchor=(1,1), frameon = False )
+ax2.spines["top"].set_visible(False)
+ax2.spines["right"].set_visible(False)
+ax2.set_xlabel("InfoNCE Loss")
+ax2.set_ylabel("Decoding Median Err.")
+plt.legend(bbox_to_anchor=(1, 1), frameon=False)
 plt.show()
 # -
-
-

@@ -21,37 +21,37 @@ from statsmodels.sandbox.stats.multicomp import get_tukey_pvalue
 import joblib
 import pandas as pd
 
-decoding_results=pd.read_hdf('../data/Figure5Revision.h5', data='key')
+decoding_results = pd.read_hdf("../data/Figure5Revision.h5", data="key")
 
 
 # +
 def get_data(decoding_results, task, decoders, methods, window, modality, num_neurons):
-    if modality == 'ca':
+    if modality == "ca":
         index = 0
-    elif modality == 'np':
+    elif modality == "np":
         index = 1
-    accs=[]
-    keys=[]
-    for decoder, method in zip(decoders,methods):
-        key = f'{modality}_{method}_{window}'
-        if 'joint' in method:
-            acc =np.array(decoding_results[task][decoder][key][num_neurons])[:, index]
+    accs = []
+    keys = []
+    for decoder, method in zip(decoders, methods):
+        key = f"{modality}_{method}_{window}"
+        if "joint" in method:
+            acc = np.array(decoding_results[task][decoder][key][num_neurons])[:, index]
         else:
-            acc=np.array(decoding_results[task][decoder][key][num_neurons])
+            acc = np.array(decoding_results[task][decoder][key][num_neurons])
         accs.append(acc)
-        keys.append([f'{key}_{decoder}']*len(acc))
-    return np.concatenate(accs),np.concatenate(keys)
+        keys.append([f"{key}_{decoder}"] * len(acc))
+    return np.concatenate(accs), np.concatenate(keys)
 
-    
+
 def concat_neurons(decoding_results, task, decoder, method, window, modality):
-    if modality == 'ca':
+    if modality == "ca":
         index = 0
-    elif modality == 'np':
+    elif modality == "np":
         index = 1
-    key = f'{modality}_{method}_{window}'
-    accs=[]
+    key = f"{modality}_{method}_{window}"
+    accs = []
     for n in decoding_results[task][decoder][key].keys():
-        if 'joint' in method:
+        if "joint" in method:
             accs.append(np.array(decoding_results[task][decoder][key][n])[:, index])
         else:
             accs.append(np.array(decoding_results[task][decoder][key][n]))
@@ -63,23 +63,36 @@ def concat_neurons(decoding_results, task, decoder, method, window, modality):
 # ## ANOVA for CEBRA, CEBRA-joint, baseline 33 ms (1 frame window):
 
 # +
-np_total_stats = scipy.stats.f_oneway(concat_neurons(decoding_results, 'scene_annotation', 'knn', 'cebra', '33', 'np'), 
-                                      concat_neurons(decoding_results, 'scene_annotation', 'knn', 'cebra_joint', '33', 'np'), 
-                                      concat_neurons(decoding_results, 'scene_annotation', 'knn', 'baseline', '33', 'np'),
-                                     concat_neurons(decoding_results, 'scene_annotation', 'bayes', 'baseline', '33', 'np'))
+np_total_stats = scipy.stats.f_oneway(
+    concat_neurons(decoding_results, "scene_annotation", "knn", "cebra", "33", "np"),
+    concat_neurons(
+        decoding_results, "scene_annotation", "knn", "cebra_joint", "33", "np"
+    ),
+    concat_neurons(decoding_results, "scene_annotation", "knn", "baseline", "33", "np"),
+    concat_neurons(
+        decoding_results, "scene_annotation", "bayes", "baseline", "33", "np"
+    ),
+)
 
 
-
-print(f'NP total stats \n {np_total_stats}')
+print(f"NP total stats \n {np_total_stats}")
 # -
 
 # ## ANOVA for CEBRA, CEBRA-joint, baseline for each neuron numbers
 
 num_neurons = [10, 30, 50, 100, 200, 400, 600, 800, 900, 1000]
 for i in num_neurons:
-    print(f'For {i} neurons from np recording (33ms, 1 frame):')
-    
-    np_data, np_keys = get_data(decoding_results, 'scene_annotation', ['knn', 'knn', 'knn', 'bayes'], ['cebra', 'cebra_joint', 'baseline', 'baseline'], '33', 'np', i)
-    
-    stats=pairwise_tukeyhsd(np_data.flatten(), np_keys)
+    print(f"For {i} neurons from np recording (33ms, 1 frame):")
+
+    np_data, np_keys = get_data(
+        decoding_results,
+        "scene_annotation",
+        ["knn", "knn", "knn", "bayes"],
+        ["cebra", "cebra_joint", "baseline", "baseline"],
+        "33",
+        "np",
+        i,
+    )
+
+    stats = pairwise_tukeyhsd(np_data.flatten(), np_keys)
     print(stats)
