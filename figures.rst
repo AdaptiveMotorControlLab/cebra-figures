@@ -26,7 +26,10 @@ differ in minor typographic details.
     Extended Data Figure 9 <figures/ExtendedDataFigure9.ipynb>
     Extended Data Figure 10 <figures/ExtendedDataFigure10.ipynb>
 
+    Supplementary Video 2 <figures/SupplVideo2.ipynb>
+
     Supplementary Table S3/S4 <figures/SupplTableS3S4.ipynb>
     Supplementary Table 5 <figures/SupplTableS5.ipynb>
     Supplementary Table 6 <figures/SupplTableS6.ipynb>
+   
 
