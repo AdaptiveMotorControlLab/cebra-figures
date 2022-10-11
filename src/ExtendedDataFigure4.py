@@ -31,6 +31,7 @@ import typing
 # +
 ROOT = pathlib.Path("../data")
 
+
 def recover_python_datatypes(element):
     if isinstance(element, str):
         if element.startswith("[") and element.endswith("]"):

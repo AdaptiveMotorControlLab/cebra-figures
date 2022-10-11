@@ -27,6 +27,7 @@ from matplotlib.collections import LineCollection
 import pandas as pd
 import numpy as np
 import pathlib
+
 # -
 
 data = pd.read_hdf("../data/Figure2.h5", key="data")
@@ -61,46 +62,71 @@ for i, model in enumerate(["hypothesis", "shuffled", "discovery", "hybrid"]):
 # - Embeddings with position-only, direction-only, and shuffled position-only, direction-only for hypothesis testing. The loss function can be used as a metric for embedding quality.
 
 # +
-hypothesis_viz = data['hypothesis_testing']['viz']
+hypothesis_viz = data["hypothesis_testing"]["viz"]
 
 fig = plt.figure(figsize=(15, 10))
-titles = {'pos': 'position_only', 'dir': 'direction_only', 'posdir': 'position+direction',
-         'pos-shuffled': 'position, shuffled', 'dir-shuffled': 'direction, shuffled', 'posdir-shuffled': 'p+d, shuffled'}
-for i, model in enumerate(["pos", "dir", "posdir", "pos-shuffled", 'dir-shuffled', 'posdir-shuffled']):
+titles = {
+    "pos": "position_only",
+    "dir": "direction_only",
+    "posdir": "position+direction",
+    "pos-shuffled": "position, shuffled",
+    "dir-shuffled": "direction, shuffled",
+    "posdir-shuffled": "p+d, shuffled",
+}
+for i, model in enumerate(
+    ["pos", "dir", "posdir", "pos-shuffled", "dir-shuffled", "posdir-shuffled"]
+):
     emb = hypothesis_viz[model]
     ax = fig.add_subplot(2, 3, i + 1, projection="3d")
-    idx1, idx2, idx3=(0,1,2)
-    ax.scatter(
-        emb[:, idx1], emb[:, idx2], emb[:, idx3], c='gray', s=0.1
-    )
+    idx1, idx2, idx3 = (0, 1, 2)
+    ax.scatter(emb[:, idx1], emb[:, idx2], emb[:, idx3], c="gray", s=0.1)
     ax.axis("off")
     ax.set_title(f"{titles[model]}", fontsize=20)
 # -
 
-hypothesis_loss = data['hypothesis_testing']['loss']
-fig = plt.figure(figsize=(4,4))
+hypothesis_loss = data["hypothesis_testing"]["loss"]
+fig = plt.figure(figsize=(4, 4))
 ax = plt.subplot(111)
-titles = {'pos': 'position_only', 'dir': 'direction_only', 'posdir': 'position+direction',
-         'pos-shuffled': 'position, shuffled', 'dir-shuffled': 'direction, shuffled', 'posdir-shuffled': 'p+d, shuffled'}
-alphas = {'pos': 0.3, 'dir': 0.6, 'posdir': 1,
-         'pos-shuffled': 0.3, 'dir-shuffled': 0.6, 'posdir-shuffled': 1}
-for model in ["pos", "dir", "posdir", "pos-shuffled", 'dir-shuffled', 'posdir-shuffled']:
-    if 'shuffled' in model:
-        c = 'gray'
+titles = {
+    "pos": "position_only",
+    "dir": "direction_only",
+    "posdir": "position+direction",
+    "pos-shuffled": "position, shuffled",
+    "dir-shuffled": "direction, shuffled",
+    "posdir-shuffled": "p+d, shuffled",
+}
+alphas = {
+    "pos": 0.3,
+    "dir": 0.6,
+    "posdir": 1,
+    "pos-shuffled": 0.3,
+    "dir-shuffled": 0.6,
+    "posdir-shuffled": 1,
+}
+for model in [
+    "pos",
+    "dir",
+    "posdir",
+    "pos-shuffled",
+    "dir-shuffled",
+    "posdir-shuffled",
+]:
+    if "shuffled" in model:
+        c = "gray"
     else:
-        c='deepskyblue'
-    ax.plot(hypothesis_loss[model], c=c, alpha = alphas[model], label = titles[model])
-ax.spines['top'].set_visible(False)
-ax.spines['right'].set_visible(False)
-ax.set_xlabel('Iterations', fontsize=15)
-ax.set_ylabel('InfoNCE Loss', fontsize=15)
+        c = "deepskyblue"
+    ax.plot(hypothesis_loss[model], c=c, alpha=alphas[model], label=titles[model])
+ax.spines["top"].set_visible(False)
+ax.spines["right"].set_visible(False)
+ax.set_xlabel("Iterations", fontsize=15)
+ax.set_ylabel("InfoNCE Loss", fontsize=15)
 plt.xticks(fontsize=10)
 plt.yticks(fontsize=10)
-plt.legend(bbox_to_anchor=(1,0.5), frameon = False, fontsize=10)
+plt.legend(bbox_to_anchor=(1, 0.5), frameon=False, fontsize=10)
 
 # ## Figure 2d
 #
-# - We utilized the hypothesis-driven (position) or the shuffle (erroneous) to decode the position of the rat, which produces a large difference in decoding performance: position+direction $R^2$ is 73.35\% vs. -49.90\% shuffled and median absolute error 5.8 cm vs 44.7 cm.  Purple line is decoding from the hypothesis-based latent space, dashed line is shuffled. Right is the performance across additional methods (The orange line indicates the median of the individual runs (n=10) that are indicated by black circles. Each run is averaged over 3 splits of the dataset). 
+# - We utilized the hypothesis-driven (position) or the shuffle (erroneous) to decode the position of the rat, which produces a large difference in decoding performance: position+direction $R^2$ is 73.35\% vs. -49.90\% shuffled and median absolute error 5.8 cm vs 44.7 cm.  Purple line is decoding from the hypothesis-based latent space, dashed line is shuffled. Right is the performance across additional methods (The orange line indicates the median of the individual runs (n=10) that are indicated by black circles. Each run is averaged over 3 splits of the dataset).
 
 # +
 from matplotlib.markers import MarkerStyle
@@ -110,6 +136,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 ROOT = pathlib.Path("../data")
+
 
 def recover_python_datatypes(element):
     if isinstance(element, str):
@@ -136,6 +163,7 @@ def load_results(result_name):
             df = df.applymap(recover_python_datatypes)
             results[result_csv.stem] = df
     return results
+
 
 def show_boxplot(df, metric, ax, labels=None, color="C1"):
     with warnings.catch_warnings():
@@ -181,67 +209,69 @@ def show_boxplot(df, metric, ax, labels=None, color="C1"):
         )
         return ax
 
+
 def _add_value(df, **kwargs):
     for key, value in kwargs.items():
         df[key] = value
     return df
 
+
 def join(results):
     return pd.concat([_add_value(df, method=key) for key, df in results.items()])
-  
+
+
 def get_metrics(results):
-  for key, results_ in results.items():
-    df = results_.copy()
-    df['method'] = key
-    df['test_position_error'] *= 100
-    df = df[df.animal == 0].pivot_table(
-      'test_position_error',
-      index = ('method', 'seed'),
-      aggfunc = "mean"
-    )
-    yield df
+    for key, results_ in results.items():
+        df = results_.copy()
+        df["method"] = key
+        df["test_position_error"] *= 100
+        df = df[df.animal == 0].pivot_table(
+            "test_position_error", index=("method", "seed"), aggfunc="mean"
+        )
+        yield df
 
 
 # +
-results = load_results(result_name="results_v1")    
-results['pivae-mcmc'] = pd.read_csv(
-  "../data/Figure2/figure2_pivae_mcmc.csv", 
-  index_col = 0
+results = load_results(result_name="results_v1")
+results["pivae-mcmc"] = pd.read_csv(
+    "../data/Figure2/figure2_pivae_mcmc.csv", index_col=0
 )
 
 df = pd.concat(get_metrics(results)).reset_index()
 
 sns.set_style("white")
-plt.figure(figsize = (2, 2), dpi = 200)
+plt.figure(figsize=(2, 2), dpi=200)
 ax = plt.gca()
 show_boxplot(
-  df = df,
-  metric = 'test_position_error',
-  ax = ax,
-  color = "C1",
-  labels = [
-    'cebra-b',
-    'pivae-mcmc',
-    'cebra-t',
-    'pivae-wo',
-    'tsne',
-    'umap',
-    'pca',
-  ]
+    df=df,
+    metric="test_position_error",
+    ax=ax,
+    color="C1",
+    labels=[
+        "cebra-b",
+        "pivae-mcmc",
+        "cebra-t",
+        "pivae-wo",
+        "tsne",
+        "umap",
+        "pca",
+    ],
 )
 ticks = [0, 10, 20, 30, 40]
 ax.set_xlim(min(ticks), max(ticks))
 ax.set_xticks(ticks)
 ax.set_xlabel("Error [cm]")
-ax.set_yticklabels([
-  "CEBRA-Behavior",
-  "conv-pi-VAE",
-  "CEBRA-Time",
-  "conv-piVAE (kNN)",
-  "t-SNE",
-  "UMAP",
-  "PCA"
-])
+ax.set_yticklabels(
+    [
+        "CEBRA-Behavior",
+        "conv-pi-VAE",
+        "CEBRA-Time",
+        "conv-piVAE (kNN)",
+        "t-SNE",
+        "UMAP",
+        "PCA",
+    ]
+)
 plt.show()
 # -
 
@@ -265,7 +295,9 @@ for i, dim in enumerate([3, 8, 16]):
     ax.scatter(
         emb[l, idx1], emb[l, idx2], emb[l, idx3], c=label[l, 0], cmap="cool", s=0.1
     )
-    ax.scatter(emb[r, idx1], emb[r, idx2], emb[r, idx3], cmap="viridis", c=label[r, 0], s=0.1)
+    ax.scatter(
+        emb[r, idx1], emb[r, idx2], emb[r, idx3], cmap="viridis", c=label[r, 0], s=0.1
+    )
     ax.axis("off")
     ax.set_title(f"Dimension {dim}", fontsize=20)
 # -
@@ -319,34 +351,60 @@ for d in range(3):
 # - Topology preserving circular coordinates using the first co-cycle from persistent co-homology analysis
 
 # +
-circular_coord=data['topology']['circular_coord']
+circular_coord = data["topology"]["circular_coord"]
 
-fig = plt.figure(figsize=(5,7))
-ax = plt.subplot(projection = "3d", computed_zorder=False)
+fig = plt.figure(figsize=(5, 7))
+ax = plt.subplot(projection="3d", computed_zorder=False)
 
 angle = np.linspace(0, 21, 300)
 
-label = circular_coord['label']
-radial_angle = circular_coord['radial_angle']
-r_ind = label[:,1]==1
-l_ind = label[:,2]==1
+label = circular_coord["label"]
+radial_angle = circular_coord["radial_angle"]
+r_ind = label[:, 1] == 1
+l_ind = label[:, 2] == 1
 x = np.cos(radial_angle)
 y = np.sin(radial_angle)
-z = np.cumsum(label[:,0])
+z = np.cumsum(label[:, 0])
 
 
-fine_angle = circular_coord['finer_angle']
-fine_z = circular_coord['fine_z']
+fine_angle = circular_coord["finer_angle"]
+fine_z = circular_coord["fine_z"]
 
-ax.scatter(x[r_ind], y[r_ind], z[r_ind], c =label[r_ind, 0], cmap = "cool", zorder = -1)
-ax.scatter(x[l_ind], y[l_ind], z[l_ind], c =label[l_ind, 0], cmap = "viridis", zorder = -1)
-ax.plot(np.cos(fine_angle), np.sin(fine_angle), fine_z, c='gray', zorder=-10, lw=1)
+ax.scatter(x[r_ind], y[r_ind], z[r_ind], c=label[r_ind, 0], cmap="cool", zorder=-1)
+ax.scatter(x[l_ind], y[l_ind], z[l_ind], c=label[l_ind, 0], cmap="viridis", zorder=-1)
+ax.plot(np.cos(fine_angle), np.sin(fine_angle), fine_z, c="gray", zorder=-10, lw=1)
 
 radius = 1.3
 
 offset = 180
-ax.plot([radius*np.cos(radial_angle[offset]), radius*np.cos(np.pi+radial_angle[offset])], [radius*np.sin(radial_angle[offset]), radius*np.sin(np.pi+radial_angle[offset])], [0,0], lw=0.5, c='lightgray', zorder=-20)
-ax.plot([radius*np.cos(radial_angle[offset]+np.pi/2), radius*np.cos(radial_angle[offset]+np.pi*3/2)], [radius*np.sin(radial_angle[offset]+np.pi/2), radius*np.sin(3/2*np.pi+radial_angle[offset])], [0,0], lw=0.5, c = 'lightgray', zorder = -20)
+ax.plot(
+    [
+        radius * np.cos(radial_angle[offset]),
+        radius * np.cos(np.pi + radial_angle[offset]),
+    ],
+    [
+        radius * np.sin(radial_angle[offset]),
+        radius * np.sin(np.pi + radial_angle[offset]),
+    ],
+    [0, 0],
+    lw=0.5,
+    c="lightgray",
+    zorder=-20,
+)
+ax.plot(
+    [
+        radius * np.cos(radial_angle[offset] + np.pi / 2),
+        radius * np.cos(radial_angle[offset] + np.pi * 3 / 2),
+    ],
+    [
+        radius * np.sin(radial_angle[offset] + np.pi / 2),
+        radius * np.sin(3 / 2 * np.pi + radial_angle[offset]),
+    ],
+    [0, 0],
+    lw=0.5,
+    c="lightgray",
+    zorder=-20,
+)
 
 
 ax.axis("off")

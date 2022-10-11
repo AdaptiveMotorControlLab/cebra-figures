@@ -67,7 +67,7 @@ for m in modality:
 # ## Figure 4 e, h
 #
 # - (e) Linear consistency between embeddings trained with either calcium imaging data or Neuropixels data.
-# - (h) Linear consistency between embeddings of calcium imaging and Neuropixels which were trained jointly. 
+# - (h) Linear consistency between embeddings of calcium imaging and Neuropixels which were trained jointly.
 
 # +
 plt.figure(figsize=(15, 10))

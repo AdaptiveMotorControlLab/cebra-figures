@@ -22,42 +22,26 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-def scatter(data, index, ax, s = 0.01, alpha = .5):
-  mask = index[:,1] > 0
-  ax.scatter(
-    *data[mask].T,
-    c = index[mask, 0],
-    s = s,
-    cmap = "viridis",
-    alpha = alpha
-  )
-  ax.scatter(
-    *data[~mask].T,
-    c = index[~mask, 0],
-    s = s,
-    cmap = "cool",
-    alpha = alpha
-  )
 
-df = pd.read_hdf("../data/EDFigure3.h5", key = 'data')
-fig = plt.figure(figsize = (4*3, 6*3), dpi = 600)
+def scatter(data, index, ax, s=0.01, alpha=0.5):
+    mask = index[:, 1] > 0
+    ax.scatter(*data[mask].T, c=index[mask, 0], s=s, cmap="viridis", alpha=alpha)
+    ax.scatter(*data[~mask].T, c=index[~mask, 0], s=s, cmap="cool", alpha=alpha)
+
+
+df = pd.read_hdf("../data/EDFigure3.h5", key="data")
+fig = plt.figure(figsize=(4 * 3, 6 * 3), dpi=600)
 for i in df.index:
-  ax = fig.add_subplot(6,4,i+1)
-  scatter(
-    df.loc[i, 'emission'][:, :2],
-    df.loc[i, 'labels'],
-    ax = ax, 
-    s = 0.5,
-    alpha = .7
-  )
-  ax.set_yticklabels([])
-  ax.set_xticklabels([])
-  ax.set_xticks([])
-  ax.set_yticks([])
-  sns.despine(bottom = True, left = True, ax = ax)
-  # first row labels
-  if i //4 == 0:
-    ax.set_title(f"Rat {df.loc[i, 'animal']}")
-  # first column labels
-  if i % 4 == 0:
-    ax.set_ylabel(df.loc[i, 'method'])
+    ax = fig.add_subplot(6, 4, i + 1)
+    scatter(df.loc[i, "emission"][:, :2], df.loc[i, "labels"], ax=ax, s=0.5, alpha=0.7)
+    ax.set_yticklabels([])
+    ax.set_xticklabels([])
+    ax.set_xticks([])
+    ax.set_yticks([])
+    sns.despine(bottom=True, left=True, ax=ax)
+    # first row labels
+    if i // 4 == 0:
+        ax.set_title(f"Rat {df.loc[i, 'animal']}")
+    # first column labels
+    if i % 4 == 0:
+        ax.set_ylabel(df.loc[i, "method"])

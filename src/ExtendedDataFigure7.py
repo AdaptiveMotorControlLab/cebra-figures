@@ -40,6 +40,7 @@ def recover_python_datatypes(element):
                 element = np.fromstring(element[1:-1], dtype=float, sep=" ")
     return element
 
+
 def figure():
     plt.figure(figsize=(2, 2), dpi=200)
 
@@ -182,7 +183,7 @@ def plot_hippocampus(sorted_results, metric, yaxis):
     filtered_results["train_consistency"] *= 100
     filtered_results["test_position_error"] *= 100
     filtered_results = filtered_results.groupby(["steps", "data_mode", "seed"]).mean()
-    #display(filtered_results.reset_index().steps.value_counts())
+    # display(filtered_results.reset_index().steps.value_counts())
 
     plt.figure(figsize=(2, 2), dpi=200)
     sns.scatterplot(
@@ -210,52 +211,61 @@ def plot_hippocampus(sorted_results, metric, yaxis):
     plt.xticks(rotation=90)
     plt.gca().invert_yaxis()
     plt.show()
-    
+
+
 from matplotlib.markers import MarkerStyle
 
 
 def plot_allen(results):
-  
     def add_seed(line):
         line["seed"] = np.arange(10)
         return line
 
     traj_results = results.groupby(["data_mode", "repeat", "steps"]).apply(add_seed)
-    traj_results = traj_results.groupby(["data_mode", "seed", "steps"]).apply("mean").reset_index()
-    traj_results = traj_results.set_index("data_mode").drop("time-contrastive").reset_index()
+    traj_results = (
+        traj_results.groupby(["data_mode", "seed", "steps"]).apply("mean").reset_index()
+    )
+    traj_results = (
+        traj_results.set_index("data_mode").drop("time-contrastive").reset_index()
+    )
     traj_results.train_consistency *= 100
     traj_results = traj_results[traj_results.steps % 500 == 0]
-    traj_results.data_mode = traj_results.data_mode.apply({"multi-session" : "multi", "single-session" : "single"}.get)
+    traj_results.data_mode = traj_results.data_mode.apply(
+        {"multi-session": "multi", "single-session": "single"}.get
+    )
 
-    plt.figure(figsize = (2, 2), dpi = 200)
+    plt.figure(figsize=(2, 2), dpi=200)
     sns.scatterplot(
-      data = traj_results[['data_mode', 'steps', 'test_accuracy', 'train_consistency']],
-      x = 'train_consistency',
-      y = 'test_accuracy',
-      style = 'data_mode',
-      hue = 'data_mode',
-      palette = ['#840884', 'k'],
-      markers=[MarkerStyle('v', 'none'), MarkerStyle('o', 'none')],
-      #s = 10,
-      alpha = .6,
-      ci = None
+        data=traj_results[["data_mode", "steps", "test_accuracy", "train_consistency"]],
+        x="train_consistency",
+        y="test_accuracy",
+        style="data_mode",
+        hue="data_mode",
+        palette=["#840884", "k"],
+        markers=[MarkerStyle("v", "none"), MarkerStyle("o", "none")],
+        # s = 10,
+        alpha=0.6,
+        ci=None,
     )
     plt.xlabel("Consistency [% R²]")
     plt.ylabel("Decoding Accuracy [%]")
-    plt.xticks([94,96,98,100])
-    sns.despine(trim = True)
-    plt.legend(frameon = False)
+    plt.xticks([94, 96, 98, 100])
+    sns.despine(trim=True)
+    plt.legend(frameon=False)
     plt.show()
 
-plot_hippocampus(sorted_results, metric="test_position_error", yaxis="Decoding Error [cm]")
 
-allen_results = pd.read_hdf("../data/EDFigure7/allen-consistency.h5", key = "allen")
+plot_hippocampus(
+    sorted_results, metric="test_position_error", yaxis="Decoding Error [cm]"
+)
+
+allen_results = pd.read_hdf("../data/EDFigure7/allen-consistency.h5", key="allen")
 plot_allen(allen_results)
 
 
 # -
 
-# ### consistency matrix single vs. multi-session training for hippocampus (32D embedding) and Allen data (128D embedding) respectively.  
+# ### consistency matrix single vs. multi-session training for hippocampus (32D embedding) and Allen data (128D embedding) respectively.
 #
 # - Consistency is reported at the point in training where the average position decoding error is less than 14 cm (corresponds to 7 cm error for rat 1), and a decoding accuracy of 60\% on the Allen dataset.
 
@@ -321,64 +331,73 @@ plt.show()
 
 # +
 def agg(values):
-  if values.name.endswith("_raw"):
-    return np.stack(values, axis = 0).mean(axis = 0)
-  return values.mean()
+    if values.name.endswith("_raw"):
+        return np.stack(values, axis=0).mean(axis=0)
+    return values.mean()
+
 
 def show_sweep(df):
-  for c in df.columns:
-    try:
-      values = df[c].unique()
-    except TypeError:
-      continue
-    #if len(values) != len(df):
-    if len(values) > 1:
-      print(c, values)
-      
-def filter_results(results):
-  results_ = results.groupby([ c for c in metrics + ["data_mode"] if c != 'repeat']).agg(agg).reset_index()
-  filtered_results = results_[
-    (results.batch_size == 7200) & 
-    (results.learning_rate == 0.003) & 
-    (results.num_output == 128) &
-    (results.num_hidden_units == 128) #&
-  ].set_index("data_mode")
+    for c in df.columns:
+        try:
+            values = df[c].unique()
+        except TypeError:
+            continue
+        # if len(values) != len(df):
+        if len(values) > 1:
+            print(c, values)
 
-  filtered_results = filtered_results[filtered_results["valid_accuracy"] > 60]
-  filtered_results = filtered_results.sort_values("valid_accuracy").groupby("data_mode").head(1)#["valid_accuracy"]
-  # close to 60% accuracy
-  # filtered_results["valid_accuracy"]
-  return filtered_results
+
+def filter_results(results):
+    results_ = (
+        results.groupby([c for c in metrics + ["data_mode"] if c != "repeat"])
+        .agg(agg)
+        .reset_index()
+    )
+    filtered_results = results_[
+        (results.batch_size == 7200)
+        & (results.learning_rate == 0.003)
+        & (results.num_output == 128)
+        & (results.num_hidden_units == 128)  # &
+    ].set_index("data_mode")
+
+    filtered_results = filtered_results[filtered_results["valid_accuracy"] > 60]
+    filtered_results = (
+        filtered_results.sort_values("valid_accuracy").groupby("data_mode").head(1)
+    )  # ["valid_accuracy"]
+    # close to 60% accuracy
+    # filtered_results["valid_accuracy"]
+    return filtered_results
+
 
 def plot_consistency_allen(filtered_results):
-  _, axes = plt.subplots(2, 1,figsize=(4, 4), dpi = 200)
+    _, axes = plt.subplots(2, 1, figsize=(4, 4), dpi=200)
 
-  for ax, data_mode in zip(axes, ["single-session", "multi-session"]):
-    
-    split = "train"
-    values = filtered_results[f"{split}_consistency_raw"].loc[data_mode]
+    for ax, data_mode in zip(axes, ["single-session", "multi-session"]):
 
-    cfm = np.zeros((4,4))
-    cfm[:] = float("nan")
-    cfm[~np.eye(4).astype(bool)] = values
-    sns.heatmap(
-      cfm * 100, 
-      cmap = 'gray_r', 
-      vmin = 50, 
-      vmax = 100, 
-      annot = True, 
-      fmt = '.1f', 
-      square = True, 
-      cbar = False,
-      ax = ax
-    )
-    ax.axis("off")
+        split = "train"
+        values = filtered_results[f"{split}_consistency_raw"].loc[data_mode]
 
-  plt.subplots_adjust(wspace=-0.005, hspace=0.05)
-  plt.show()
-  
-  
-allen_results = pd.read_hdf("../data/EDFigure7/allen-consistency.h5", key = 'allen')
+        cfm = np.zeros((4, 4))
+        cfm[:] = float("nan")
+        cfm[~np.eye(4).astype(bool)] = values
+        sns.heatmap(
+            cfm * 100,
+            cmap="gray_r",
+            vmin=50,
+            vmax=100,
+            annot=True,
+            fmt=".1f",
+            square=True,
+            cbar=False,
+            ax=ax,
+        )
+        ax.axis("off")
+
+    plt.subplots_adjust(wspace=-0.005, hspace=0.05)
+    plt.show()
+
+
+allen_results = pd.read_hdf("../data/EDFigure7/allen-consistency.h5", key="allen")
 filtered_results_allen = filter_results(allen_results)
 print("Allen dataset")
 plot_consistency_allen(filtered_results_allen)
@@ -484,7 +503,7 @@ for key in select_metrics:
 
 # ### Load data for Fine-tuning on unseen subject experiments, and define plotting code
 
-data=pd.read_hdf('../data/EDFigure7.h5')
+data = pd.read_hdf("../data/EDFigure7.h5")
 
 
 # +
@@ -495,44 +514,65 @@ def one_rat(ax, rat_no, rat_df):
     for reinit in adapt_reinit:
         for tune_all in adapt_tune_all:
             if reinit:
-                c = 'gray'
+                c = "gray"
             else:
-                c = 'purple'#(0, (5, 10))
+                c = "purple"  # (0, (5, 10))
             if tune_all:
-                ls = 'solid'
+                ls = "solid"
             else:
-                ls = 'dashed'
-            exp_type=rat_df[(rat_df['adapt_reinit']==reinit)&(rat_df['adapt_tune_all']==tune_all)]
-            ax.plot(np.arange(int(steps/25)) , np.array(eval(exp_type['median_err'].item()))[:int(steps/25)]*100, linestyle = ls, color = c, lw=3)
-            ax.set_title(f'Rat {rat_no+1}', fontsize = 20)
-            ax.spines['right'].set_visible(False)
-            ax.spines['top'].set_visible(False)
+                ls = "dashed"
+            exp_type = rat_df[
+                (rat_df["adapt_reinit"] == reinit)
+                & (rat_df["adapt_tune_all"] == tune_all)
+            ]
+            ax.plot(
+                np.arange(int(steps / 25)),
+                np.array(eval(exp_type["median_err"].item()))[: int(steps / 25)] * 100,
+                linestyle=ls,
+                color=c,
+                lw=3,
+            )
+            ax.set_title(f"Rat {rat_no+1}", fontsize=20)
+            ax.spines["right"].set_visible(False)
+            ax.spines["top"].set_visible(False)
 
-            ax.set_ylabel('Median Error (cm)', fontsize= 30)
-            ax.set_xlabel('Adaptation steps', fontsize=30)
-            ax.set_xticks(xticks/25)
+            ax.set_ylabel("Median Error (cm)", fontsize=30)
+            ax.set_xlabel("Adaptation steps", fontsize=30)
+            ax.set_xticks(xticks / 25)
             ax.set_yticks(yticks)
             ax.set_yticklabels(yticks, fontsize=25)
-            ax.set_xticklabels(xticks,fontsize=25)
+            ax.set_xticklabels(xticks, fontsize=25)
+
 
 def plot(rat_df):
 
-    fig = plt.figure(figsize=(7,7))
-    plt.subplots_adjust(wspace=0.5, hspace = 0.5)
+    fig = plt.figure(figsize=(7, 7))
+    plt.subplots_adjust(wspace=0.5, hspace=0.5)
     ax = plt.subplot(111)
     rat = 3
     plt.yticks(fontsize=25)
 
-    one_rat(ax,rat, rat_df)
+    one_rat(ax, rat, rat_df)
 
-    custom_lines = [Line2D([0], [0], color='gray', lw=4),
-                    Line2D([0], [0], color='purple', lw=4),
-                    Line2D([0], [0], color='black', lw=4, ls = 'solid'),
-                    Line2D([0,2], [0,0], color='black', lw=4, ls = 'dashed')
-                   ]
+    custom_lines = [
+        Line2D([0], [0], color="gray", lw=4),
+        Line2D([0], [0], color="purple", lw=4),
+        Line2D([0], [0], color="black", lw=4, ls="solid"),
+        Line2D([0, 2], [0, 0], color="black", lw=4, ls="dashed"),
+    ]
 
-    ax.legend(custom_lines, ['From scratch', 'Pre-trained','Full model', 'Input embedding', ], loc=(1.2,0), frameon = False,
-              fontsize=30)
+    ax.legend(
+        custom_lines,
+        [
+            "From scratch",
+            "Pre-trained",
+            "Full model",
+            "Input embedding",
+        ],
+        loc=(1.2, 0),
+        frameon=False,
+        fontsize=30,
+    )
 
 
 # -
@@ -550,7 +590,5 @@ plot(data)
 
 steps = 500
 yticks = np.arange(15, 55, 10)
-xticks = np.arange(0, steps+25, 25*10)
+xticks = np.arange(0, steps + 25, 25 * 10)
 plot(data)
-
-
