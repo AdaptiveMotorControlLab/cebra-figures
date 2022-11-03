@@ -472,8 +472,6 @@ def show_results(select_by="valid_accuracy", func=np.argmax, keys=KEYS):
         for key in keys
     )
 
-    display(HTML("<style>.container { width:100% !important; }</style>"))
-
     titles = [
         "Consistency (R², train)",
         "Consistency (R², valid)",
