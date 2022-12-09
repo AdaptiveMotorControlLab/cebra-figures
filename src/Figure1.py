@@ -189,10 +189,10 @@ def to_cfm(values):
 
 def plot_confusion_matrices(results_best):
     fig, axs = plt.subplots(
-        ncols=10,
+        ncols=8,
         nrows=1,
-        figsize=(14, 1.5),
-        gridspec_kw={"width_ratios": [1, 1, 1, 1, 1, 1, 1, 1, 1, 0.08]},
+        figsize=(8*1.7, 1.4),
+        gridspec_kw={"width_ratios": [1,1,1,1,1,1,1, 0.08]},
         dpi=500,
     )
 
@@ -204,6 +204,7 @@ def plot_confusion_matrices(results_best):
     result_names = [
         ("cebra-10-b", "CEBRA-Behavior"),
         ("cebra-10-t", "CEBRA-Time"),
+        ("autolfads", "autoLFADS"),
         ("pivae-10-w", "conv-piVAE\nw/labels"),
         ("pivae-10-wo", "conv-piVAE"),
         ("tsne", "tSNE"),
@@ -212,12 +213,19 @@ def plot_confusion_matrices(results_best):
 
     for ax, (key, name) in zip(axs[:-1], result_names):
 
-        log = results_best[key]
-
-        cfm = log.pivot_table(
-            "train", index=log.index.names, columns=["animal"], aggfunc="mean"
-        ).apply(to_cfm, axis=1)
-        (cfm,) = cfm.values
+        if name == "autoLFADS":
+          cfm = np.array([[       0, 0.49333152, 0.5963056 , 0.62840041],
+                 [0.67670133,        0, 0.56677866, 0.83523945],
+                 [0.68300837, 0.50128264,        0, 0.61765745],
+                 [0.80552981, 0.8398267 , 0.67440838,        0]]
+          )
+          cfm[np.eye(4) > 0] = float("nan")
+        else:
+          log = results_best[key]
+          cfm = log.pivot_table(
+              "train", index=log.index.names, columns=["animal"], aggfunc="mean"
+          ).apply(to_cfm, axis=1)
+          (cfm,) = cfm.values
 
         sns.heatmap(
             data=np.minimum(cfm * 100, 99),
@@ -237,4 +245,5 @@ def plot_confusion_matrices(results_best):
 
 
 plot_confusion_matrices(results)
+plt.subplots_adjust(wspace = .5)
 plt.show()
