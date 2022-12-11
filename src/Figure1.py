@@ -100,7 +100,7 @@ sns.despine(
 
 # ## Figure 1d
 #
-# - We benchmarked CEBRA against conv-pi-VAE (both with labels and without (self-supervised mode)), tSNE, and unsupervised UMAP. Note, for performance against the original pi-VAE see Extended Data Fig. 1. We plot the 3 latents (note, all CEBRA embedding figures show the first 3 latents).
+# - We benchmarked CEBRA against conv-pi-VAE (both with labels and without (self-supervised mode)), autoLFADS, tSNE, and unsupervised UMAP. Note, for performance against the original pi-VAE see Extended Data Fig. 1. We plot the 3 latents (note, all CEBRA embedding figures show the first 3 latents).
 #
 # - The dimensionality (D) of the latent space is set to the minimum and equivalent dimension per method (3D for CEBRA and 2D for others) to fairly compare. Note, higher dimensions for CEBRA can give higher consistency values (see Fig. 4).
 
@@ -204,8 +204,8 @@ def plot_confusion_matrices(results_best):
     result_names = [
         ("cebra-10-b", "CEBRA-Behavior"),
         ("cebra-10-t", "CEBRA-Time"),
-        ("autolfads", "autoLFADS"),
         ("pivae-10-w", "conv-piVAE\nw/labels"),
+        ("autolfads", "autoLFADS"),
         ("pivae-10-wo", "conv-piVAE"),
         ("tsne", "tSNE"),
         ("umap", "UMAP"),
