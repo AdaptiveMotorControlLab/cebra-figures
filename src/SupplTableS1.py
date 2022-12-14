@@ -20,14 +20,21 @@ import joblib as jl
 import sklearn.metrics
 import pandas as pd
 
+from statsmodels.stats.oneway import anova_oneway
 from statsmodels.stats.multicomp import pairwise_tukeyhsd
 from statsmodels.sandbox.stats.multicomp import get_tukey_pvalue
 # -
 
 DATA = '../data/SupplTable1.h5'
+
+autolfads = pd.read_csv('../data/autolfads_decoding_2d_full.csv', index_col = 0)
+autolfads = autolfads.rename(columns={"split" : "repeat", "rat" : "animal"})
+autolfads['animal'] = autolfads['animal'].apply(lambda v : 'abcg'.index(v[0])) #rat name to id
+autolfads.to_hdf(DATA, key = "autolfads")
+
 supervised_methods = ['cebra_10_b', 'pivae_1_w', 'pivae_10_w', 'pivae_1_wo', 'pivae_10_wo']
 supervised_methods_decoding = ['cebra_10_b', 'pivae_1_mcmc', 'pivae_10_mcmc', 'pivae_1_wo', 'pivae_10_wo']
-unsupervised_methods = ['cebra_10_t', 'tsne', 'umap', 'pca']
+unsupervised_methods = ['cebra_10_t', 'tsne', 'umap', 'autolfads', 'pca']
 
 
 # +
@@ -52,8 +59,19 @@ def decoding(key, animal = 0):
   else:
     return data.loc[animal]
 
+def anova_with_report(data):
+  control = scipy.stats.f_oneway(*data)
+  print(control)
+  a = anova_oneway(
+    data,
+    use_var = 'equal',
+  )
+  assert np.isclose(a.pvalue, control.pvalue), (a.pvalue, control.pvalue)
+  assert np.isclose(a.statistic, control.statistic)
+  return f'F = {a.statistic}, p = {a.pvalue}\n\n    ' + \
+    '\n    '.join(str(a).split('\n'))
 
-for animal in [0]:
+for animal in [0, None]:
   
   def load_data(keys):
     return pd.DataFrame([
@@ -63,7 +81,7 @@ for animal in [0]:
 
   # Supervised
   data = load_data(supervised_methods_decoding)
-  anova_sup = scipy.stats.f_oneway(*data.metric.values)
+  anova_sup = anova_with_report(data.metric.values)
   data_explode = data.explode("metric")
   data_explode.metric = data_explode.metric.astype(float)
   posthoc_sup = pairwise_tukeyhsd(
@@ -74,11 +92,11 @@ for animal in [0]:
   sup_data = data
   
   # Unsupervised
-  data = load_data(unsupervised_methods)
+  data = load_data(unsupervised_methods)  
+  data.loc[(data['method'] == 'pca'), 'metric'] =  data[(data['method'] == 'pca')]['metric'].apply(lambda v : v.repeat(10))
   data_explode = data.explode("metric")
-  print(len(data_explode))
   data_explode.metric = data_explode.metric.astype(float)
-  anova = scipy.stats.f_oneway(*data.metric.values)
+  anova = anova_with_report(data.metric.values)
   posthoc = pairwise_tukeyhsd(
     data_explode.metric.values,
     data_explode.method.values,
@@ -141,20 +159,26 @@ def subject_consistency(key):
       aggfunc = lambda v : np.mean(np.array(v))
     ).agg(np.concatenate, axis = 1).item()
     return data
+  
+methods = ['cebra_10_b', 'cebra_10_t', 'pivae_10_w', 'pivae_10_wo', 'tsne', 'umap', 'autolfads']
 
+for method in methods:
+  C = subject_consistency(method)
+  print(method, C) # len(C))
+
+
+# +
 def load_data(keys):
   return pd.DataFrame([
     {"method" : key, "metric" : subject_consistency(key)}
     for key in keys
   ])
 
-methods = ['cebra_10_b', 'cebra_10_t', 'pivae_10_w', 'pivae_10_wo', 'tsne', 'umap', 'autolfads']
-
-# Supervised
 data = load_data(methods)
 anova_sup = scipy.stats.f_oneway(*data.metric.values)
 data_explode = data.explode("metric")
 data_explode.metric = data_explode.metric.astype(float)
+data_explode.sort_values("metric")
 posthoc_sup = pairwise_tukeyhsd(
   data_explode.metric.values,
   data_explode.method.values,
