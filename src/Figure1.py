@@ -34,7 +34,10 @@ import pathlib
 
 # -
 
-data = pd.read_hdf("../data/Figure1.h5", key="data")
+data = pd.concat([
+  pd.read_hdf("../data/Figure1.h5", key="data"),
+  pd.read_hdf("../data/Figure1_addition.h5", key="data")
+], axis = 0)
 
 synthetic_viz = data["synthetic_viz"]
 synthetic_scores = {
@@ -96,6 +99,8 @@ sns.despine(
     trim=True,
     offset={"bottom": 40, "left": 15},
 )
+
+
 # -
 
 # ## Figure 1d
@@ -105,39 +110,69 @@ sns.despine(
 # - The dimensionality (D) of the latent space is set to the minimum and equivalent dimension per method (3D for CEBRA and 2D for others) to fairly compare. Note, higher dimensions for CEBRA can give higher consistency values (see Fig. 4).
 
 # +
+def plot_embedding(ax, i, k, **kwargs):
+    fs = viz[k]
+    if len(fs) != len(l_ind):
+        nan = np.zeros((10, 2)) + float("nan")
+        fs = np.concatenate([fs,nan], axis = 0)
+    
+    if not "cebra" in k:
+        ax.scatter(fs[r_ind, 1], fs[r_ind, 0], c=label[r_ind, 0], cmap="viridis", **kwargs)
+        ax.scatter(fs[l_ind, 1], fs[l_ind, 0], c=label[l_ind, 0], cmap="cool", **kwargs)
+        ax.axis("off")
+    else:
+        idx = [0,1,2]
+        ax.scatter(
+            *fs[l_ind][:, idx].T,
+            c=label[l_ind, 0],
+            cmap="cool",
+            **kwargs
+        )
+        ax.scatter(
+            *fs[r_ind][:, idx].T,
+            c=label[r_ind, 0],
+            cmap="viridis",
+            **kwargs
+        )
+        lim = 0.7
+        lim = -lim, lim
+        ax.set_xlim(lim)
+        ax.set_ylim(lim)
+        ax.set_zlim(lim)
+        ax.axis("off")
+        
+    ax.set_aspect("equal")
+
 label = viz["label"]
 r_ind = label[:, 1] == 1
 l_ind = label[:, 2] == 1
 
 fig = plt.figure(figsize=(30, 5))
-for i, k in enumerate(["cebra", "cebra_time", "pivae_w", "pivae_wo", "umap", "tsne"]):
-
-    fs = viz[k]
-    if not "cebra" in k:
-        ax = plt.subplot(1, 6, i + 1)
-        ax.scatter(fs[r_ind, 1], fs[r_ind, 0], c=label[r_ind, 0], cmap="viridis", s=1)
-        ax.scatter(fs[l_ind, 1], fs[l_ind, 0], c=label[l_ind, 0], cmap="cool", s=1)
-        ax.axis("off")
+for i, k in enumerate(["cebra", "cebra_time", "pivae_w", "pivae_wo", "autolfads", "tsne", "umap"]):
+    if "cebra" in k:
+      ax = plt.subplot(1, 7, i + 1, projection="3d")
     else:
-        ax = plt.subplot(1, 6, i + 1, projection="3d")
-        ax.scatter(
-            fs[l_ind, 0],
-            fs[l_ind, 1],
-            fs[l_ind, 2],
-            c=label[l_ind, 0],
-            cmap="cool",
-            s=1,
-        )
-        ax.scatter(
-            fs[r_ind, 0],
-            fs[r_ind, 1],
-            fs[r_ind, 2],
-            c=label[r_ind, 0],
-            cmap="viridis",
-            s=1,
-        )
-        ax.axis("off")
-    ax.set_title(f"{k}", fontsize=30)
+      ax = plt.subplot(1, 7, i + 1)
+    plot_embedding(ax, i, k, s = .5)
+    ax.set_title(k.title())
+plt.show()
+
+
+# +
+# Uncomment to save the figures individually as high res PNGs:
+
+#label = viz["label"]
+#r_ind = label[:, 1] == 1
+#l_ind = label[:, 2] == 1
+#
+#for i, k in enumerate(["autolfads", "umap", "tsne", "pivae_w", "pivae_wo"]): #, "cebra_time", "pivae_w", "pivae_wo", "umap", "tsne"]):
+#    fig = plt.figure(figsize=(4, 4), dpi = 1200)
+#    ax = plt.gca()
+#    #ax = plt.subplot(1, 1, 1, projection="3d")
+#    plot_embedding(ax, i, k, s = 5, edgecolor = 'none', alpha = 1)
+#    plt.savefig(f'{k}.png', transparent = True, bbox_inches = "tight")
+#    plt.show()
+#    break
 # -
 
 # ## Figure 1e
@@ -145,9 +180,6 @@ for i, k in enumerate(["cebra", "cebra_time", "pivae_w", "pivae_wo", "umap", "ts
 # - Correlation matrices depict the $R^2$ after fitting a linear model between behavior-aligned embeddings of two animals, one as the target one as the source (mean, n=10 runs). Parameters were picked by optimizing average run consistency across rats.
 
 # +
-ROOT = pathlib.Path("../data")
-
-
 def recover_python_datatypes(element):
     if isinstance(element, str):
         if element.startswith("[") and element.endswith("]"):
@@ -173,11 +205,24 @@ def load_results(result_name):
             df = df.applymap(recover_python_datatypes)
             results[result_csv.stem] = df
     return results
-
+  
+  
+ROOT = pathlib.Path("../data")
 
 results = load_results(result_name="results_v3")
 
+result_names = [
+    ("cebra-10-b", "CEBRA-Behavior"),
+    ("cebra-10-t", "CEBRA-Time"),
+    ("pivae-10-w", "conv-piVAE\nw/labels"),
+    ("pivae-10-wo", "conv-piVAE"),
+    ("autolfads", "autoLFADS"),
+    ("tsne", "tSNE"),
+    ("umap", "UMAP"),
+]
 
+
+# +
 def to_cfm(values):
     values = np.concatenate(values)
     assert len(values) == 12, len(values)
@@ -186,14 +231,45 @@ def to_cfm(values):
     c[np.eye(4) == 0] = values
     return c
 
+def plot_confusion_matrix(results, name, key, ax, **kwargs):
+  if name == "autoLFADS":
+    # please see the additional LFADS notebook for the source of
+    # this result matrix.
+    nan = float('nan')
+    cfm = np.array([[       nan, 0.52405768, 0.54354575, 0.5984262 ],
+           [0.61116595,        nan, 0.59024053, 0.747014  ],
+           [0.68505602, 0.60948229,        nan, 0.57858312],
+           [0.77841349, 0.78809085, 0.65031025,        nan]])
+  else:
+    log = results[key]
+    cfm = log.pivot_table(
+        "train", index=log.index.names, columns=["animal"], aggfunc="mean"
+    ).apply(to_cfm, axis=1)
+    (cfm,) = cfm.values
 
-def plot_confusion_matrices(results_best):
+  sns.heatmap(
+      data=np.minimum(cfm * 100, 99),
+      vmin=20,
+      vmax=100,
+      xticklabels=[],
+      yticklabels=[],
+      cmap=sns.color_palette("gray_r", as_cmap=True),
+      annot=True,
+      annot_kws={"fontsize": 12},
+      ax=ax,
+      **kwargs
+  )
+  
+  return cfm
+
+def plot_confusion_matrices(results):
+  
     fig, axs = plt.subplots(
         ncols=8,
         nrows=1,
         figsize=(8*1.7, 1.4),
         gridspec_kw={"width_ratios": [1,1,1,1,1,1,1, 0.08]},
-        dpi=500,
+        dpi=1600,
     )
 
     last_ax = axs[-1]
@@ -201,49 +277,23 @@ def plot_confusion_matrices(results_best):
     for ax in axs:
         ax.axis("off")
 
-    result_names = [
-        ("cebra-10-b", "CEBRA-Behavior"),
-        ("cebra-10-t", "CEBRA-Time"),
-        ("pivae-10-w", "conv-piVAE\nw/labels"),
-        ("autolfads", "autoLFADS"),
-        ("pivae-10-wo", "conv-piVAE"),
-        ("tsne", "tSNE"),
-        ("umap", "UMAP"),
-    ]
-
     for ax, (key, name) in zip(axs[:-1], result_names):
-
-        if name == "autoLFADS":
-          cfm = np.array([[       0, 0.49333152, 0.5963056 , 0.62840041],
-                 [0.67670133,        0, 0.56677866, 0.83523945],
-                 [0.68300837, 0.50128264,        0, 0.61765745],
-                 [0.80552981, 0.8398267 , 0.67440838,        0]]
-          )
-          cfm[np.eye(4) > 0] = float("nan")
-        else:
-          log = results_best[key]
-          cfm = log.pivot_table(
-              "train", index=log.index.names, columns=["animal"], aggfunc="mean"
-          ).apply(to_cfm, axis=1)
-          (cfm,) = cfm.values
-
-        sns.heatmap(
-            data=np.minimum(cfm * 100, 99),
-            vmin=20,
-            vmax=100,
-            xticklabels=[],
-            yticklabels=[],
-            cmap=sns.color_palette("gray_r", as_cmap=True),
-            annot=True,
-            annot_kws={"fontsize": 12},
-            cbar=True if (ax == axs[-2]) else False,
-            cbar_ax=last_ax if (ax == axs[-2]) else None,
-            ax=ax,
-        )
+        cfm = plot_confusion_matrix(results, name, key, ax = ax,
+                              cbar=True if (ax == axs[-2]) else False,
+                    cbar_ax=last_ax if (ax == axs[-2]) else None,
+                             )
         ax.set_title(f"{name} ({100*np.nanmean(cfm):.1f})", fontsize=8)
     return fig
-
 
 plot_confusion_matrices(results)
 plt.subplots_adjust(wspace = .5)
 plt.show()
+
+# +
+# Uncomment to save the plots individually as PNG files in high res
+
+#for key, name in result_names:
+#  plt.figure(figsize=(1.3,1.3),dpi=600)
+#  cfm = plot_confusion_matrix(name, key, ax = plt.gca(), square = True, cbar = False)
+#  plt.savefig(f'cfm_{key}.png', bbox_inches = "tight", transparent = True)
+#  plt.close()
