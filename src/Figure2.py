@@ -32,6 +32,8 @@ import pathlib
 
 data = pd.read_hdf("../data/Figure2.h5", key="data")
 
+
+
 # ## Figure 2b
 #
 # - CEBRA with position-hypothesis derived embedding, shuffled (erroneous), time-only, and Time+Behavior (hybrid; here, a 5D space was used, where first 3D is guided by both behavior+time, and last 2D is guided only by time, and the first 3 latents are plotted).
@@ -231,15 +233,23 @@ def get_metrics(results):
         yield df
 
 
+# -
+
+autolfads = pd.read_csv("../data/autolfads_decoding_2d_full.csv", index_col=0)
+autolfads = autolfads.rename(columns={"split": "repeat", "rat": "animal"})
+autolfads["animal"] = autolfads["animal"].apply(
+    lambda v: "abcg".index(v[0])
+)
+
 # +
 results = load_results(result_name="results_v1")
-results["pivae-mcmc"] = pd.read_csv(
+results["pivae-mc"] = pd.read_csv(
     "../data/Figure2/figure2_pivae_mcmc.csv", index_col=0
 )
+results['autolfads'] = autolfads
 
 df = pd.concat(get_metrics(results)).reset_index()
 
-sns.set_style("white")
 plt.figure(figsize=(2, 2), dpi=200)
 ax = plt.gca()
 show_boxplot(
@@ -249,9 +259,11 @@ show_boxplot(
     color="C1",
     labels=[
         "cebra-b",
-        "pivae-mcmc",
-        "cebra-t",
+        "pivae-mc",
         "pivae-wo",
+
+        "cebra-t",
+        "autolfads",
         "tsne",
         "umap",
         "pca",
@@ -264,14 +276,17 @@ ax.set_xlabel("Error [cm]")
 ax.set_yticklabels(
     [
         "CEBRA-Behavior",
-        "conv-pi-VAE",
+        "conv-pi-VAE (MC)",
+        "conv-piVAE (kNN)",  
+
         "CEBRA-Time",
-        "conv-piVAE (kNN)",
+        "autoLFADS",
         "t-SNE",
         "UMAP",
         "PCA",
     ]
 )
+#plt.savefig("figure2d.svg", bbox_inches = "tight", transparent = True)
 plt.show()
 # -
 
