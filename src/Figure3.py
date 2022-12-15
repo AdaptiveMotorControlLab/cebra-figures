@@ -5,11 +5,11 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.14.1
+#       jupytext_version: 1.13.8
 #   kernelspec:
-#     display_name: Python [conda env:cebra_m1] *
+#     display_name: Python 3 (ipykernel)
 #     language: python
-#     name: conda-env-cebra_m1-py
+#     name: python3
 # ---
 
 # # Figure 3: Forelimb movement behavior in a primate
@@ -21,7 +21,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-data = pd.read_hdf("../data/Figure3.h5")
+data = pd.read_hdf("../data/Figure3.h5", key = "data")
 
 # ## Figure 3a
 #
@@ -49,6 +49,7 @@ ax2.axis("off")
 #
 # - Comparison of embeddings of active trials generated with CEBRA-Behavior, CEBRA-Time, conv-pi-VAE variants, tSNE, and UMAP. The embeddings of trials (n=364) of each direction are post-hoc averaged.
 
+# +
 overview = data["overview"]
 fig = plt.figure(figsize=(30, 5))
 plt.subplots_adjust(wspace=0, hspace=0)
@@ -57,23 +58,28 @@ emissions_list = [
     overview["pivae_w"],
     overview["cebra-time"],
     overview["pivae_wo"],
+    overview["autolfads"],
     overview["tsne"],
     overview["umap"],
 ]
+num_plots = len(emissions_list)
 labels = overview["label"]
-for j in range(6):
+
+def plot_subplot(ax, j, lw = 2):
+  
     if j == 0:
         idx1, idx2 = (2, 0)
-        ax = fig.add_subplot(1, 6, j + 1)
+
     elif j == 1 or j == 3:
         idx1, idx2 = (2, 3)
-        ax = fig.add_subplot(1, 6, j + 1)
-    elif j == 4 or j == 5:
+
+    elif j == 5 or j == 6:
         idx1, idx2 = (0, 1)
-        ax = fig.add_subplot(1, 6, j + 1)
+
     else:
         idx1, idx2 = (0, 1)
-        ax = fig.add_subplot(1, 6, j + 1)
+        
+          
     if j == 0:
         trials = emissions_list[j].reshape(-1, 600, 4)
         trials_labels = labels.reshape(-1, 600)[:, 1]
@@ -82,8 +88,9 @@ for j in range(6):
             mean_trial = trials[trials_labels == i].mean(axis=0)
             mean_trials.append(mean_trial)
         for trial, label in zip(mean_trials, np.arange(8)):
-            ax.scatter(
-                trial[:, idx1], trial[:, idx2], color=plt.cm.hsv(1 / 8 * label), s=3
+            ax.plot(
+                trial[:, idx1], trial[:, idx2], color=plt.cm.hsv(1 / 8 * label),
+                linewidth = lw
             )
     elif j == 1:
         trials = emissions_list[j].reshape(-1, 600, 4)
@@ -93,8 +100,16 @@ for j in range(6):
             mean_trial = trials[trials_labels == i].mean(axis=0)
             mean_trials.append(mean_trial)
         for trial, label in zip(mean_trials, np.arange(8)):
-            ax.scatter(
-                trial[:, idx1], trial[:, idx2], color=plt.cm.hsv(1 / 8 * label), s=3
+            ax.plot(
+                trial[:, idx1], trial[:, idx2], color=plt.cm.hsv(1 / 8 * label),
+              linewidth = lw
+            )
+    elif j == 4:
+        mean_trials = emissions_list[j]
+        for trial, label in zip(mean_trials, np.arange(8)):
+            ax.plot(
+                trial[:, idx1], trial[:, idx2], color=plt.cm.hsv(1 / 8 * label),
+              linewidth = lw
             )
     else:
         trials = emissions_list[j].reshape(-1, 600, emissions_list[j].shape[-1])
@@ -104,8 +119,9 @@ for j in range(6):
             mean_trial = trials[trials_labels == i].mean(axis=0)
             mean_trials.append(mean_trial)
         for trial, label in zip(mean_trials, np.arange(8)):
-            ax.scatter(
-                trial[:, idx1], trial[:, idx2], color=plt.cm.hsv(1 / 8 * label), s=3
+            ax.plot(
+                trial[:, idx1], trial[:, idx2], color=plt.cm.hsv(1 / 8 * label),
+              linewidth = lw
             )
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
@@ -113,18 +129,76 @@ for j in range(6):
     ax.spines["left"].set_visible(False)
     ax.set_xticks([])
     ax.set_yticks([])
-    plt.title(
+    ax.set_title(
         [
             "CEBRA-Behavior",
             "pi-VAE w/ label",
             "CEBRA-Time",
             "pi-VAE w/o",
+            "autoLFADS",
             "tSNE",
             "UMAP",
         ][j],
         fontsize=20,
     )
+    return ax
+    
 
+for j in range(num_plots):
+    if j == 0:
+        idx1, idx2 = (2, 0)
+        ax = fig.add_subplot(1, num_plots, j + 1)
+    elif j == 1 or j == 3:
+        idx1, idx2 = (2, 3)
+        ax = fig.add_subplot(1, num_plots, j + 1)
+    elif j == 5 or j == 6:
+        idx1, idx2 = (0, 1)
+        ax = fig.add_subplot(1, num_plots, j + 1)
+    else:
+        idx1, idx2 = (0, 1)
+        ax = fig.add_subplot(1, num_plots, j + 1)
+    plot_subplot(ax, j, lw = 3)
+plt.show()
+
+# Uncomment to generate high-quality plots of the paper
+
+#for j in range(num_plots):
+#  fig = plt.figure(figsize=(5, 5), dpi = 300)
+#  ax = plot_subplot(plt.gca(), j, lw= 3)
+#  ax.set_aspect("equal")
+#  plt.savefig(f"monkey_{j}.svg", bbox_inches = "tight", transparent = True)
+#  plt.show()
+# -
+
+
+
+# The embedding sizes of the various models can be obtained as follows (and the plot above adapted to show other dimensions). Note that autoLFADS was trained in 4D, and was then projected to 2D using a PCA.
+
+# +
+methods = [
+  "cebra-behavior",
+  "pivae_w",
+  "cebra-time",
+  "pivae_wo",
+  "autolfads",
+  "tsne",
+  "umap",
+]
+
+emissions_list = [
+    overview["cebra-behavior"],
+    overview["pivae_w"],
+    overview["cebra-time"],
+    overview["pivae_wo"],
+    overview["tsne"],
+    overview["umap"],
+]
+
+for m, e in zip(methods, emissions_list):
+  print(m, e.shape)
+
+
+# -
 
 # ## Figure 3c
 #
