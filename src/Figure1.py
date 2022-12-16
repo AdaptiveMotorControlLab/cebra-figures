@@ -31,17 +31,12 @@ import numpy as np
 import pandas as pd
 import numpy as np
 import pathlib
-
 # -
 
-data = pd.concat([
-  pd.read_hdf("../data/Figure1.h5", key="data"),
-  pd.read_hdf("../data/Figure1_addition.h5", key="data")
-], axis = 0)
-
+data = pd.read_hdf("../data/Figure1.h5", key="data")
 synthetic_viz = data["synthetic_viz"]
 synthetic_scores = {
-    k: data["synthetic_scores"][k] for k in ["cebra", "pivae", "umap", "tsne"]
+    k: data["synthetic_scores"][k] for k in ["cebra", "pivae", "autolfads", "umap", "tsne"]
 }
 viz = data["visualization"]
 
@@ -73,16 +68,16 @@ ax2.scatter(
 
 # ## Figure 1b (right)
 #
-# - The orange line is median and each black dot is an individual run (n=100). CEBRA-Behavior shows significantly higher reconstruction score compare to pi-VAE, tSNE and UMAP (one-way ANOVA, F(3, 396)=278.31, p<0.00001 with Post Hoc Tukey HSD p<0.0001)
+# - The orange line is median and each black dot is an individual run (n=100). CEBRA-Behavior shows significantly higher reconstruction score compare to pi-VAE, tSNE and UMAP.
 
 # +
-plt.figure(figsize=(5, 5))
+plt.figure(figsize=(3.5, 3.5), dpi = 200)
 ax = plt.subplot(111)
 
+keys = ['cebra', 'pivae', 'autolfads', 'tsne', 'umap']
 df = pd.DataFrame(synthetic_scores)
-sns.stripplot(data=df * 100, color="black", s=3, zorder=1, jitter=0.15)
-sns.scatterplot(data=df.median() * 100, color="orange", s=50)
-plt.xticks([0, 1, 2, 3], list(synthetic_scores.keys()), fontsize=20, rotation=45)
+sns.stripplot(data=df[keys] * 100, color="black", s=3, zorder=1, jitter=0.15)
+sns.scatterplot(data=df[keys].median() * 100, color="orange", s=50)
 plt.ylabel("$R^2$", fontsize=20)
 plt.yticks(
     np.linspace(0, 100, 11, dtype=int), np.linspace(0, 100, 11, dtype=int), fontsize=20
@@ -91,6 +86,10 @@ plt.ylim(70, 100)
 ax.spines["right"].set_visible(False)
 ax.spines["top"].set_visible(False)
 ax.tick_params(axis="both", which="major", labelsize=15)
+ax.tick_params(axis = 'x',   rotation = 45)
+ax.set_xticklabels(
+  ['CEBRA', 'piVAE', 'autoLFADS', 'tSNE', 'UMAP'],
+)
 sns.despine(
     left=False,
     right=True,
@@ -99,9 +98,39 @@ sns.despine(
     trim=True,
     offset={"bottom": 40, "left": 15},
 )
+plt.savefig('figure1_synthetic_comparison.png', bbox_inches = "tight", transparent = True)
+plt.savefig('figure1_synthetic_comparison.svg', bbox_inches = "tight", transparent = True)
 
+# +
+import scipy.stats
+from statsmodels.sandbox.stats.multicomp import get_tukey_pvalue
+from statsmodels.stats.multicomp import pairwise_tukeyhsd
+from statsmodels.stats.oneway import anova_oneway
 
+def anova_with_report(data):
+    # One way ANOVA, helper function for formatting
+    control = scipy.stats.f_oneway(*data)
+    print(control)
+    a = anova_oneway(
+        data,
+        use_var="equal",
+    )
+    assert np.isclose(a.pvalue, control.pvalue), (a.pvalue, control.pvalue)
+    assert np.isclose(a.statistic, control.statistic)
+    return f"F = {a.statistic}, p = {a.pvalue}\n\n    " + "\n    ".join(
+        str(a).split("\n")
+    )
+  
+print(anova_with_report(synthetic_scores.values()))
 # -
+
+_, methods, values = pd.DataFrame(synthetic_scores).stack().reset_index().values.T
+values = values.astype(float)
+posthoc = pairwise_tukeyhsd(
+  endog = np.array(values), groups = np.array(methods).astype(str), alpha = .05
+)
+print(posthoc)
+
 
 # ## Figure 1d
 #
