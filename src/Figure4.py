@@ -5,11 +5,11 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.14.1
+#       jupytext_version: 1.14.4
 #   kernelspec:
-#     display_name: Python [conda env:cebra_m1] *
+#     display_name: NLB
 #     language: python
-#     name: conda-env-cebra_m1-py
+#     name: nlb
 # ---
 
 # # Figure 4: Spikes and calcium signaling reveal similar CEBRA embeddings
@@ -284,8 +284,16 @@ make_heatmap_from_df(
 
 # ## Figure 4 k
 #
-# - intra-V1 consistency measurement vs. all inter-area vs. V1 comparison. Purple dots indicate mean of V1 intra-V1 consistency (across n=12 runs) and inter-V1 consistency (n=60). Intra-V1 consistency is significantly higher than inter-area consistency (Welch's t-test, T=3.75, p=0.00019)
+# - intra-V1 consistency measurement vs. all inter-area vs. V1 comparison. Purple dots indicate mean of V1 intra-V1 consistency (across n=12 runs) and inter-V1 consistency (n=120 runs). Intra-V1 consistency is significantly higher than inter-area consistency (Welch's t-test, T=4.55, p=0.00019)
 
 make_line_strip_from_df(
     data["cortices_consistency"]["joint_v1"], "V1 inter-intra", 50, 100
 )
+
+from scipy import stats
+
+intra = data["cortices_consistency"]["joint_v1"]['intra']
+intra_v1 = intra[(intra['Area1'] == 'VISp') & (intra['Area2'] == 'VISp') ]['value'].tolist()
+inter = data["cortices_consistency"]["joint_v1"]['inter']
+inter_v1 = inter[(inter['Area1'] == 'VISp') | (inter['Area2'] == 'VISp') ]['value'].tolist()
+print(stats.ttest_ind(intra_v1, inter_v1, equal_var = False, alternative = 'greater'))
