@@ -284,7 +284,7 @@ make_heatmap_from_df(
 
 # ## Figure 4 k
 #
-# - intra-V1 consistency measurement vs. all inter-area vs. V1 comparison. Purple dots indicate mean of V1 intra-V1 consistency (across n=12 runs) and inter-V1 consistency (n=120 runs). Intra-V1 consistency is significantly higher than inter-area consistency (Welch's t-test, T=4.55, p=0.00019)
+# - intra-V1 consistency measurement vs. all inter-area vs. V1 comparison. Purple dots indicate mean of V1 intra-V1 consistency (across n=120 runs) and inter-V1 consistency (n=120 runs). Intra-V1 consistency is significantly higher than inter-area consistency (one-sided Welch's t-test, T=4.55, p=0.00019)
 
 make_line_strip_from_df(
     data["cortices_consistency"]["joint_v1"], "V1 inter-intra", 50, 100
