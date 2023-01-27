@@ -9,6 +9,6 @@ jupytext
 nbconvert
 h5py
 statsmodels
-sphinx
-pydata_sphinx_theme
+sphinx==5.3
+pydata_sphinx_theme==0.9.0
 
