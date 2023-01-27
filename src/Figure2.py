@@ -30,7 +30,10 @@ import pathlib
 
 # -
 
-data = pd.read_hdf("../data/Figure2.h5", key="data")
+data = pd.concat([
+  pd.read_hdf("../data/Figure2.h5", key="data"),
+  pd.read_hdf("../data/Figure2_addition.h5", key="data")
+], axis = 0)
 
 # ## Figure 2b
 #
@@ -40,21 +43,36 @@ data = pd.read_hdf("../data/Figure2.h5", key="data")
 method_viz = data["visualization"]
 
 fig = plt.figure(figsize=(20, 5))
-for i, model in enumerate(["hypothesis", "shuffled", "discovery", "hybrid"]):
-    ax = fig.add_subplot(1, 4, i + 1, projection="3d")
+for i, (model, title) in enumerate(zip(
+  ["behavior_mse", "discovery", "hypothesis", "hybrid", "shuffled"],
+  ["Behavioral data:\nposition", "Discovery:\n time only", "Hypothesis:\nposition", "Hybrid:\ntime+behavior", "Shuffled Labels"]
+)):
     emb = method_viz[model]["embedding"]
     label = method_viz[model]["label"]
     r = label[:, 1] == 1
     l = label[:, 2] == 1
     idx1, idx2, idx3 = (0, 1, 2)
-    if i == 3:
-        idx1, idx2, idx3 = (1, 2, 0)
-    ax.scatter(
-        emb[l, idx1], emb[l, idx2], emb[l, idx3], c=label[l, 0], cmap="cool", s=0.1
-    )
-    ax.scatter(emb[r, idx1], emb[r, idx2], emb[r, idx3], c=label[r, 0], s=0.1)
+    if i == 0:
+        ax = fig.add_subplot(1, 5, i + 1)
+        ax.scatter(
+            emb[l, 1], emb[l, 0], c=label[l, 0], cmap="cool", s=0.1
+        )
+        ax.scatter(emb[r, 1], emb[r, 0], c=label[r, 0], s=0.1)
+        #ax.set_xlim()
+    else:
+        ax = fig.add_subplot(1, 5, i + 1, projection="3d")
+        if i == 4:
+            idx1, idx2, idx3 = (1, 2, 0)
+        ax.scatter(
+            emb[l, idx1], emb[l, idx2], emb[l, idx3], c=label[l, 0], cmap="cool", s=0.1
+        )
+        ax.scatter(emb[r, idx1], emb[r, idx2], emb[r, idx3], c=label[r, 0], s=0.1)
+        lim = -.6, .6
+        ax.set_xlim(lim)
+        ax.set_ylim(lim)
+        ax.set_zlim(lim)
     ax.axis("off")
-    ax.set_title(f"{model}", fontsize=20)
+    ax.set_title(title, fontsize=20)
 # -
 
 # ## Figure 2c
