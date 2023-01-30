@@ -5,11 +5,11 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.14.1
+#       jupytext_version: 1.13.8
 #   kernelspec:
-#     display_name: Python [conda env:cebra_m1] *
+#     display_name: Python 3 (ipykernel)
 #     language: python
-#     name: conda-env-cebra_m1-py
+#     name: python3
 # ---
 
 # # Extended Data Figure 1: Overview of datasets, synthetic data, & original pi-VAE implementation vs. modified conv-pi-VAE
@@ -223,8 +223,9 @@ sns.stripplot(
     data=reindex(data_cebra["x-s"]["infonce"]),
     jitter=0.15,
     s=3,
-    color="lightskyblue",
+    palette=["lightskyblue"],
     label="cebra",
+    hue = None
 )
 
 
@@ -264,6 +265,96 @@ sns.despine(
     offset={"bottom": 40, "left": 15},
 )
 plt.savefig("distribution_reconstruction.png", transparent=True, bbox_inches="tight")
+# -
+
+# **Compute statistics**
+
+# +
+from statsmodels.stats.oneway import anova_oneway
+import statsmodels.api as sm
+from statsmodels.formula.api import ols
+
+keys = data_pivae["x-s"]["poisson"].keys()
+assert data_cebra["x-s"]["infonce"].keys() == keys
+
+pivae_frame = reindex(data_pivae["x-s"]["poisson"]).unstack().to_frame().reset_index()
+cebra_frame = reindex(data_cebra["x-s"]["infonce"]).unstack().to_frame().reset_index()
+pivae_frame.columns = 'dataset', 'drop', 'r2'
+pivae_frame['model'] = 'pivae'
+cebra_frame.columns = 'dataset', 'drop', 'r2'
+cebra_frame['model'] = 'cebra'
+
+all_data = pd.concat([pivae_frame, cebra_frame], axis = 0)\
+  .drop(columns = ['drop',])
+
+# +
+import scipy.stats
+import statsmodels.stats.oneway
+import statsmodels.stats.multitest
+import functools
+
+grouped_data = all_data.pivot_table(
+  "r2",
+  index = 'dataset',
+  columns = 'model',
+  aggfunc = list
+)
+
+# comparison by t-test for each of the experiments
+results = []
+for index in grouped_data.index:
+  test_data = [
+    grouped_data.loc[index, 'pivae'],
+    grouped_data.loc[index, 'cebra']
+  ]
+  
+  # Test for equal variance
+  # https://en.wikipedia.org/wiki/Brown%E2%80%93Forsythe_test
+  result = statsmodels.stats.oneway.test_scale_oneway(
+    test_data, method='bf', center='median',
+    transform='abs', trim_frac_mean=0.0,
+    trim_frac_anova=0.0
+  )
+  
+  # Test if sign. improvement
+  stats = scipy.stats.ttest_ind(
+    *test_data,
+    equal_var = False
+  )
+  
+  results.append(dict(
+    dataset = index,
+    variance_df = result.df,
+    variance_F = result.statistic,
+    variance_p1 = result.pvalue,
+    variance_p2 = result.pvalue2,
+    #mean_report = f'F({},{}) = {}, p = {}'
+    mean_t = stats.statistic,
+    mean_p = stats.pvalue,
+  )
+  )
+
+  
+results = pd.DataFrame(results)
+  
+print("Uncorrected stats")
+with pd.option_context('display.max_rows', None, 'display.max_columns', None, 'display.max_colwidth', None):
+    display(results)
+    
+correct_pvalues = functools.partial(
+  statsmodels.stats.multitest.multipletests,
+  alpha=0.05, method='holm', is_sorted=False, returnsorted=False
+)
+
+reject, results['mean_p'], _, _ = correct_pvalues(results['mean_p'].values)
+assert all(reject)
+reject, results['variance_p1'], _, _ = correct_pvalues(results['variance_p1'].values)
+assert all(reject)
+reject, results['variance_p2'], _, _ = correct_pvalues(results['variance_p2'].values)
+assert all(reject)
+
+print("Corrected stats (Bonferroni-Holm)")
+display(results)
 # -
 
 # ### Plot example output embeddings from CEBRA (left) and piVAE (right) with R^2 scores
