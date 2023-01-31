@@ -5,11 +5,11 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.14.4
+#       jupytext_version: 1.13.8
 #   kernelspec:
-#     display_name: NLB
+#     display_name: Python 3 (ipykernel)
 #     language: python
-#     name: nlb
+#     name: python3
 # ---
 
 # # Figure 4: Spikes and calcium signaling reveal similar CEBRA embeddings
@@ -70,8 +70,9 @@ for m in modality:
 # - (h) Linear consistency between embeddings of calcium imaging and Neuropixels which were trained jointly.
 
 # +
-plt.figure(figsize=(15, 10))
-ax = plt.subplot(111)
+scale = 1.25
+plt.figure(figsize=(2 * scale, 2 * scale), dpi=300)
+ax = plt.gca()
 
 for i, d in enumerate(dims):
     mean = consistency["individual"]["mean"][d]
@@ -84,28 +85,43 @@ for i, d in enumerate(dims):
         color="black",
         alpha=(i + 1) * 0.1,
         markersize=20,
-        linewidth=8,
+        linewidth=3,
     )
-
 
 ax.spines["right"].set_visible(False)
 ax.spines["top"].set_visible(False)
-plt.xticks(np.arange(10), [10, 30, 50, 100, 200, 400, 600, 800, 900, 1000], fontsize=30)
-plt.yticks(np.linspace(0, 1.0, 5), fontsize=35)
-plt.xlabel("# Neurons", fontsize=40)
-plt.ylabel("$R^2$", fontsize=40)
-plt.suptitle("Consistency between individually trained Ca/Neuropixel ", fontsize=40)
+plt.xticks(np.arange(10), [10, 30, 50, 100, 200, 400, 600, 800, 900, 1000], rotation=45)
+
+# all_ticks = [10, 30, 50, 100, 200, 400, 600, 800, 900, 1000]
+# i = [0, 2, 4, 6, 8]
+# plt.xticks(i, [all_ticks[i_] for i_ in i])
+# plt.xscale("log")
+
+plt.yticks(np.linspace(0, 1.0, 5))
+plt.xlabel("# Neurons")
+plt.ylabel("$R^2$")
+plt.title("Consistency between \nindividually trained Ca/Neuropixel ")
 plt.legend(
-    fontsize=30,
     loc="lower right",
     title="Dimension",
-    title_fontsize=20,
-    bbox_to_anchor=(1.2, 0),
+    frameon=False,
+    ncol=4,
+    handlelength=1,
+    markerscale=0.0,
+    labelspacing=0.5,
+    columnspacing=0.5,
+    handletextpad=0.3,
+    fontsize="small",
+    title_fontsize="small",
 )
+sns.despine(trim=True)
+plt.savefig("NP_CA_invidiual.svg", bbox_inches="tight", transparent=True)
+plt.show()
 
-
-plt.figure(figsize=(15, 10))
-ax = plt.subplot(111)
+# +
+scale = 1.25
+plt.figure(figsize=(2 * scale, 2 * scale), dpi=300)
+ax = plt.gca()
 
 dims = [3, 4, 8, 16, 32, 64, 128]
 
@@ -120,24 +136,40 @@ for i, d in enumerate(dims):
         color="black",
         alpha=(i + 1) * 0.1,
         markersize=20,
-        linewidth=8,
+        linewidth=3,
     )
 
 
 ax.spines["right"].set_visible(False)
 ax.spines["top"].set_visible(False)
-plt.xticks(np.arange(10), num_neurons, fontsize=30)
-plt.yticks(np.linspace(0, 1.0, 5), fontsize=35)
-plt.xlabel("# Neurons", fontsize=40)
-plt.ylabel("$R^2$", fontsize=40)
-plt.suptitle("Consistency between jointly trained Ca/Neuropixel ", fontsize=40)
+# plt.xticks(np.arange(10), num_neurons)
+
+all_ticks = [10, 30, 50, 100, 200, 400, 600, 800, 900, 1000]
+assert num_neurons == all_ticks
+i = [0, 2, 4, 6, 8]
+plt.xticks(np.arange(10), [10, 30, 50, 100, 200, 400, 600, 800, 900, 1000], rotation=45)
+# plt.xticks(i, [all_ticks[i_] for i_ in i])
+
+plt.yticks(np.linspace(0, 1.0, 5))
+plt.xlabel("# Neurons")
+plt.ylabel("$R^2$")
+plt.title("Consistency between\njointly trained Ca/Neuropixel ")
 plt.legend(
-    fontsize=30,
     loc="lower right",
     title="Dimension",
-    title_fontsize=20,
-    bbox_to_anchor=(1.2, 0),
+    frameon=False,
+    ncol=4,
+    handlelength=1,
+    markerscale=0.0,
+    labelspacing=0.5,
+    columnspacing=0.5,
+    handletextpad=0.3,
+    fontsize="small",
+    title_fontsize="small",
 )
+sns.despine(trim=True)
+plt.savefig("NP_CA_jointly.svg", bbox_inches="tight", transparent=True)
+plt.show()
 
 # +
 v1_color = "#9932EB"
@@ -292,8 +324,12 @@ make_line_strip_from_df(
 
 from scipy import stats
 
-intra = data["cortices_consistency"]["joint_v1"]['intra']
-intra_v1 = intra[(intra['Area1'] == 'VISp') & (intra['Area2'] == 'VISp') ]['value'].tolist()
-inter = data["cortices_consistency"]["joint_v1"]['inter']
-inter_v1 = inter[(inter['Area1'] == 'VISp') | (inter['Area2'] == 'VISp') ]['value'].tolist()
-print(stats.ttest_ind(intra_v1, inter_v1, equal_var = False, alternative = 'greater'))
+intra = data["cortices_consistency"]["joint_v1"]["intra"]
+intra_v1 = intra[(intra["Area1"] == "VISp") & (intra["Area2"] == "VISp")][
+    "value"
+].tolist()
+inter = data["cortices_consistency"]["joint_v1"]["inter"]
+inter_v1 = inter[(inter["Area1"] == "VISp") | (inter["Area2"] == "VISp")][
+    "value"
+].tolist()
+print(stats.ttest_ind(intra_v1, inter_v1, equal_var=False, alternative="greater"))

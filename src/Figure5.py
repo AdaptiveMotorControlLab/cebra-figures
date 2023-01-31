@@ -5,7 +5,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.14.1
+#       jupytext_version: 1.13.8
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -57,6 +57,8 @@ frame_np_joint_cebra_knn_33_err = data["frame_err"]["knn"]["np_cebra_joint_33"]
 
 # ### Define plotting functions & metrics
 
+LINEWIDTH = 2
+
 # +
 num_neurons = [10, 30, 50, 100, 200, 400, 600, 800, 900, 1000]
 
@@ -68,23 +70,18 @@ def set_ax(ax, white_c):
     ax.spines["bottom"].set_color(white_c)
     ax.set_xticks(
         [10, 200, 400, 600, 800, 1000],
-        [10, 200, 400, 600, 800, 1000],
-        fontsize=30,
         color=white_c,
     )
+    ax.set_xticklabels([10, 200, 400, 600, 800, 1000], rotation=45)
     ax.set_yticks(
         np.linspace(0, 100, 5),
         np.linspace(0, 100, 5, dtype=int),
-        fontsize=30,
         color=white_c,
+        rotation=45,
     )
-    ax.set_xlabel("# Neurons", fontsize=35, color=white_c)
-    ax.set_ylabel("Acc (%, in 1s time window)", fontsize=35, color=white_c)
+    ax.set_xlabel("# Neurons", color=white_c)
+    ax.set_ylabel("Acc (%, in 1s time window)", color=white_c)
     ax.tick_params(colors=white_c)
-    l1 = ax.legend(fontsize=15, loc="best", title_fontsize=15, frameon=False)
-
-    for text in l1.get_texts():
-        text.set_color(white_c)
 
 
 def n_mean_err(dic, ns=num_neurons):
@@ -150,9 +147,9 @@ if white:
 else:
     white_c = "black"
 
-
-fig_330 = plt.figure(figsize=(7, 10))
-fig_330.suptitle("Frame identification", fontsize=30)
+scale = 0.3
+fig_330 = plt.figure(figsize=(7 * scale, 10 * scale), dpi=300)
+plt.title("Frame identification")
 plt.subplots_adjust(wspace=0.5)
 ax1 = plt.subplot(111)
 
@@ -163,11 +160,11 @@ ax1.errorbar(
     n_mean_err(frame_np_knn_baseline_330)[0],
     n_mean_err(frame_np_knn_baseline_330)[1],
     ls="--",
-    label="NP kNN baseline (10 frames)",
+    label="kNN baseline",
     color="k",
     alpha=0.7,
     markersize=20,
-    linewidth=8,
+    linewidth=LINEWIDTH,
 )
 
 ax1.errorbar(
@@ -175,22 +172,22 @@ ax1.errorbar(
     n_mean_err(frame_np_bayes_baseline_330)[0],
     n_mean_err(frame_np_bayes_baseline_330)[1],
     ls="--",
-    label="NP Bayes baseline (10 frames)",
+    label="Bayes baseline",
     color="k",
     alpha=0.3,
     markersize=20,
-    linewidth=8,
+    linewidth=LINEWIDTH,
 )
 
 ax1.errorbar(
     num_neurons,
     n_mean_err(frame_np_cebra_knn_330)[0],
     n_mean_err(frame_np_cebra_knn_330)[1],
-    label="NP kNN CEBRA (10 frames)",
+    label="kNN CEBRA",
     color=c,
     alpha=1,
     markersize=20,
-    linewidth=8,
+    linewidth=LINEWIDTH,
 )
 
 ax1.errorbar(
@@ -198,18 +195,33 @@ ax1.errorbar(
     n_mean_err_joint(frame_np_joint_cebra_knn_330, "np")[0],
     n_mean_err_joint(frame_np_joint_cebra_knn_330, "np")[1],
     ls="dotted",
-    label="NP kNN CEBRA joint (10 frames)",
+    label="kNN CEBRA joint",
     color=c,
     alpha=1,
     markersize=20,
-    linewidth=8,
+    linewidth=LINEWIDTH,
 )
 
+l1 = ax1.legend(
+    loc="best",
+    frameon=False,
+    fontsize="small",
+    title="NP, 10 frames",
+    alignment="right",
+)
+for text in l1.get_texts():
+    text.set_color(white_c)
 
 set_ax(ax1, white_c)
 ax1.set_ylim(0, 100)
-fig_33 = plt.figure(figsize=(7, 10))
-fig_33.suptitle("Frame identification", fontsize=30)
+sns.despine(trim=True, ax=ax1)
+
+plt.savefig("FrameID_10frames_np.svg", transparent=True, bbox_inches="tight")
+plt.show()
+
+# +
+fig_33 = plt.figure(figsize=(7 * scale, 10 * scale), dpi=300)
+fig_33.suptitle("Frame identification")
 plt.subplots_adjust(wspace=0.5)
 ax1 = plt.subplot(111)
 
@@ -220,11 +232,10 @@ ax1.errorbar(
     n_mean_err(frame_np_knn_baseline_33)[0],
     n_mean_err(frame_np_knn_baseline_33)[1],
     ls="--",
-    label="NP kNN baseline (1 frame)",
+    label="kNN baseline",
     color="k",
     alpha=0.7,
     markersize=20,
-    linewidth=8,
 )
 
 ax1.errorbar(
@@ -232,11 +243,10 @@ ax1.errorbar(
     n_mean_err(frame_np_bayes_baseline_33)[0],
     n_mean_err(frame_np_bayes_baseline_33)[1],
     ls="--",
-    label="NP Bayes baseline (1 frame)",
+    label="Bayes baseline",
     color="k",
     alpha=0.3,
     markersize=20,
-    linewidth=8,
 )
 
 
@@ -244,11 +254,10 @@ ax1.errorbar(
     num_neurons,
     n_mean_err(frame_np_cebra_knn_33)[0],
     n_mean_err(frame_np_cebra_knn_33)[1],
-    label="NP kNN CEBRA (1 frame)",
+    label="kNN CEBRA",
     color=c,
     alpha=1,
     markersize=20,
-    linewidth=8,
 )
 
 ax1.errorbar(
@@ -256,18 +265,23 @@ ax1.errorbar(
     n_mean_err_joint(frame_np_joint_cebra_knn_33, "np")[0],
     n_mean_err_joint(frame_np_joint_cebra_knn_33, "np")[1],
     ls="dotted",
-    label="NP kNN CEBRA joint (1 frame)",
+    label="kNN CEBRA joint",
     color=c,
     alpha=1,
     markersize=20,
-    linewidth=8,
 )
 
 set_ax(ax1, white_c)
 
+l1 = ax1.legend(
+    loc="best", frameon=False, fontsize="small", title="NP, 1 frame", alignment="right"
+)
+for text in l1.get_texts():
+    text.set_color(white_c)
 
+sns.despine(ax=ax1, trim=True)
+plt.savefig("FrameID_1frame_np.svg", transparent=True, bbox_inches="tight")
 plt.show()
-
 # -
 
 # ## Figure 5 d
@@ -275,7 +289,6 @@ plt.show()
 # - Decoding accuracy measured by the correct scene prediction using either CEBRA (NP only), jointly trained (2P+NP), or baseline population-vector plus kNN or Bayes decoder using a 1 frame (33 ms) receptive field (V1 data).
 
 # +
-
 white = False
 
 if white:
@@ -283,8 +296,8 @@ if white:
 else:
     white_c = "black"
 
-fig_33 = plt.figure(figsize=(7, 10))
-fig_33.suptitle("Scene annotation", fontsize=30)
+fig_33 = plt.figure(figsize=(7 * scale, 10 * scale), dpi=300)
+fig_33.suptitle("Scene annotation")
 plt.subplots_adjust(wspace=0.5)
 ax1 = plt.subplot(111)
 ax1.errorbar(
@@ -292,33 +305,30 @@ ax1.errorbar(
     n_mean_err(scene_np_knn_baseline_33)[0] * 100,
     n_mean_err(scene_np_knn_baseline_33)[1] * 100,
     ls="--",
-    label="NP kNN baseline (1 frame)",
+    label="kNN baseline",
     color="k",
     alpha=0.7,
     markersize=20,
-    linewidth=8,
 )
 ax1.errorbar(
     num_neurons,
     n_mean_err(scene_np_bayes_baseline_33)[0] * 100,
     n_mean_err(scene_np_bayes_baseline_33)[1] * 100,
     ls="--",
-    label="NP Bayes baseline (1 frame)",
+    label="Bayes baseline",
     color="k",
     alpha=0.3,
     markersize=20,
-    linewidth=8,
 )
 
 ax1.errorbar(
     num_neurons,
     n_mean_err(scene_np_cebra_knn_33)[0] * 100,
     n_mean_err(scene_np_cebra_knn_33)[1] * 100,
-    label="NP kNN CEBRA (1 frame)",
+    label="kNN CEBRA",
     color=c,
     alpha=1,
     markersize=20,
-    linewidth=8,
 )
 
 ax1.errorbar(
@@ -326,16 +336,23 @@ ax1.errorbar(
     n_mean_err_joint(scene_np_joint_cebra_knn_33, "np")[0] * 100,
     n_mean_err_joint(scene_np_joint_cebra_knn_33, "np")[1] * 100,
     ls="dotted",
-    label="NP kNN CEBRA joint (1 frame)",
+    label="kNN CEBRA joint",
     color=c,
     alpha=1,
     markersize=20,
-    linewidth=8,
 )
 
 set_ax(ax1, white_c)
-ax1.set_ylim(25, 100)
-ax1.set_ylabel(f"Acc (%)", fontsize=35, color=white_c)
+ax1.set_ylim(20, 100)
+ax1.set_ylabel(f"Acc (%)", color=white_c)
+sns.despine(ax=ax1, trim=True)
+l1 = ax1.legend(
+    loc="best", frameon=False, fontsize="small", title="NP, 1 frame", alignment="right"
+)
+for text in l1.get_texts():
+    text.set_color(white_c)
+plt.savefig("SceneAnnotation_1frame_np.svg", transparent=True, bbox_inches="tight")
+plt.show()
 # -
 
 
@@ -343,27 +360,45 @@ ax1.set_ylabel(f"Acc (%)", fontsize=35, color=white_c)
 #
 # - Single frame ground truth frame ID vs predicted frame ID for Neuropixels using a \cebra-Behavior model trained with a 330 ms receptive field (1K V1 neurons across mice used).
 
-fig = plt.figure(figsize=(7, 7))
+scale = 0.3
+fig = plt.figure(figsize=(7 * scale, 7 * scale), dpi=300)
 ax = plt.subplot(111)
 frame_err = frame_np_cebra_knn_330_err[1000][3]
 ax.scatter(
-    np.arange(len(frame_err)),
+    np.repeat(np.arange(900), 4),
     np.repeat(np.arange(900), 4) + frame_err,
-    s=5,
+    s=0.1,
+    linewidths=5.0,
+    linewidth=3,
+    facecolors="none",
+    edgecolors="face",
     c="darkgray",
+    label="kNN CEBRA",
 )
 ax.plot(
-    (0, len(frame_err)),
+    (0, 900),
     (0, 900),
     c="#9932EB",
-    lw=3,
+    # zorder = -999,
+    lw=1,
+    label="ground truth",
 )
-ax.set_xticks(np.linspace(0, 3600, 4), np.linspace(0, 900, 4).astype(int), fontsize=20)
-ax.set_yticks(np.linspace(0, 900, 4), np.linspace(0, 900, 4).astype(int), fontsize=20)
-ax.set_xlabel("True frame", fontsize=25)
-ax.set_ylabel("Predicted frame", fontsize=25)
+ax.set_xticks(np.linspace(0, 900, 4))  # , np.linspace(0, 900, 4).astype(int))
+ax.set_yticks(np.linspace(0, 900, 4))  # , np.linspace(0, 900, 4).astype(int))
+ax.set_xlabel("True frame")
+ax.set_ylabel("Predicted frame")
 ax.spines["right"].set_visible(False)
 ax.spines["top"].set_visible(False)
+sns.despine(trim=True, ax=ax)
+ax.legend(
+    frameon=False,
+    fontsize="small",
+    markerscale=10,
+    title="NP, 10 frames",
+    handlelength=0.75,
+)
+plt.savefig("TrueVsPredicted_10frame.svg", transparent=True, bbox_inches="tight")
+plt.show()
 
 
 # ## Figure 5 f
@@ -389,26 +424,21 @@ def set_ax(ax, white_c):
     ax.set_xticks(
         [10, 200, 400, 600, 800, 1000],
         [10, 200, 400, 600, 800, 1000],
-        fontsize=30,
         color=white_c,
+        rotation=45,
     )
     ax.set_yticks(
         np.linspace(0, 100, 5),
         np.linspace(0, 100, 5, dtype=int),
-        fontsize=30,
         color=white_c,
     )
-    ax.set_xlabel("# Neurons", fontsize=35, color=white_c)
-    ax.set_ylabel("Acc (%, in 1s time window)", fontsize=35, color=white_c)
+    ax.set_xlabel("# Neurons", color=white_c)
+    ax.set_ylabel("Acc (%, in 1s time window)", color=white_c)
     ax.tick_params(colors=white_c)
-    l1 = ax.legend(fontsize=15, loc="best", title_fontsize=15, frameon=False)
-
-    for text in l1.get_texts():
-        text.set_color(white_c)
 
 
-fig_330 = plt.figure(figsize=(7, 7))
-fig_330.suptitle(f"Frame identification - mean abs frame difference", fontsize=30)
+fig_330 = plt.figure(figsize=(7 * scale, 10 * scale), dpi=300)
+plt.title(f"Mean frame error")
 plt.subplots_adjust(wspace=0.5)
 ax1 = plt.subplot(111)
 c = "#9932EB"
@@ -418,11 +448,10 @@ ax1.errorbar(
     n_mean_err_frame_diff(frame_np_knn_baseline_330_err)[0],
     n_mean_err_frame_diff(frame_np_knn_baseline_330_err)[1],
     ls="--",
-    label="NP kNN baseline (10 frames)",
+    label="kNN baseline",
     color="k",
     alpha=0.7,
     markersize=20,
-    linewidth=8,
 )
 
 ax1.errorbar(
@@ -430,22 +459,20 @@ ax1.errorbar(
     n_mean_err_frame_diff(frame_np_bayes_baseline_330_err)[0],
     n_mean_err_frame_diff(frame_np_bayes_baseline_330_err)[1],
     ls="--",
-    label="NP Bayes baseline (10 frames)",
+    label="Bayes baseline",
     color="k",
     alpha=0.3,
     markersize=20,
-    linewidth=8,
 )
 
 ax1.errorbar(
     num_neurons,
     n_mean_err_frame_diff(frame_np_cebra_knn_330_err)[0],
     n_mean_err_frame_diff(frame_np_cebra_knn_330_err)[1],
-    label="NP kNN CEBRA (10 frames)",
+    label="kNN CEBRA",
     color=c,
     alpha=1,
     markersize=20,
-    linewidth=8,
 )
 
 ax1.errorbar(
@@ -453,11 +480,10 @@ ax1.errorbar(
     n_mean_err_frame_diff_joint(frame_np_joint_cebra_knn_330_err, "np")[0],
     n_mean_err_frame_diff_joint(frame_np_joint_cebra_knn_330_err, "np")[1],
     ls="dotted",
-    label="NP kNN CEBRA joint (10 frames)",
+    label="kNN CEBRA joint",
     color=c,
     alpha=1,
     markersize=20,
-    linewidth=8,
 )
 
 ax1.set_ylim(0, 300)
@@ -465,11 +491,21 @@ set_ax(ax1, white_c)
 ax1.set_yticks(
     np.linspace(0, 300, 4),
     np.linspace(0, 300, 4, dtype=int),
-    fontsize=30,
     color=white_c,
 )
-ax1.set_ylabel("Frame difference", fontsize=35)
+ax1.set_ylabel("Frame difference")
 
+l1 = ax1.legend(
+    loc="best", frameon=False, title="NP, 10 frames", handlelength=1, fontsize="small"
+)
+for text in l1.get_texts():
+    text.set_color(white_c)
+
+sns.despine(trim=True)
+plt.savefig("mean_frame_error_10frames.svg", transparent=True, bbox_inches="tight")
+plt.show()
+
+# +
 white = False
 
 if white:
@@ -477,8 +513,8 @@ if white:
 else:
     white_c = "black"
 
-fig_33 = plt.figure(figsize=(7, 10))
-fig_33.suptitle(f"Frame identification - mean abs frame difference", fontsize=30)
+fig_33 = plt.figure(figsize=(7 * scale, 10 * scale), dpi=300)
+fig_33.suptitle(f"Mean frame error")
 plt.subplots_adjust(wspace=0.5)
 ax1 = plt.subplot(111)
 
@@ -489,11 +525,10 @@ ax1.errorbar(
     n_mean_err_frame_diff(frame_np_knn_baseline_33_err)[0],
     n_mean_err_frame_diff(frame_np_knn_baseline_33_err)[1],
     ls="--",
-    label="NP kNN baseline (1 frame)",
+    label="kNN baseline",
     color="k",
     alpha=0.7,
     markersize=20,
-    linewidth=8,
 )
 
 ax1.errorbar(
@@ -501,22 +536,20 @@ ax1.errorbar(
     n_mean_err_frame_diff(frame_np_bayes_baseline_33_err)[0],
     n_mean_err_frame_diff(frame_np_bayes_baseline_33_err)[1],
     ls="--",
-    label="NP Bayes baseline (1 frame)",
+    label="Bayes baseline",
     color="k",
     alpha=0.3,
     markersize=20,
-    linewidth=8,
 )
 
 ax1.errorbar(
     num_neurons,
     n_mean_err_frame_diff(frame_np_cebra_knn_33_err)[0],
     n_mean_err_frame_diff(frame_np_cebra_knn_33_err)[1],
-    label="NP kNN CEBRA (1 frame)",
+    label="kNN CEBRA",
     color=c,
     alpha=1,
     markersize=20,
-    linewidth=8,
 )
 
 ax1.errorbar(
@@ -524,11 +557,10 @@ ax1.errorbar(
     n_mean_err_frame_diff_joint(frame_np_joint_cebra_knn_33_err, "np")[0],
     n_mean_err_frame_diff_joint(frame_np_joint_cebra_knn_33_err, "np")[1],
     ls="dotted",
-    label="NP kNN CEBRA joint (1 frame)",
+    label="kNN CEBRA joint",
     color=c,
     alpha=1,
     markersize=20,
-    linewidth=8,
 )
 
 ax1.set_ylim(0, 400)
@@ -536,11 +568,19 @@ set_ax(ax1, white_c)
 ax1.set_yticks(
     np.linspace(0, 400, 5),
     np.linspace(0, 400, 5, dtype=int),
-    fontsize=30,
     color=white_c,
 )
-ax1.set_ylabel("Frame difference", fontsize=35)
+ax1.set_ylabel("Frame difference")
 
+l1 = ax1.legend(
+    loc="best", frameon=False, title="NP, 1 frame", handlelength=1, fontsize="small"
+)
+for text in l1.get_texts():
+    text.set_color(white_c)
+
+sns.despine(trim=True, ax=ax1)
+plt.savefig("mean_frame_error_1frame.svg", transparent=True, bbox_inches="tight")
+plt.show()
 # -
 
 # ## Figure 5 g
@@ -559,7 +599,7 @@ colors = {
 
 np_decoding = data["cortex_decoding"]
 
-fig = plt.figure(figsize=(7.5, 10))
+fig = plt.figure(figsize=(7.5 * scale, 10 * scale), dpi=300)
 # plt.title('Decoding by cortical area - DINO feature', fontsize=35, y=1.1)
 ax = plt.subplot(111)
 for area in ["VISal", "VISl", "VISrl", "VISp", "VISam", "VISpm"]:
@@ -571,23 +611,23 @@ for area in ["VISal", "VISl", "VISrl", "VISp", "VISam", "VISpm"]:
             for k in [10, 30, 50, 100, 200, 400, 600, 800]
         ],
         label=area,
-        lw=5,
+        # lw=5,
         color=colors[area],
     )
 
 ax.spines.right.set_visible(False)
 ax.spines.top.set_visible(False)
 
-plt.xticks([10, 200, 400, 600, 800], [10, 200, 400, 600, 800], fontsize=30, color="k")
-plt.yticks(
-    np.linspace(0, 100, 5), np.linspace(0, 100, 5, dtype=int), color="k", fontsize=30
-)
+plt.xticks([10, 200, 400, 600, 800], [10, 200, 400, 600, 800], color="k")
+plt.yticks(np.linspace(0, 100, 5), np.linspace(0, 100, 5, dtype=int), color="k")
 
-plt.xlabel("# Neurons", fontsize=35)
-plt.ylabel("Acc (%, 1s time window)", fontsize=35)
-plt.ylim(5, 100)
-l = plt.legend(frameon=False, bbox_to_anchor=[1, 0.5], fontsize=25)
-
+plt.xlabel("# Neurons")
+plt.ylabel("Acc (%, 1s time window)")
+plt.ylim(0, 100)
+l = plt.legend(frameon=False, fontsize="small", title="Area")
+sns.despine(trim=True, ax=plt.gca())
+plt.savefig("visual_areas.svg", transparent=True, bbox_inches="tight")
+plt.show()
 # -
 
 # ## Figure 5 h
@@ -596,7 +636,7 @@ l = plt.legend(frameon=False, bbox_to_anchor=[1, 0.5], fontsize=25)
 
 # +
 layer_decoding = data["layer_decoding"][900]
-fig = plt.figure(figsize=(7.5, 10))
+fig = plt.figure(figsize=(7.5 * scale, 10 * scale), dpi=300)
 ax = fig.add_subplot(111)
 
 labels = ["900"]
@@ -610,16 +650,17 @@ ax.errorbar(
         for layer in [2, 4, 5]
     ],
     c="k",
-    lw=4,
+    # lw=4,
 )
 ax.set_xticks(np.arange(3))
-ax.set_xticklabels(["2/3", "4", "5/6"], fontsize=30)
+ax.set_xticklabels(["2/3", "4", "5/6"])
 ax.set_yticks(np.linspace(70, 100, 4))
-ax.set_yticklabels(np.linspace(70, 100, 4, dtype=int), fontsize=30)
+ax.set_yticklabels(np.linspace(70, 100, 4, dtype=int))
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
-plt.yticks(fontsize=30)
-plt.ylabel("Acc (%, 1s time window)", fontsize=35)
-plt.xlabel("Layer", fontsize=35)
-plt.ylim(75, 100)
-# plt.legend(frameon=False, fontsize='xx-large')
+plt.ylabel("Acc (%, 1s time window)")
+plt.xlabel("Layer")
+plt.ylim(79, 100)
+sns.despine(trim=True, ax=plt.gca())
+plt.savefig("layer_comparison.svg", transparent=True, bbox_inches="tight")
+plt.show()
