@@ -30,8 +30,6 @@ import pathlib
 
 
 # +
-import joblib as jl
-
 data = pd.read_hdf("../data/Figure2.h5", key="data")
 data_fig_2d = pd.read_hdf("../data/SupplVideo1.h5", key="data")
 # -
