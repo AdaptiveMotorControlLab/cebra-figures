@@ -28,11 +28,11 @@ import pandas as pd
 import numpy as np
 import pathlib
 
-# -
 
+# +
 data = pd.read_hdf("../data/Figure2.h5", key="data")
-
-
+data_fig_2d = pd.read_hdf("../data/SupplVideo1.h5", key="data")
+# -
 
 # ## Figure 2b
 #
@@ -128,7 +128,82 @@ plt.legend(bbox_to_anchor=(1, 0.5), frameon=False, fontsize=10)
 
 # ## Figure 2d
 #
-# - We utilized the hypothesis-driven (position) or the shuffle (erroneous) to decode the position of the rat, which produces a large difference in decoding performance: position+direction $R^2$ is 73.35\% vs. -49.90\% shuffled and median absolute error 5.8 cm vs 44.7 cm.  Purple line is decoding from the hypothesis-based latent space, dashed line is shuffled. Right is the performance across additional methods (The orange line indicates the median of the individual runs (n=10) that are indicated by black circles. Each run is averaged over 3 splits of the dataset).
+# - We utilized the hypothesis-driven (position) or the shuffle (erroneous) to decode the position of the rat, which produces a large difference in decoding performance: position+direction $R^2$ is 73.35\% vs. -49.90\% shuffled and median absolute error 5.8 cm vs 44.7 cm.  Purple line is decoding from the hypothesis-based latent space, dashed line is shuffled.
+
+# +
+# select timesteps
+start_idx = 320
+length = 700
+history_len = 700
+
+# load data
+fs = data_fig_2d["embedding_all"].item()
+test_fs = data_fig_2d["embedding_test"].item()
+labels = data_fig_2d["true_all"].item()
+test_labels = data_fig_2d["true_test"].item()
+pred = data_fig_2d["prediction"].item()
+pred_shuffle = data_fig_2d["prediction_shuffled"].item()
+
+# plot
+fig = plt.figure(figsize=(4, 2), dpi=300)
+linewidth = 2
+ax1_traj = plt.gca()
+
+framerate = 25 / 1000
+
+true_trajectory = ax1_traj.plot(
+    framerate * np.arange(length, step=2),
+    test_labels[start_idx : start_idx + length, 0][np.arange(length, step=2)] * 100,
+    "-",
+    c="k",
+    label="Ground Truth",
+    linewidth=linewidth,
+)
+
+(pred_trajectory,) = ax1_traj.plot(
+    framerate * np.arange(length, step=2),
+    pred[start_idx : start_idx + length, 0][np.arange(length, step=2)] * 100,
+    c="#6235E0",
+    label="CEBRA-Behavior",
+    linewidth=linewidth,
+)
+
+(pred_shuffle_trajectory,) = ax1_traj.plot(
+    framerate * (np.arange(length, step=10) + 2),
+    pred_shuffle[start_idx : start_idx + length, 0][np.arange(length, step=10)] * 100,
+    "--",
+    c="gray",
+    label="CEBRA-Shuffle",
+    linewidth=linewidth,
+)
+
+ax1_traj.set_yticks(np.linspace(0, 160, 5))
+
+ax1_traj.spines["right"].set_visible(False)
+ax1_traj.spines["top"].set_visible(False)
+
+legend = ax1_traj.legend(
+    loc=(0.6, 1.0),
+    frameon=False,
+    handlelength=1.5,
+    labelspacing=0.25,
+    fontsize="x-small",
+)
+
+ax1_traj.set_xlabel("Time [s]")
+ax1_traj.set_ylabel("Position [cm]")
+
+ax1_traj.set_xlim([-1, 17.5])
+ax1_traj.set_xticks(np.linspace(0, 17.5, 8))
+
+ax1_traj.spines["bottom"].set_bounds(0, 17.5)
+ax1_traj.spines["left"].set_bounds(0, 160)
+
+plt.savefig("figure_2d_lines.svg", bbox_inches="tight", transparent=True)
+plt.show()
+# -
+
+# Here is the performance across additional methods (The orange line indicates the median of the individual runs (n=10) that are indicated by black circles. Each run is averaged over 3 splits of the dataset).
 
 # +
 from matplotlib.markers import MarkerStyle
@@ -237,16 +312,12 @@ def get_metrics(results):
 
 autolfads = pd.read_csv("../data/autolfads_decoding_2d_full.csv", index_col=0)
 autolfads = autolfads.rename(columns={"split": "repeat", "rat": "animal"})
-autolfads["animal"] = autolfads["animal"].apply(
-    lambda v: "abcg".index(v[0])
-)
+autolfads["animal"] = autolfads["animal"].apply(lambda v: "abcg".index(v[0]))
 
 # +
 results = load_results(result_name="results_v1")
-results["pivae-mc"] = pd.read_csv(
-    "../data/Figure2/figure2_pivae_mcmc.csv", index_col=0
-)
-results['autolfads'] = autolfads
+results["pivae-mc"] = pd.read_csv("../data/Figure2/figure2_pivae_mcmc.csv", index_col=0)
+results["autolfads"] = autolfads
 
 df = pd.concat(get_metrics(results)).reset_index()
 
@@ -261,7 +332,6 @@ show_boxplot(
         "cebra-b",
         "pivae-mc",
         "pivae-wo",
-
         "cebra-t",
         "autolfads",
         "tsne",
@@ -277,8 +347,7 @@ ax.set_yticklabels(
     [
         "CEBRA-Behavior",
         "conv-pi-VAE (MC)",
-        "conv-piVAE (kNN)",  
-
+        "conv-piVAE (kNN)",
         "CEBRA-Time",
         "autoLFADS",
         "t-SNE",
@@ -286,7 +355,7 @@ ax.set_yticklabels(
         "PCA",
     ]
 )
-#plt.savefig("figure2d.svg", bbox_inches = "tight", transparent = True)
+# plt.savefig("figure2d.svg", bbox_inches = "tight", transparent = True)
 plt.show()
 # -
 
