@@ -1,7 +1,7 @@
 # ---
 # jupyter:
 #   jupytext:
-#     formats: ipynb,py:light
+#     formats: py:light
 #     text_representation:
 #       extension: .py
 #       format_name: light
@@ -33,7 +33,7 @@ def scatter(data, index, ax, s=0.01, alpha=0.5):
     ax.scatter(*data[~mask].T, c=index[~mask, 0], s=s, cmap="cool", alpha=alpha)
 
 
-fig = plt.figure(figsize=(4 * 3, 7 * 3), dpi=600)
+fig = plt.figure(figsize=(4 * 3, 7 * 3), dpi=72) # high res: change to dpi=600
 for i in df.index:
     ax = fig.add_subplot(7, 4, i + 1)
     scatter(df.loc[i, "emission"][:, :2], df.loc[i, "labels"], ax=ax, s=0.5, alpha=0.7)
@@ -88,4 +88,5 @@ def export_highres():
       plt.savefig(f'edf3_{method}.png', bbox_inches = "tight", transparent = True)
       plt.show()
 
-export_highres()
+# NOTE: Uncomment to generate the high-res version of the plot:
+#export_highres()
