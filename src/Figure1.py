@@ -13,6 +13,9 @@
 # ---
 
 # # Figure 1: CEBRA for consistent and interpretable embeddings
+# For reference, here is the full figure
+#
+# ![Figure1](https://images.squarespace-cdn.com/content/v1/57f6d51c9f74566f55ecf271/41bfeaca-cfeb-40f5-9335-a4759205f904/fig1grey.png?format=2500w)
 
 # #### import plot and data loading dependencies
 
