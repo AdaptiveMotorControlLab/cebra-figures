@@ -13,6 +13,9 @@
 # ---
 
 # # Figure 2: Hypothesis-driven and discovery-driven analysis with CEBRA
+# For reference, here is the full figure
+#
+# ![Figure2](https://images.squarespace-cdn.com/content/v1/57f6d51c9f74566f55ecf271/bf723570-5381-4a62-a127-0e191fb19509/fig2grey.png?format=2500w)
 
 # #### import plot and data loading dependencies
 
