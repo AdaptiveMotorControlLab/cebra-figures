@@ -13,6 +13,9 @@
 # ---
 
 # # Figure 3: Forelimb movement behavior in a primate
+# For reference, here is the full figure
+#
+# ![Figure3](https://images.squarespace-cdn.com/content/v1/57f6d51c9f74566f55ecf271/04855fee-76f8-47cb-8c2c-ff0277dfc885/fig3grey.png?format=2500w)
 
 # #### import plot and data loading dependencies
 
