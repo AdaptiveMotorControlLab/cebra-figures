@@ -13,6 +13,9 @@
 # ---
 
 # # Figure 4: Spikes and calcium signaling reveal similar CEBRA embeddings
+# For reference, here is the full figure
+#
+# ![Figure4](https://images.squarespace-cdn.com/content/v1/57f6d51c9f74566f55ecf271/fb82e04b-9cb6-4916-81b9-fe7c7dfcbaca/fig4grey.png?format=2500w)
 
 # #### import plot and data loading dependencies
 
