@@ -13,6 +13,9 @@
 # ---
 
 # # Figure 5: Decoding of natural movie features from mouse visual cortical areas
+# For reference, here is the full figure
+#
+# ![Figure5](https://images.squarespace-cdn.com/content/v1/57f6d51c9f74566f55ecf271/c0ae03b5-8106-461a-8cf7-c7822881a0c2/fig5grey.png?format=2500w)
 
 # #### import plot and data loading dependencies
 
