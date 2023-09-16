@@ -1,12 +1,12 @@
 # 🦓 CEBRA - Figures and Data
 
 Code and data for reproducing the figures in
-[Learnable latent embeddings for joint behavioral and neural analysis (Schneider, Lee and Mathis, 2022)](https://arxiv.org/abs/2204.00673).
+[Learnable latent embeddings for joint behavioral and neural analysis (Schneider, Lee and Mathis, 2023)](https://www.nature.com/articles/s41586-023-06031-6).
 
 This repo only contains plotting functions which can be applied to pre-computed results. Code for reproducing experiments and applying CEBRA
-to custom datasets will be available in the [CEBRA github repository](https://github.com/AdaptiveMotorControlLab/CEBRA).
+to custom datasets are be available in the [CEBRA github repository](https://github.com/AdaptiveMotorControlLab/CEBRA).
 
-All notebooks can be viewed [directly in the repository](./figures) or in the [CEBRA online documentation](https://cebra.ai/docs/figures.html).
+All notebooks can be viewed in the [CEBRA online documentation](https://cebra.ai/docs/figures.html).
 
 ## Quickstart
 
